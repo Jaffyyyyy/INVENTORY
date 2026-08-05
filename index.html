@@ -181,11 +181,12 @@
                 </div>
             </div>
 
+            <!-- Dynamic Cloud Sync Badge -->
             <div class="flex items-center gap-2 text-xs">
-                <span id="sync-status-badge" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium">
+                <div id="sync-status-badge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium cursor-pointer" onclick="switchTab('settings')">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    100% Pure Offline Ready
-                </span>
+                    <span id="sync-status-text">Local Offline Ready</span>
+                </div>
             </div>
         </div>
 
@@ -208,7 +209,7 @@
                     <i class="fa-solid fa-file-invoice mr-1.5"></i> Official Reports
                 </button>
                 <button onclick="switchTab('settings')" id="tab-settings" class="px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-indigo-200 hover:text-white">
-                    <i class="fa-solid fa-sliders mr-1.5"></i> School Profile & Data
+                    <i class="fa-solid fa-sliders mr-1.5"></i> Profile & Cloud Sync
                 </button>
             </div>
         </div>
@@ -254,7 +255,7 @@
                 <div>
                     <h2 class="text-lg font-bold">DepEd Physical Property Audit Helper</h2>
                     <p class="text-xs text-indigo-200 mt-1 max-w-xl">
-                        Scan, tag, and verify equipment offline. Fully compliant with DepEd Surigao del Sur property division standards.
+                        Scan, tag, and verify equipment offline or live-synced to Google Sheets. Fully compliant with DepEd Surigao del Sur property division standards.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
@@ -487,8 +488,48 @@
             </div>
         </section>
 
-        <!-- TAB 6: SCHOOL PROFILE & SETTINGS -->
+        <!-- TAB 6: SCHOOL PROFILE & CLOUD SETTINGS -->
         <section id="sec-settings" class="section-page hidden space-y-6">
+            
+            <!-- Google Sheets Live Central Sync Box -->
+            <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-lg border border-emerald-700 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2 border-b border-emerald-800 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold">Google Sheets Central Master Database</h2>
+                            <p class="text-xs text-emerald-200">Connect to your school's Google Sheet URL to save data directly to the original file.</p>
+                        </div>
+                    </div>
+                    <span id="cloud-badge-settings" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
+                        Offline Mode (Local Storage Only)
+                    </span>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-200 mb-1">Google Apps Script Web App URL</label>
+                        <input type="text" id="cfg-cloud-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full border border-emerald-700 rounded-lg p-2.5 text-xs bg-slate-900 text-emerald-100 font-mono">
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                        <p class="text-[11px] text-emerald-300">
+                            <i class="fa-solid fa-shield-check text-yellow-400 mr-1"></i> Changes will sync live every time an item is added, edited, or scanned.
+                        </p>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="testCloudConnection()" class="flex-1 sm:flex-none px-4 py-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-100 rounded-lg text-xs font-bold border border-emerald-600 shadow flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-arrows-rotate"></i> Sync / Fetch Live Sheet
+                            </button>
+                            <button onclick="saveCloudUrl()" class="flex-1 sm:flex-none px-5 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-lg text-xs font-extrabold shadow flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Cloud Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- School Data Customization Form -->
             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                 <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
@@ -719,6 +760,7 @@
         const LAYOUT_STORAGE_KEY = 'mamon_es_sticker_layout_config';
         const PROFILE_KEY = 'mamon_es_school_profile_config';
         const AUTOSUGGEST_KEY = 'mamon_es_autosuggest_history';
+        const CLOUD_URL_KEY = 'mamon_es_cloud_sync_url';
 
         const defaultProfile = {
             schoolName: 'MAM-ON ELEMENTARY SCHOOL',
@@ -747,18 +789,29 @@
         ];
 
         let inventoryData = [];
+        let cloudSyncUrl = '';
         let html5QrScanner = null;
         let isScanning = false;
         let autoSuggestHistory = { officers: [], articles: [], classifications: [] };
-        let activeBlankTags = []; // Stores generated blank QR tags for printing
+        let activeBlankTags = [];
         let schoolProfile = { ...defaultProfile };
         let stickerLayout = { ...defaultLayoutConfig };
 
         window.onload = function() {
+            cloudSyncUrl = localStorage.getItem(CLOUD_URL_KEY) || '';
+            const cloudInput = document.getElementById('cfg-cloud-url');
+            if (cloudInput) cloudInput.value = cloudSyncUrl;
+
             loadSchoolProfile();
             loadStickerLayoutSettings();
             loadAutoSuggestHistory();
-            loadData();
+            
+            if (cloudSyncUrl) {
+                fetchFromCloud();
+            } else {
+                loadLocalData();
+                updateSyncBadgeUI('offline', 'Local Offline Ready');
+            }
         };
 
         function switchTab(tabId) {
@@ -782,6 +835,115 @@
             }
         }
 
+        /* --- CLOUD SYNC LOGIC --- */
+        function saveCloudUrl() {
+            const url = document.getElementById('cfg-cloud-url').value.trim();
+            cloudSyncUrl = url;
+            localStorage.setItem(CLOUD_URL_KEY, url);
+            
+            if (url) {
+                alert("Google Sheet Web App URL saved! Syncing data now...");
+                testCloudConnection();
+            } else {
+                alert("Cloud URL cleared. Operating in Local Offline Storage mode.");
+                updateSyncBadgeUI('offline', 'Local Storage Only');
+            }
+        }
+
+        async function fetchFromCloud() {
+            if (!cloudSyncUrl) return;
+            updateSyncBadgeUI('syncing', 'Connecting to Google Sheet...');
+
+            try {
+                const response = await fetch(cloudSyncUrl);
+                const cloudData = await response.json();
+
+                if (Array.isArray(cloudData) && cloudData.length > 0) {
+                    // Standardize cloud numeric & boolean types
+                    inventoryData = cloudData.map(item => ({
+                        propNo: String(item.propNo || ''),
+                        article: String(item.article || ''),
+                        classification: String(item.classification || ''),
+                        serial: String(item.serial || ''),
+                        fund: String(item.fund || 'DepEd MOOE'),
+                        cost: parseFloat(item.cost) || 0,
+                        date: String(item.date || ''),
+                        officer: String(item.officer || ''),
+                        audited: item.audited === true || item.audited === 'true' || item.audited === 1
+                    }));
+
+                    saveDataLocallyOnly();
+                    updateSyncBadgeUI('online', 'Live Google Sheet Connected');
+                } else if (Array.isArray(cloudData) && cloudData.length === 0 && inventoryData.length > 0) {
+                    // Sheet is newly initialized, populate sheet with initial local data
+                    syncToCloud();
+                } else {
+                    loadLocalData();
+                    updateSyncBadgeUI('online', 'Google Sheet Connected');
+                }
+            } catch (err) {
+                console.warn("Cloud Fetch Error:", err);
+                loadLocalData();
+                updateSyncBadgeUI('offline', 'Local Mode (Cloud Offline)');
+            }
+        }
+
+        async function syncToCloud() {
+            if (!cloudSyncUrl) return;
+            updateSyncBadgeUI('syncing', 'Saving to Google Sheet...');
+
+            try {
+                await fetch(cloudSyncUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(inventoryData)
+                });
+                
+                setTimeout(() => {
+                    updateSyncBadgeUI('online', 'Live Sheet Synced');
+                }, 800);
+            } catch (err) {
+                console.warn("Cloud Sync Error:", err);
+                updateSyncBadgeUI('offline', 'Local Saved (Cloud Failed)');
+            }
+        }
+
+        function testCloudConnection() {
+            if (!cloudSyncUrl) {
+                return alert("Please paste your Google Apps Script Web App URL first.");
+            }
+            fetchFromCloud();
+        }
+
+        function updateSyncBadgeUI(status, message) {
+            const badge = document.getElementById('sync-status-badge');
+            const text = document.getElementById('sync-status-text');
+            const settingsBadge = document.getElementById('cloud-badge-settings');
+
+            if (!badge || !text) return;
+
+            if (status === 'online') {
+                badge.className = "px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium cursor-pointer";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="sync-status-text">${message}</span>`;
+                if (settingsBadge) {
+                    settingsBadge.className = "px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold";
+                    settingsBadge.textContent = "Google Sheet Live Connected";
+                }
+            } else if (status === 'syncing') {
+                badge.className = "px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30 flex items-center gap-1.5 font-medium cursor-pointer";
+                badge.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-blue-300"></i> <span id="sync-status-text">${message}</span>`;
+            } else {
+                badge.className = "px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30 flex items-center gap-1.5 font-medium cursor-pointer";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> <span id="sync-status-text">${message}</span>`;
+                if (settingsBadge) {
+                    settingsBadge.className = "px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold";
+                    settingsBadge.textContent = "Offline Mode (Local Storage Only)";
+                }
+            }
+        }
+
+        /* --- LOCAL DATA STORAGE & RENDER --- */
         function loadSchoolProfile() {
             const saved = localStorage.getItem(PROFILE_KEY);
             if (saved) {
@@ -824,13 +986,7 @@
             localStorage.setItem(PROFILE_KEY, JSON.stringify(schoolProfile));
             updateHeaderSchoolInfo();
             renderReport();
-            
-            const syncBadge = document.getElementById('sync-status-badge');
-            if (syncBadge) {
-                const origText = syncBadge.innerHTML;
-                syncBadge.innerHTML = `<i class="fa-solid fa-check text-emerald-300"></i> Profile Saved!`;
-                setTimeout(() => { syncBadge.innerHTML = origText; }, 2500);
-            }
+            alert("School profile saved successfully!");
         }
 
         function loadAutoSuggestHistory() {
@@ -845,14 +1001,12 @@
             const articlesSet = new Set(autoSuggestHistory.articles || []);
             const classificationsSet = new Set(autoSuggestHistory.classifications || []);
 
-            // Also collect any unique non-empty values currently present in inventory
             inventoryData.forEach(item => {
                 if (item.officer) officersSet.add(item.officer.trim());
                 if (item.article) articlesSet.add(item.article.trim());
                 if (item.classification) classificationsSet.add(item.classification.trim());
             });
 
-            // Populate Datalist HTML elements
             populateDatalist('datalist-officer', Array.from(officersSet).sort());
             populateDatalist('datalist-article', Array.from(articlesSet).sort());
             populateDatalist('datalist-class', Array.from(classificationsSet).sort());
@@ -877,16 +1031,15 @@
             updateAutoSuggestDatalists();
         }
 
-        function loadData() {
+        function loadLocalData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try { inventoryData = JSON.parse(saved); } catch (e) { inventoryData = [...defaultSampleData]; }
             } else {
                 inventoryData = [...defaultSampleData];
-                saveData();
+                saveDataLocallyOnly();
             }
 
-            // Ensure printQuantities has default 1 for all inventory items
             if (!stickerLayout.printQuantities) stickerLayout.printQuantities = {};
             inventoryData.forEach(item => {
                 if (stickerLayout.printQuantities[item.propNo] === undefined) {
@@ -902,7 +1055,7 @@
             renderReport();
         }
 
-        function saveData() {
+        function saveDataLocallyOnly() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(inventoryData));
             updateStats();
             updateAutoSuggestDatalists();
@@ -910,6 +1063,13 @@
             renderTagSelectionList();
             renderTags();
             renderReport();
+        }
+
+        function saveData() {
+            saveDataLocallyOnly();
+            if (cloudSyncUrl) {
+                syncToCloud();
+            }
         }
 
         function loadStickerLayoutSettings() {
@@ -1286,100 +1446,6 @@
             renderTagSelectionList();
         }
 
-        function renderTags() {
-            const container = document.getElementById('printable-tags-area');
-            container.innerHTML = '';
-
-            const colsNum = parseInt(stickerLayout.cols) || 2;
-            
-            // Apply dynamic grid styling to printable container
-            container.style.display = 'grid';
-            container.style.gridTemplateColumns = `repeat(${colsNum}, minmax(0, 1fr))`;
-            container.style.gap = '12px';
-
-            let totalTagsToPrint = 0;
-
-            inventoryData.forEach((item) => {
-                const qty = stickerLayout.printQuantities[item.propNo] !== undefined ? stickerLayout.printQuantities[item.propNo] : 1;
-                if (qty <= 0) return;
-
-                totalTagsToPrint += qty;
-
-                // Loop for requested quantity copies per item
-                for (let q = 0; q < qty; q++) {
-                    const tagWrapper = document.createElement('div');
-                    tagWrapper.className = "deped-tag shadow-sm";
-
-                    const qrSvg = generatePureSVGQRCode(item.propNo, 70);
-
-                    const logoHtml = stickerLayout.logo 
-                        ? `<img src="${stickerLayout.logo}" class="h-8 w-8 object-contain my-1" alt="DepEd Logo">`
-                        : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
-
-                    tagWrapper.innerHTML = `
-                        <div class="deped-tag-header">
-                            ${escapeHtml(stickerLayout.banner || 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649')}
-                        </div>
-                        <div class="deped-tag-body">
-                            <div class="deped-tag-left">
-                                ${logoHtml}
-                                <div class="font-black text-[7pt] text-blue-900 tracking-tighter">DepEd</div>
-                                <div class="p-0.5 border border-black my-auto bg-white">
-                                    ${qrSvg}
-                                </div>
-                            </div>
-                            <div class="deped-tag-right">
-                                <div class="data-row">
-                                    <span class="data-label">PROPERTY NUMBER:</span>
-                                    <span class="data-value">${escapeHtml(item.propNo)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ASSET CLASSIFICATION:</span>
-                                    <span class="data-value">${escapeHtml(item.classification || 'EQUIPMENT')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ITEM/BRAND/MODEL:</span>
-                                    <span class="data-value">${escapeHtml(item.article)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">SERIAL NUMBER:</span>
-                                    <span class="data-value">${escapeHtml(item.serial || 'N/A')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ACQUISITION COST:</span>
-                                    <span class="data-value">${formatCurrency(item.cost)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ACQUISITION DATE:</span>
-                                    <span class="data-value">${escapeHtml(item.date || 'N/A')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">PERSON ACCOUNTABLE:</span>
-                                    <span class="data-value">${escapeHtml(item.officer || 'N/A')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">SIGNATURE:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    container.appendChild(tagWrapper);
-                }
-            });
-
-            // Update badge text
-            const countBadge = document.getElementById('tag-count-badge');
-            if (countBadge) {
-                countBadge.textContent = `${totalTagsToPrint} Tag${totalTagsToPrint !== 1 ? 's' : ''} Selected`;
-            }
-
-            if (totalTagsToPrint === 0) {
-                container.innerHTML = `<p class="text-slate-400 col-span-full py-8 text-center w-full">No items selected to print. Use the item selection panel above to select tags.</p>`;
-            }
-        }
-
         function resetStickerLayout() {
             stickerLayout = { ...defaultLayoutConfig };
             document.getElementById('logo-file-input').value = '';
@@ -1437,7 +1503,6 @@
                 audited: idx >= 0 ? inventoryData[idx].audited : false
             };
 
-            // Save entries into auto-suggest memory
             recordAutoSuggestEntry(officerVal, articleVal, classVal);
 
             if (idx >= 0) {
@@ -1591,14 +1656,12 @@
 
             const colsNum = parseInt(stickerLayout.cols) || 2;
             
-            // Apply dynamic grid styling to printable container
             container.style.display = 'grid';
             container.style.gridTemplateColumns = `repeat(${colsNum}, minmax(0, 1fr))`;
             container.style.gap = '12px';
 
             let totalTagsToPrint = 0;
 
-            // 1. Render active generated Blank QR Tags first
             if (activeBlankTags && activeBlankTags.length > 0) {
                 activeBlankTags.forEach(blankItem => {
                     totalTagsToPrint++;
@@ -1662,7 +1725,6 @@
                 });
             }
 
-            // 2. Render standard registered inventory item tags
             inventoryData.forEach((item) => {
                 const qty = stickerLayout.printQuantities[item.propNo] !== undefined ? stickerLayout.printQuantities[item.propNo] : 1;
                 if (qty <= 0) return;
@@ -1732,7 +1794,6 @@
                 }
             });
 
-            // Update badge text
             const countBadge = document.getElementById('tag-count-badge');
             if (countBadge) {
                 let badgeText = `${totalTagsToPrint} Tag${totalTagsToPrint !== 1 ? 's' : ''} Selected`;
@@ -1798,7 +1859,7 @@
             return String(str)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
-                .replace(/>/g, "&raw_gt;")
+                .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
