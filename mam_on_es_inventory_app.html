@@ -1677,14 +1677,57 @@ if(currentPropNo.startsWith('T')){
 
             if (activeBlankTags && activeBlankTags.length > 0) {
                 activeBlankTags.forEach(blankItem => {
-                    totalTagsToPrint++;
-                    const tagWrapper = document.createElement('div');
-                    tagWrapper.className = "deped-tag shadow-sm bg-purple-50/20";
+                  if (activeBlankTags && activeBlankTags.length > 0) {
 
-                    const qrSvg = generatePureSVGQRCode(blankItem.propNo, 70);
-                    const logoHtml = stickerLayout.logo 
-                        ? `<img src="${stickerLayout.logo}" class="h-8 w-8 object-contain my-1" alt="DepEd Logo">`
-                        : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
+    activeBlankTags.forEach(blankItem => {
+
+        totalTagsToPrint++;
+
+        const tagWrapper =
+        document.createElement('div');
+
+        tagWrapper.className =
+        "deped-tag shadow-sm";
+
+        const qrSvg =
+        generatePureSVGQRCode(
+            blankItem.propNo,
+            90
+        );
+
+        tagWrapper.innerHTML = `
+
+        <div style="
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        width:100%;
+        height:100%;
+        background:white;
+        padding:10px;
+        ">
+
+            <div>
+                ${qrSvg}
+            </div>
+
+            <div style="
+            font-size:80px;
+            font-weight:900;
+            color:black;
+            ">
+                T${blankItem.tempNumber}
+            </div>
+
+        </div>
+
+        `;
+
+        container.appendChild(tagWrapper);
+
+    });
+
+}`;
 
                     tagWrapper.innerHTML = `
 <div style="
