@@ -1504,7 +1504,20 @@
             };
 
             recordAutoSuggestEntry(officerVal, articleVal, classVal);
+const currentPropNo =
+document.getElementById('inp-propNo').value.trim();
 
+if(currentPropNo.startsWith('T')){
+
+    const nextNumber =
+    inventoryData.length + 1;
+
+    newItem.tempTag = currentPropNo;
+
+    newItem.propNo =
+    String(nextNumber).padStart(4,'0');
+
+}
             if (idx >= 0) {
                 inventoryData[idx] = newItem;
             } else {
@@ -1674,6 +1687,38 @@
                         : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
 
                     tagWrapper.innerHTML = `
+<div style="
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    height:100%;
+    background:white;
+    padding:8px;
+">
+
+    <div style="
+        width:90px;
+        height:90px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    ">
+        ${qrSvg}
+    </div>
+
+    <div style="
+        font-size:90px;
+        font-weight:900;
+        color:#000;
+        line-height:1;
+        padding-right:10px;
+    ">
+        ${blankItem.tempNumber}
+    </div>
+
+</div>
+`;
                         <div class="deped-tag-header bg-purple-600 text-white font-black tracking-wider">
                             ${escapeHtml(stickerLayout.banner || 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649')}
                         </div>
@@ -1685,7 +1730,18 @@
                                     ${qrSvg}
                                 </div>
                             </div>
-                            <div class="deped-tag-right">
+                            <div class="deped<div class="deped-tag-right flex items-center justify-center">
+
+    <div style="
+        font-size:72px;
+        font-weight:900;
+        color:#000;
+        line-height:1;
+    ">
+        ${blankItem.tempNumber}
+    </div>
+
+</div>
                                 <div class="data-row">
                                     <span class="data-label">PROPERTY NUMBER:</span>
                                     <span class="data-value font-mono font-bold text-indigo-900">${escapeHtml(blankItem.propNo)}</span>
