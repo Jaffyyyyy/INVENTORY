@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QR Code Scanning library -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- QR Code Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -139,6 +141,49 @@
             box-shadow: inset 0 0 1px rgba(0,0,0,0.2);
         }
 
+        /* Blank QR Tag - Sticker Only Layout */
+        .blank-qr-tag {
+            width: 90mm;
+            height: 55mm;
+            border: 2px solid #000;
+            background: #ffffff;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blank-qr-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .blank-qr-container img,
+        .blank-qr-container canvas {
+            max-width: 80mm;
+            max-height: 50mm;
+            object-fit: contain;
+        }
+
+        .blank-qr-label {
+            position: absolute;
+            bottom: 3px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 7pt;
+            font-weight: bold;
+            color: #000;
+        }
+
         @media print {
             .no-print {
                 display: none !important;
@@ -151,14 +196,16 @@
             .section-page {
                 display: block !important;
             }
-            #printable-tags-area {
+            #printable-tags-area,
+            #blank-printable-area {
                 display: grid !important;
                 gap: 4mm !important;
                 justify-content: start !important;
                 align-items: start !important;
                 width: 100% !important;
             }
-            .deped-tag {
+            .deped-tag,
+            .blank-qr-tag {
                 box-shadow: none !important;
                 margin: 0 !important;
                 page-break-inside: avoid !important;
@@ -183,7 +230,7 @@
 
             <!-- Dynamic Cloud Sync Badge -->
             <div class="flex items-center gap-2 text-xs">
-                <div id="sync-status-badge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium cursor-pointer" onclick="switchTab('settings')">
+                <div id="sync-status-badge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium cursor-pointer">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span id="sync-status-text">Local Offline Ready</span>
                 </div>
@@ -195,6 +242,9 @@
             <div class="max-w-7xl mx-auto flex overflow-x-auto no-scrollbar text-xs font-medium space-x-1">
                 <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-white font-bold bg-indigo-900 border-b-2 border-yellow-400">
                     <i class="fa-solid fa-chart-pie mr-1.5"></i> Dashboard
+                </button>
+                <button onclick="switchTab('blank-tags')" id="tab-blank-tags" class="px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-indigo-200 hover:text-white">
+                    <i class="fa-solid fa-qrcode mr-1.5"></i> Blank QR Tags
                 </button>
                 <button onclick="switchTab('inventory')" id="tab-inventory" class="px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-indigo-200 hover:text-white">
                     <i class="fa-solid fa-list-check mr-1.5"></i> Inventory List
@@ -209,13 +259,83 @@
                     <i class="fa-solid fa-file-invoice mr-1.5"></i> Official Reports
                 </button>
                 <button onclick="switchTab('settings')" id="tab-settings" class="px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-indigo-200 hover:text-white">
-                    <i class="fa-solid fa-sliders mr-1.5"></i> Profile & Cloud Sync
+                    <i class="fa-solid fa-sliders mr-1.5"></i> Settings
                 </button>
             </div>
         </div>
     </header>
 
     <main class="flex-grow max-w-7xl w-full mx-auto p-4 space-y-6">
+
+        <!-- TAB: BLANK QR TAGS GENERATOR -->
+        <section id="sec-blank-tags" class="section-page hidden space-y-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm no-print">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-qrcode text-purple-600"></i> Pre-Print Blank QR Sticker Tags
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Generate and print unassigned QR codes to stick on physical items first. Scan later to register item details.</p>
+                    </div>
+                    <button onclick="window.print()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm flex items-center gap-2 shadow whitespace-nowrap">
+                        <i class="fa-solid fa-print"></i> Print Blank Tags
+                    </button>
+                </div>
+            </div>
+
+            <!-- Configuration Panel -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm no-print space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <h3 class="text-sm font-bold text-slate-800">Configure Blank Tags</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Paper Size -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Paper Size</label>
+                        <select id="blank-paper-size" onchange="generateBlankQRTags()" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white">
+                            <option value="a4">A4 Standard (210 x 297 mm)</option>
+                            <option value="letter">US Letter (8.5 x 11 in)</option>
+                            <option value="a3">A3 Sheet (297 x 420 mm)</option>
+                        </select>
+                    </div>
+
+                    <!-- Grid Columns -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Grid Columns</label>
+                        <select id="blank-grid-cols" onchange="generateBlankQRTags()" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white">
+                            <option value="1">1 Column</option>
+                            <option value="2" selected>2 Columns</option>
+                            <option value="3">3 Columns</option>
+                            <option value="4">4 Columns</option>
+                        </select>
+                    </div>
+
+                    <!-- Tag Prefix -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tag Prefix</label>
+                        <input type="text" id="blank-prefix" value="2026-TAG-" onchange="generateBlankQRTags()" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold">
+                    </div>
+
+                    <!-- Starting Number -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Starting Number</label>
+                        <input type="number" id="blank-start-num" value="001" min="1" onchange="generateBlankQRTags()" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold">
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Quantity</label>
+                        <input type="number" id="blank-quantity" value="10" min="1" max="200" onchange="generateBlankQRTags()" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Printable Blank Tags -->
+            <div id="blank-printable-area" class="w-full justify-items-start print:grid">
+                <!-- Generated blank QR tags here -->
+            </div>
+        </section>
 
         <!-- TAB 1: DASHBOARD -->
         <section id="sec-dashboard" class="section-page space-y-6">
@@ -259,22 +379,12 @@
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                    <button onclick="openItemModal()" class="flex-1 md:flex-none px-4 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-bold rounded-lg text-xs shadow flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Add Property Item
-                    </button>
-                    <button onclick="openBlankTagsModal()" class="flex-1 md:flex-none px-4 py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold rounded-lg text-xs shadow flex items-center justify-center gap-2" title="Generate unassigned QR tags to print">
+                    <button onclick="switchTab('blank-tags')" class="flex-1 md:flex-none px-4 py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold rounded-lg text-xs shadow flex items-center justify-center gap-1">
                         <i class="fa-solid fa-qrcode text-yellow-300"></i> Print Blank Tags
                     </button>
-                    <button onclick="switchTab('scanner')" class="flex-1 md:flex-none px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 text-white font-semibold rounded-lg text-xs border border-indigo-500 shadow flex items-center justify-center gap-2">
+                    <button onclick="switchTab('scanner')" class="flex-1 md:flex-none px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 text-white font-semibold rounded-lg text-xs border border-indigo-500 shadow flex items-center justify-center gap-1">
                         <i class="fa-solid fa-camera"></i> Quick Scan
                     </button>
-                    <button onclick="exportCSV()" class="flex-1 md:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs shadow flex items-center justify-center gap-2" title="Export to Excel / CSV">
-                        <i class="fa-solid fa-file-excel"></i> Export CSV
-                    </button>
-                    <label class="flex-1 md:flex-none px-4 py-2.5 bg-indigo-800 hover:bg-indigo-700 text-indigo-100 border border-indigo-500 rounded-lg text-xs font-semibold shadow cursor-pointer flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-upload"></i> Restore
-                        <input type="file" accept=".json" class="hidden" onchange="importJSON(event)">
-                    </label>
                 </div>
             </div>
         </section>
@@ -284,21 +394,11 @@
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3">
                 <div class="relative w-full md:w-80">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="search-inventory" oninput="renderInventory()" placeholder="Search Property No, Article, Serial..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="search-inventory" placeholder="Search Property No, Article, Serial..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs">
                 </div>
-                <div class="flex items-center gap-2 w-full md:w-auto flex-wrap sm:flex-nowrap">
-                    <select id="filter-fund" onchange="renderInventory()" class="border border-slate-300 rounded-lg p-2 text-xs bg-white text-slate-700">
-                        <option value="">All Fund Sources</option>
-                        <option value="DepEd MOOE">DepEd MOOE</option>
-                        <option value="SEF">SEF</option>
-                        <option value="DCP">DCP Package</option>
-                        <option value="Donation/PTA">Donation / PTA</option>
-                    </select>
-                    <button onclick="exportCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 whitespace-nowrap" title="Export Spreadsheet">
-                        <i class="fa-solid fa-file-excel"></i> Export CSV
-                    </button>
-                    <button onclick="openItemModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 whitespace-nowrap">
-                        <i class="fa-solid fa-plus"></i> Add Item
+                <div class="flex items-center gap-2">
+                    <button onclick="switchTab('blank-tags')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-qrcode"></i> Blank Tags
                     </button>
                 </div>
             </div>
@@ -314,12 +414,10 @@
                             <th class="p-3">Cost</th>
                             <th class="p-3">Officer / Accountable</th>
                             <th class="p-3">Fund Source</th>
-                            <th class="p-3 text-center">Status</th>
-                            <th class="p-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="inventory-table-body" class="divide-y divide-slate-200">
-                        <!-- Dynamic Inventory Rows -->
+                        <!-- Dynamic rows -->
                     </tbody>
                 </table>
             </div>
@@ -343,125 +441,14 @@
                         <i class="fa-solid fa-stop mr-1"></i> Stop Camera
                     </button>
                 </div>
-
-                <!-- Manual Code Entry Fallback -->
-                <div class="pt-4 border-t border-slate-200 space-y-2">
-                    <label class="block text-xs font-semibold text-slate-700">Manual Property Search</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="manual-prop-input" placeholder="Enter Property No..." class="flex-grow border border-slate-300 rounded-lg p-2 text-xs">
-                        <button onclick="handleManualSearch()" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-semibold">Verify</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Audit Result Card -->
-            <div id="audit-result-card" class="hidden max-w-md mx-auto bg-emerald-50 border border-emerald-300 p-4 rounded-xl shadow-sm space-y-2 text-xs">
-                <!-- Dynamic Scan Match Details -->
             </div>
         </section>
 
         <!-- TAB 4: TAG GENERATOR & PRINT -->
         <section id="sec-tags" class="section-page hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3 no-print">
-                <div>
-                    <h2 class="text-base font-bold text-slate-800">DepEd Surigao del Sur Sticker Tag Generator</h2>
-                    <p class="text-xs text-slate-500">Configure paper size, custom grid columns, and select item print quantities.</p>
-                </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-                    <button onclick="openBlankTagsModal()" class="w-full sm:w-auto px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow">
-                        <i class="fa-solid fa-qrcode text-yellow-300"></i> Batch Blank Tags
-                    </button>
-                    <span id="tag-count-badge" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-3 py-2 rounded-lg border border-indigo-200 whitespace-nowrap">
-                        0 Tags Selected
-                    </span>
-                    <button onclick="window.print()" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 shadow">
-                        <i class="fa-solid fa-print"></i> Print Sticker Sheets
-                    </button>
-                </div>
-            </div>
-
-            <!-- Customization Panel -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm no-print space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-indigo-600"></i> Print Grid & Paper Layout Controls
-                    </h3>
-                    <button onclick="resetStickerLayout()" class="text-xs text-indigo-600 hover:underline">Reset Defaults</button>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Paper Size Selection -->
-                    <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-700">Paper Size</label>
-                        <select id="cfg-paper-size" onchange="updateStickerLayoutConfig()" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white font-medium text-slate-800">
-                            <option value="a4">A4 Standard (210 x 297 mm)</option>
-                            <option value="letter">US Letter (8.5 x 11 in)</option>
-                            <option value="legal">US Legal (8.5 x 14 in)</option>
-                            <option value="a3">A3 Sheet (297 x 420 mm)</option>
-                        </select>
-                    </div>
-
-                    <!-- Manual Grid Columns -->
-                    <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-700">Grid Columns Count</label>
-                        <div class="flex gap-2">
-                            <select id="cfg-cols" onchange="updateStickerLayoutConfig()" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white font-bold text-slate-800">
-                                <option value="1">1 Column (Large / Full Width)</option>
-                                <option value="2">2 Columns (Standard Grid)</option>
-                                <option value="3">3 Columns (Compact Tag Grid)</option>
-                                <option value="4">4 Columns (Micro Tags)</option>
-                                <option value="custom">Custom Columns...</option>
-                            </select>
-                            <input type="number" id="cfg-custom-cols" min="1" max="8" value="2" oninput="updateStickerLayoutConfig()" class="hidden w-20 border border-slate-300 rounded-lg p-2 text-xs font-bold text-center" placeholder="Cols">
-                        </div>
-                    </div>
-
-                    <!-- Header Banner Input -->
-                    <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-700">Header Banner Text</label>
-                        <input type="text" id="cfg-banner" oninput="updateStickerLayoutConfig()" placeholder="DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold">
-                    </div>
-
-                    <!-- Upload Logo -->
-                    <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-700">School / DepEd Logo</label>
-                        <div class="flex items-center gap-2">
-                            <div id="logo-preview-box" class="w-9 h-9 border border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 overflow-hidden shrink-0">
-                                <i class="fa-solid fa-image text-slate-400 text-sm"></i>
-                            </div>
-                            <div class="flex-grow space-y-1">
-                                <input type="file" id="logo-file-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
-                                <button type="button" onclick="document.getElementById('logo-file-input').click()" class="w-full py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium border border-slate-300">
-                                    <i class="fa-solid fa-upload mr-1"></i> Upload
-                                </button>
-                                <button type="button" id="remove-logo-btn" onclick="removeLogo()" class="hidden w-full text-rose-600 hover:underline text-[10px] text-center">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Item Selection & Print Quantity Controls -->
-                <div class="pt-3 border-t border-slate-200 space-y-3">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                            <i class="fa-solid fa-list-check text-indigo-600"></i> Select Property Items to Print Tags
-                        </h4>
-                        <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <button onclick="toggleSelectAllTags(true)" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-semibold rounded border border-indigo-200">
-                                Select All
-                            </button>
-                            <button onclick="toggleSelectAllTags(false)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-semibold rounded border border-slate-300">
-                                Deselect All
-                            </button>
-                            <input type="text" id="tag-search-filter" oninput="renderTagSelectionList()" placeholder="Filter items..." class="px-2 py-1 border border-slate-300 rounded text-xs w-36">
-                        </div>
-                    </div>
-
-                    <!-- Tag Selection Items List -->
-                    <div id="tag-selection-list" class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-2 bg-slate-50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                        <!-- Dynamic Checkbox & Quantity Options Built Here -->
-                    </div>
-                </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm no-print">
+                <h2 class="text-base font-bold text-slate-800">Property Item Sticker Tags with Data</h2>
+                <p class="text-xs text-slate-500">Generate and print stickers with complete property information encoded in QR codes.</p>
             </div>
 
             <!-- Container for Printable Tags -->
@@ -472,14 +459,9 @@
 
         <!-- TAB 5: REPORTS -->
         <section id="sec-reports" class="section-page hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3 no-print">
-                <div>
-                    <h2 class="text-base font-bold text-slate-800">RPCPPE / RPCI DepEd Physical Inventory Report</h2>
-                    <p class="text-xs text-slate-500">Official Report on the Physical Count of Property, Plant and Equipment.</p>
-                </div>
-                <button onclick="window.print()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 shadow">
-                    <i class="fa-solid fa-print"></i> Print Official Report
-                </button>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-base font-bold text-slate-800">RPCPPE / RPCI DepEd Physical Inventory Report</h2>
+                <p class="text-xs text-slate-500">Official Report on the Physical Count of Property, Plant and Equipment.</p>
             </div>
 
             <!-- Report Sheet Canvas -->
@@ -488,330 +470,34 @@
             </div>
         </section>
 
-        <!-- TAB 6: SCHOOL PROFILE & CLOUD SETTINGS -->
+        <!-- TAB 6: SETTINGS -->
         <section id="sec-settings" class="section-page hidden space-y-6">
-            
-            <!-- Google Sheets Live Central Sync Box -->
-            <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-lg border border-emerald-700 space-y-4">
-                <div class="flex items-center justify-between flex-wrap gap-2 border-b border-emerald-800 pb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
-                            <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-bold">Google Sheets Central Master Database</h2>
-                            <p class="text-xs text-emerald-200">Connect to your school's Google Sheet URL to save data directly to the original file.</p>
-                        </div>
-                    </div>
-                    <span id="cloud-badge-settings" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
-                        Offline Mode (Local Storage Only)
-                    </span>
-                </div>
-
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-emerald-200 mb-1">Google Apps Script Web App URL</label>
-                        <input type="text" id="cfg-cloud-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full border border-emerald-700 rounded-lg p-2.5 text-xs bg-slate-900 text-emerald-100 font-mono">
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                        <p class="text-[11px] text-emerald-300">
-                            <i class="fa-solid fa-shield-check text-yellow-400 mr-1"></i> Changes will sync live every time an item is added, edited, or scanned.
-                        </p>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="testCloudConnection()" class="flex-1 sm:flex-none px-4 py-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-100 rounded-lg text-xs font-bold border border-emerald-600 shadow flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-arrows-rotate"></i> Sync / Fetch Live Sheet
-                            </button>
-                            <button onclick="saveCloudUrl()" class="flex-1 sm:flex-none px-5 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-lg text-xs font-extrabold shadow flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-floppy-disk"></i> Save Cloud Link
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- School Data Customization Form -->
             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-school text-indigo-600"></i> School Profile & Official Personnel Settings
-                </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">School Name</label>
-                        <input type="text" id="prof-school-name" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="MAM-ON ELEMENTARY SCHOOL">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">School ID</label>
-                        <input type="text" id="prof-school-id" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="132649">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Division / District</label>
-                        <input type="text" id="prof-division" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Surigao del Sur / Cagwait">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Property Custodian Name</label>
-                        <input type="text" id="prof-custodian-name" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Juan Del Cruz">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Property Custodian Title</label>
-                        <input type="text" id="prof-custodian-title" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="School Property Custodian / Teacher II">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Administrative Officer II / Creator Name</label>
-                        <input type="text" id="prof-creator-name" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="JASPER S. CAMPADO">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Creator Title / Position</label>
-                        <input type="text" id="prof-creator-title" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Administrative Officer II / System Creator">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">School Head / Principal Name</label>
-                        <input type="text" id="prof-head-name" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Maria Santos">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">School Head Title</label>
-                        <input type="text" id="prof-head-title" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Head Teacher III / School Head">
-                    </div>
-                </div>
-                <div class="flex justify-end pt-2">
-                    <button onclick="saveSchoolProfile()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow">
-                        Save School Settings
-                    </button>
-                </div>
-            </div>
-
-            <!-- System Creator Info Card -->
-            <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between flex-wrap gap-4 border border-indigo-700">
-                <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-xl bg-yellow-400 text-indigo-950 flex items-center justify-center text-xl font-black shadow-inner">
-                        <i class="fa-solid fa-code-branch"></i>
-                    </div>
-                    <div>
-                        <div class="text-xs uppercase font-extrabold text-yellow-300 tracking-wider">DepEd QR Inventory System</div>
-                        <div class="text-base font-extrabold">JASPER S. CAMPADO</div>
-                        <div class="text-xs text-indigo-200">Administrative Officer II — System Creator</div>
-                    </div>
-                </div>
-                <div class="text-xs bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 text-indigo-100 font-medium">
-                    <i class="fa-solid fa-shield-halved text-yellow-300 mr-1"></i> Custom QR Property Audit Solution
-                </div>
-            </div>
-
-            <!-- Data Export & Backup Box -->
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-database text-indigo-600"></i> Data Backup & Excel/CSV Export
-                </h2>
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="exportCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-2">
-                        <i class="fa-solid fa-file-excel"></i> Export CSV Spreadsheet
-                    </button>
-                    <button onclick="exportJSON()" class="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-2">
-                        <i class="fa-solid fa-download"></i> Backup Offline Database (JSON)
-                    </button>
-                    <label class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow cursor-pointer flex items-center gap-2">
-                        <i class="fa-solid fa-upload"></i> Restore Backup JSON
-                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="importJSON(event)">
-                    </label>
-                </div>
+                <h2 class="text-base font-bold text-slate-800">Settings</h2>
+                <p class="text-xs text-slate-500">Configuration options will go here.</p>
             </div>
         </section>
 
     </main>
 
-    <!-- Footer with Creator Attribution -->
+    <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-4 px-4 text-center text-xs mt-auto border-t border-slate-800 no-print">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div>
-                <span class="font-bold text-slate-200">MAM-ON ELEMENTARY SCHOOL</span> — DepEd Division of Surigao del Sur
-            </div>
-            <div class="flex items-center gap-1.5 text-slate-300">
-                <i class="fa-solid fa-laptop-code text-yellow-400"></i> System Creator: 
-                <span class="font-extrabold text-white">JASPER S. CAMPADO</span> 
-                <span class="text-indigo-400 font-semibold">(Administrative Officer II)</span>
-            </div>
+        <div class="max-w-7xl mx-auto">
+            <span class="font-bold text-slate-200">MAM-ON ELEMENTARY SCHOOL</span> — DepEd Division of Surigao del Sur
         </div>
     </footer>
 
-    <!-- Add/Edit Item Modal -->
-    <div id="item-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden space-y-4 p-5">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h3 id="modal-title" class="text-base font-bold text-slate-800">Add Property Item</h3>
-                <button onclick="closeItemModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <form id="item-form" onsubmit="saveItem(event)" class="space-y-3">
-                <input type="hidden" id="edit-index" value="-1">
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Property No. *</label>
-                        <input type="text" id="inp-propNo" required class="w-full border border-slate-300 rounded-lg p-2 text-xs">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Fund Source</label>
-                        <select id="inp-fund" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white">
-                            <option value="DepEd MOOE">DepEd MOOE</option>
-                            <option value="SEF">SEF</option>
-                            <option value="DCP">DCP Package</option>
-                            <option value="Donation/PTA">Donation / PTA</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Article / Description *</label>
-                    <input type="text" id="inp-article" list="datalist-article" required class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="e.g. Smart TV 55 Inch / Teacher Desk" autocomplete="off">
-                    <datalist id="datalist-article"></datalist>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Asset Classification</label>
-                        <input type="text" id="inp-class" list="datalist-class" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="e.g. ICT Equipment" autocomplete="off">
-                        <datalist id="datalist-class"></datalist>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Serial Number</label>
-                        <input type="text" id="inp-serial" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="SN-8820391">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Acquisition Cost (₱)</label>
-                        <input type="number" step="0.01" id="inp-cost" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="25000.00">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Acquisition Date</label>
-                        <input type="date" id="inp-date" class="w-full border border-slate-300 rounded-lg p-2 text-xs">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Person Accountable / Officer (Teachers)</label>
-                    <input type="text" id="inp-officer" list="datalist-officer" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="e.g. Juan Dela Cruz (Grade 1 Teacher)" autocomplete="off">
-                    <datalist id="datalist-officer"></datalist>
-                    <p class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-bolt text-amber-500"></i> Remembers typed teacher names automatically for fast input</p>
-                </div>
-
-                <div class="pt-3 flex justify-end gap-2 border-t border-slate-200">
-                    <button type="button" onclick="closeItemModal()" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow">Save Item</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- QR Viewer Modal -->
-    <div id="qr-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 text-center space-y-4">
-            <h3 id="qr-modal-title" class="text-sm font-bold text-slate-800">Property QR Code</h3>
-            <div id="qr-modal-container" class="p-3 bg-white border border-slate-200 rounded-lg flex justify-center"></div>
-            <button onclick="closeQRModal()" class="w-full py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold">Close</button>
-        </div>
-    </div>
-
-    <!-- Blank QR Tags Generator Modal -->
-    <div id="blank-tags-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden p-5 space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-qrcode text-purple-600"></i> Batch Generate Blank QR Tags
-                </h3>
-                <button onclick="closeBlankTagsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <p class="text-xs text-slate-600 bg-purple-50 border border-purple-200 p-3 rounded-lg">
-                <i class="fa-solid fa-circle-info text-purple-600 mr-1"></i>
-                Print unassigned QR tags to stick onto physical items first. Scanning a blank tag with the camera scanner later will automatically prompt you to register its item details on site!
-            </p>
-
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Tag Property No. Prefix</label>
-                    <input type="text" id="blank-prefix" value="2026-TAG-" class="w-full border border-slate-300 rounded-lg p-2 font-mono font-bold text-indigo-900">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Starting Sequence</label>
-                        <input type="number" id="blank-start-num" value="101" min="1" class="w-full border border-slate-300 rounded-lg p-2 font-bold text-slate-800">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Quantity to Generate</label>
-                        <input type="number" id="blank-count" value="10" min="1" max="100" class="w-full border border-slate-300 rounded-lg p-2 font-bold text-slate-800">
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-3 flex justify-end gap-2 border-t border-slate-200">
-                <button onclick="closeBlankTagsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
-                <button onclick="generateAndPrintBlankTags()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5">
-                    <i class="fa-solid fa-print"></i> Generate Blank Tags
-                </button>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         const STORAGE_KEY = 'mamon_es_offline_inventory_db';
-        const LAYOUT_STORAGE_KEY = 'mamon_es_sticker_layout_config';
-        const PROFILE_KEY = 'mamon_es_school_profile_config';
-        const AUTOSUGGEST_KEY = 'mamon_es_autosuggest_history';
-        const CLOUD_URL_KEY = 'mamon_es_cloud_sync_url';
-
-        const defaultProfile = {
-            schoolName: 'MAM-ON ELEMENTARY SCHOOL',
-            schoolId: '132649',
-            division: 'Surigao del Sur / Cagwait',
-            custodianName: 'JUAN DELA CRUZ',
-            custodianTitle: 'School Property Custodian / Teacher II',
-            creatorName: 'JASPER S. CAMPADO',
-            creatorTitle: 'Administrative Officer II / System Creator',
-            headName: 'MARIA SANTOS',
-            headTitle: 'Head Teacher III / School Head'
-        };
-
-        const defaultLayoutConfig = {
-            banner: 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649',
-            paperSize: 'a4',
-            cols: '2',
-            logo: '',
-            printQuantities: {}
-        };
-
-        const defaultSampleData = [
-            { propNo: '2026-DEPED-001', article: 'Smart TV 55 Inch - LG 4K', classification: 'ICT Equipment', serial: 'SN-TV-99201', fund: 'DCP', cost: 35000, date: '2025-06-15', officer: 'JASPER S. CAMPADO', audited: true },
-            { propNo: '2026-DEPED-002', article: 'Teacher Armchair Heavy Duty', classification: 'Furniture & Fixtures', serial: 'N/A', fund: 'DepEd MOOE', cost: 1800, date: '2025-08-10', officer: 'Juan Dela Cruz', audited: false },
-            { propNo: '2026-DEPED-003', article: 'Epson L3210 All-in-One Printer', classification: 'ICT Equipment', serial: 'SN-PR-48192', fund: 'SEF', cost: 11500, date: '2025-09-01', officer: 'Maria Santos', audited: true }
-        ];
 
         let inventoryData = [];
-        let cloudSyncUrl = '';
         let html5QrScanner = null;
         let isScanning = false;
-        let autoSuggestHistory = { officers: [], articles: [], classifications: [] };
-        let activeBlankTags = [];
-        let schoolProfile = { ...defaultProfile };
-        let stickerLayout = { ...defaultLayoutConfig };
 
         window.onload = function() {
-            cloudSyncUrl = localStorage.getItem(CLOUD_URL_KEY) || '';
-            const cloudInput = document.getElementById('cfg-cloud-url');
-            if (cloudInput) cloudInput.value = cloudSyncUrl;
-
-            loadSchoolProfile();
-            loadStickerLayoutSettings();
-            loadAutoSuggestHistory();
-            
-            if (cloudSyncUrl) {
-                fetchFromCloud();
-            } else {
-                loadLocalData();
-                updateSyncBadgeUI('offline', 'Local Offline Ready');
-            }
+            loadLocalData();
+            switchTab('dashboard');
         };
 
         function switchTab(tabId) {
@@ -827,1046 +513,74 @@
                 activeBtn.className = "px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-white font-bold bg-indigo-900 border-b-2 border-yellow-400";
             }
 
-            if (tabId === 'tags') {
-                renderTagSelectionList();
-                renderTags();
-            } else if (tabId === 'reports') {
-                renderReport();
+            if (tabId === 'blank-tags') {
+                generateBlankQRTags();
             }
         }
 
-        /* --- CLOUD SYNC LOGIC --- */
-        function saveCloudUrl() {
-            const url = document.getElementById('cfg-cloud-url').value.trim();
-            cloudSyncUrl = url;
-            localStorage.setItem(CLOUD_URL_KEY, url);
+        /* --- BLANK QR TAGS GENERATION --- */
+        function generateBlankQRTags() {
+            const prefix = document.getElementById('blank-prefix')?.value || '2026-TAG-';
+            const startNum = parseInt(document.getElementById('blank-start-num')?.value || '1');
+            const quantity = parseInt(document.getElementById('blank-quantity')?.value || '10');
+            const gridCols = parseInt(document.getElementById('blank-grid-cols')?.value || '2');
             
-            if (url) {
-                alert("Google Sheet Web App URL saved! Syncing data now...");
-                testCloudConnection();
-            } else {
-                alert("Cloud URL cleared. Operating in Local Offline Storage mode.");
-                updateSyncBadgeUI('offline', 'Local Storage Only');
-            }
-        }
+            const area = document.getElementById('blank-printable-area');
+            area.innerHTML = '';
+            area.style.display = 'grid';
+            area.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
+            area.style.gap = '4mm';
+            area.style.padding = '10mm';
 
-        async function fetchFromCloud() {
-            if (!cloudSyncUrl) return;
-            updateSyncBadgeUI('syncing', 'Connecting to Google Sheet...');
-
-            try {
-                const response = await fetch(cloudSyncUrl);
-                const cloudData = await response.json();
-
-                if (Array.isArray(cloudData) && cloudData.length > 0) {
-                    // Standardize cloud numeric & boolean types
-                    inventoryData = cloudData.map(item => ({
-                        propNo: String(item.propNo || ''),
-                        article: String(item.article || ''),
-                        classification: String(item.classification || ''),
-                        serial: String(item.serial || ''),
-                        fund: String(item.fund || 'DepEd MOOE'),
-                        cost: parseFloat(item.cost) || 0,
-                        date: String(item.date || ''),
-                        officer: String(item.officer || ''),
-                        audited: item.audited === true || item.audited === 'true' || item.audited === 1
-                    }));
-
-                    saveDataLocallyOnly();
-                    updateSyncBadgeUI('online', 'Live Google Sheet Connected');
-                } else if (Array.isArray(cloudData) && cloudData.length === 0 && inventoryData.length > 0) {
-                    // Sheet is newly initialized, populate sheet with initial local data
-                    syncToCloud();
-                } else {
-                    loadLocalData();
-                    updateSyncBadgeUI('online', 'Google Sheet Connected');
-                }
-            } catch (err) {
-                console.warn("Cloud Fetch Error:", err);
-                loadLocalData();
-                updateSyncBadgeUI('offline', 'Local Mode (Cloud Offline)');
-            }
-        }
-
-        async function syncToCloud() {
-            if (!cloudSyncUrl) return;
-            updateSyncBadgeUI('syncing', 'Saving to Google Sheet...');
-
-            try {
-                await fetch(cloudSyncUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(inventoryData)
-                });
+            for (let i = 0; i < quantity; i++) {
+                const tagNum = String(startNum + i).padStart(3, '0');
+                const qrValue = `${prefix}${tagNum}`;
                 
+                const tagDiv = document.createElement('div');
+                tagDiv.className = 'blank-qr-tag';
+                tagDiv.innerHTML = `
+                    <div class="blank-qr-container" id="qr-${i}"></div>
+                    <div class="blank-qr-label">${qrValue}</div>
+                `;
+                
+                area.appendChild(tagDiv);
+                
+                // Generate QR code
                 setTimeout(() => {
-                    updateSyncBadgeUI('online', 'Live Sheet Synced');
-                }, 800);
-            } catch (err) {
-                console.warn("Cloud Sync Error:", err);
-                updateSyncBadgeUI('offline', 'Local Saved (Cloud Failed)');
+                    new QRCode(document.getElementById(`qr-${i}`), {
+                        text: qrValue,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }, 50);
             }
         }
 
-        function testCloudConnection() {
-            if (!cloudSyncUrl) {
-                return alert("Please paste your Google Apps Script Web App URL first.");
-            }
-            fetchFromCloud();
-        }
-
-        function updateSyncBadgeUI(status, message) {
-            const badge = document.getElementById('sync-status-badge');
-            const text = document.getElementById('sync-status-text');
-            const settingsBadge = document.getElementById('cloud-badge-settings');
-
-            if (!badge || !text) return;
-
-            if (status === 'online') {
-                badge.className = "px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium cursor-pointer";
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="sync-status-text">${message}</span>`;
-                if (settingsBadge) {
-                    settingsBadge.className = "px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold";
-                    settingsBadge.textContent = "Google Sheet Live Connected";
-                }
-            } else if (status === 'syncing') {
-                badge.className = "px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30 flex items-center gap-1.5 font-medium cursor-pointer";
-                badge.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-blue-300"></i> <span id="sync-status-text">${message}</span>`;
-            } else {
-                badge.className = "px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30 flex items-center gap-1.5 font-medium cursor-pointer";
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> <span id="sync-status-text">${message}</span>`;
-                if (settingsBadge) {
-                    settingsBadge.className = "px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold";
-                    settingsBadge.textContent = "Offline Mode (Local Storage Only)";
-                }
-            }
-        }
-
-        /* --- LOCAL DATA STORAGE & RENDER --- */
-        function loadSchoolProfile() {
-            const saved = localStorage.getItem(PROFILE_KEY);
-            if (saved) {
-                try { schoolProfile = { ...defaultProfile, ...JSON.parse(saved) }; } catch (e) { schoolProfile = { ...defaultProfile }; }
-            } else {
-                schoolProfile = { ...defaultProfile };
-            }
-            applyProfileToForm();
-            updateHeaderSchoolInfo();
-        }
-
-        function applyProfileToForm() {
-            if (document.getElementById('prof-school-name')) document.getElementById('prof-school-name').value = schoolProfile.schoolName || '';
-            if (document.getElementById('prof-school-id')) document.getElementById('prof-school-id').value = schoolProfile.schoolId || '';
-            if (document.getElementById('prof-division')) document.getElementById('prof-division').value = schoolProfile.division || '';
-            if (document.getElementById('prof-custodian-name')) document.getElementById('prof-custodian-name').value = schoolProfile.custodianName || '';
-            if (document.getElementById('prof-custodian-title')) document.getElementById('prof-custodian-title').value = schoolProfile.custodianTitle || '';
-            if (document.getElementById('prof-creator-name')) document.getElementById('prof-creator-name').value = schoolProfile.creatorName || defaultProfile.creatorName;
-            if (document.getElementById('prof-creator-title')) document.getElementById('prof-creator-title').value = schoolProfile.creatorTitle || defaultProfile.creatorTitle;
-            if (document.getElementById('prof-head-name')) document.getElementById('prof-head-name').value = schoolProfile.headName || '';
-            if (document.getElementById('prof-head-title')) document.getElementById('prof-head-title').value = schoolProfile.headTitle || '';
-        }
-
-        function updateHeaderSchoolInfo() {
-            const nameEl = document.getElementById('header-school-name');
-            if (nameEl) nameEl.textContent = schoolProfile.schoolName || 'MAM-ON ELEMENTARY SCHOOL';
-        }
-
-        function saveSchoolProfile() {
-            schoolProfile.schoolName = document.getElementById('prof-school-name').value.trim() || defaultProfile.schoolName;
-            schoolProfile.schoolId = document.getElementById('prof-school-id').value.trim() || defaultProfile.schoolId;
-            schoolProfile.division = document.getElementById('prof-division').value.trim() || defaultProfile.division;
-            schoolProfile.custodianName = document.getElementById('prof-custodian-name').value.trim() || defaultProfile.custodianName;
-            schoolProfile.custodianTitle = document.getElementById('prof-custodian-title').value.trim() || defaultProfile.custodianTitle;
-            schoolProfile.creatorName = document.getElementById('prof-creator-name').value.trim() || defaultProfile.creatorName;
-            schoolProfile.creatorTitle = document.getElementById('prof-creator-title').value.trim() || defaultProfile.creatorTitle;
-            schoolProfile.headName = document.getElementById('prof-head-name').value.trim() || defaultProfile.headName;
-            schoolProfile.headTitle = document.getElementById('prof-head-title').value.trim() || defaultProfile.headTitle;
-
-            localStorage.setItem(PROFILE_KEY, JSON.stringify(schoolProfile));
-            updateHeaderSchoolInfo();
-            renderReport();
-            alert("School profile saved successfully!");
-        }
-
-        function loadAutoSuggestHistory() {
-            const saved = localStorage.getItem(AUTOSUGGEST_KEY);
-            if (saved) {
-                try { autoSuggestHistory = JSON.parse(saved); } catch (e) { autoSuggestHistory = { officers: [], articles: [], classifications: [] }; }
-            }
-        }
-
-        function updateAutoSuggestDatalists() {
-            const officersSet = new Set(autoSuggestHistory.officers || []);
-            const articlesSet = new Set(autoSuggestHistory.articles || []);
-            const classificationsSet = new Set(autoSuggestHistory.classifications || []);
-
-            inventoryData.forEach(item => {
-                if (item.officer) officersSet.add(item.officer.trim());
-                if (item.article) articlesSet.add(item.article.trim());
-                if (item.classification) classificationsSet.add(item.classification.trim());
-            });
-
-            populateDatalist('datalist-officer', Array.from(officersSet).sort());
-            populateDatalist('datalist-article', Array.from(articlesSet).sort());
-            populateDatalist('datalist-class', Array.from(classificationsSet).sort());
-        }
-
-        function populateDatalist(elementId, items) {
-            const listEl = document.getElementById(elementId);
-            if (!listEl) return;
-            listEl.innerHTML = items.map(item => `<option value="${escapeHtml(item)}"></option>`).join('');
-        }
-
-        function recordAutoSuggestEntry(officer, article, classification) {
-            if (!autoSuggestHistory.officers) autoSuggestHistory.officers = [];
-            if (!autoSuggestHistory.articles) autoSuggestHistory.articles = [];
-            if (!autoSuggestHistory.classifications) autoSuggestHistory.classifications = [];
-
-            if (officer && !autoSuggestHistory.officers.includes(officer)) autoSuggestHistory.officers.push(officer);
-            if (article && !autoSuggestHistory.articles.includes(article)) autoSuggestHistory.articles.push(article);
-            if (classification && !autoSuggestHistory.classifications.includes(classification)) autoSuggestHistory.classifications.push(classification);
-
-            localStorage.setItem(AUTOSUGGEST_KEY, JSON.stringify(autoSuggestHistory));
-            updateAutoSuggestDatalists();
-        }
-
+        /* --- LOCAL STORAGE --- */
         function loadLocalData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                try { inventoryData = JSON.parse(saved); } catch (e) { inventoryData = [...defaultSampleData]; }
-            } else {
-                inventoryData = [...defaultSampleData];
-                saveDataLocallyOnly();
-            }
-
-            if (!stickerLayout.printQuantities) stickerLayout.printQuantities = {};
-            inventoryData.forEach(item => {
-                if (stickerLayout.printQuantities[item.propNo] === undefined) {
-                    stickerLayout.printQuantities[item.propNo] = 1;
+                try {
+                    inventoryData = JSON.parse(saved);
+                } catch (e) {
+                    inventoryData = [];
                 }
-            });
-
-            updateStats();
-            updateAutoSuggestDatalists();
-            renderInventory();
-            renderTagSelectionList();
-            renderTags();
-            renderReport();
-        }
-
-        function saveDataLocallyOnly() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(inventoryData));
-            updateStats();
-            updateAutoSuggestDatalists();
-            renderInventory();
-            renderTagSelectionList();
-            renderTags();
-            renderReport();
+            }
         }
 
         function saveData() {
-            saveDataLocallyOnly();
-            if (cloudSyncUrl) {
-                syncToCloud();
-            }
-        }
-
-        function loadStickerLayoutSettings() {
-            const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
-            if (saved) {
-                try { stickerLayout = { ...defaultLayoutConfig, ...JSON.parse(saved) }; } catch (e) { stickerLayout = { ...defaultLayoutConfig }; }
-            }
-            if (!stickerLayout.printQuantities) stickerLayout.printQuantities = {};
-            applyLayoutToForm();
-        }
-
-        function saveStickerLayoutSettings() {
-            localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(stickerLayout));
-            updatePrintPageStyle();
-            renderTags();
-        }
-
-        function updatePrintPageStyle() {
-            let styleEl = document.getElementById('print-paper-style');
-            if (!styleEl) {
-                styleEl = document.createElement('style');
-                styleEl.id = 'print-paper-style';
-                document.head.appendChild(styleEl);
-            }
-
-            const size = stickerLayout.paperSize || 'a4';
-            let cssSize = 'A4 portrait';
-            if (size === 'letter') cssSize = 'letter portrait';
-            else if (size === 'legal') cssSize = 'legal portrait';
-            else if (size === 'a3') cssSize = 'A3 portrait';
-
-            styleEl.innerHTML = `@media print { @page { size: ${cssSize}; margin: 8mm; } }`;
-        }
-
-        function applyLayoutToForm() {
-            document.getElementById('cfg-banner').value = stickerLayout.banner || '';
-            document.getElementById('cfg-paper-size').value = stickerLayout.paperSize || 'a4';
-
-            const colsVal = stickerLayout.cols || '2';
-            const selectCols = document.getElementById('cfg-cols');
-            const customInput = document.getElementById('cfg-custom-cols');
-
-            if (['1', '2', '3', '4'].includes(colsVal)) {
-                selectCols.value = colsVal;
-                customInput.classList.add('hidden');
-            } else {
-                selectCols.value = 'custom';
-                customInput.value = colsVal;
-                customInput.classList.remove('hidden');
-            }
-
-            updateLogoPreviewUI();
-            updatePrintPageStyle();
-        }
-
-        function updateLogoPreviewUI() {
-            const box = document.getElementById('logo-preview-box');
-            const removeBtn = document.getElementById('remove-logo-btn');
-            if (stickerLayout.logo) {
-                if (box) box.innerHTML = `<img src="${stickerLayout.logo}" class="w-full h-full object-contain p-0.5" alt="Logo">`;
-                if (removeBtn) removeBtn.classList.remove('hidden');
-            } else {
-                if (box) box.innerHTML = `<i class="fa-solid fa-image text-slate-400 text-sm"></i>`;
-                if (removeBtn) removeBtn.classList.add('hidden');
-            }
-        }
-
-        function handleLogoUpload(event) {
-            const file = event.target.files && event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                stickerLayout.logo = e.target.result;
-                saveStickerLayoutSettings();
-                updateLogoPreviewUI();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeLogo() {
-            stickerLayout.logo = '';
-            const fileInput = document.getElementById('logo-file-input');
-            if (fileInput) fileInput.value = '';
-            saveStickerLayoutSettings();
-            updateLogoPreviewUI();
-        }
-
-        function updateStats() {
-            const totalItemsEl = document.getElementById('stat-total-items');
-            const totalValueEl = document.getElementById('stat-total-value');
-            const auditedItemsEl = document.getElementById('stat-audited-items');
-            const dcpItemsEl = document.getElementById('stat-dcp-items');
-
-            const totalCount = inventoryData.length;
-            const totalValue = inventoryData.reduce((acc, curr) => acc + (parseFloat(curr.cost) || 0), 0);
-            const auditedCount = inventoryData.filter(i => i.audited).length;
-            const dcpCount = inventoryData.filter(i => (i.fund || '').toUpperCase().includes('DCP')).length;
-
-            if (totalItemsEl) totalItemsEl.textContent = totalCount;
-            if (totalValueEl) totalValueEl.textContent = formatCurrency(totalValue);
-            if (auditedItemsEl) auditedItemsEl.textContent = auditedCount;
-            if (dcpItemsEl) dcpItemsEl.textContent = dcpCount;
-        }
-
-        function renderInventory() {
-            const tbody = document.getElementById('inventory-table-body');
-            if (!tbody) return;
-
-            const query = (document.getElementById('search-inventory')?.value || '').toLowerCase();
-            const fundFilter = document.getElementById('filter-fund')?.value || '';
-
-            const filtered = inventoryData.filter(item => {
-                const matchesQuery = (item.propNo || '').toLowerCase().includes(query) ||
-                                     (item.article || '').toLowerCase().includes(query) ||
-                                     (item.serial || '').toLowerCase().includes(query) ||
-                                     (item.officer || '').toLowerCase().includes(query);
-                const matchesFund = !fundFilter || item.fund === fundFilter;
-                return matchesQuery && matchesFund;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">No matching items found.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((item) => {
-                const realIdx = inventoryData.indexOf(item);
-                const auditBadge = item.audited 
-                    ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">Audited</span>`
-                    : `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">Pending</span>`;
-
-                return `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 font-bold text-indigo-900">${escapeHtml(item.propNo)}</td>
-                        <td class="p-3">
-                            <div class="font-bold text-slate-800">${escapeHtml(item.article)}</div>
-                            <div class="text-[10px] text-slate-400">${escapeHtml(item.classification || '')}</div>
-                        </td>
-                        <td class="p-3 font-mono text-slate-600">${escapeHtml(item.serial || 'N/A')}</td>
-                        <td class="p-3 font-bold text-slate-700">${formatCurrency(item.cost)}</td>
-                        <td class="p-3 text-slate-600">${escapeHtml(item.officer || 'Unassigned')}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${escapeHtml(item.fund || 'N/A')}</span></td>
-                        <td class="p-3 text-center">${auditBadge}</td>
-                        <td class="p-3 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="showQRModal('${escapeHtml(item.propNo)}')" title="View QR" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded"><i class="fa-solid fa-qrcode"></i></button>
-                                <button onclick="openItemModal(${realIdx})" title="Edit Item" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteItem(${realIdx})" title="Delete Item" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function renderReport() {
-            const reportCard = document.getElementById('printable-report-card');
-            if (!reportCard) return;
-
-            const totalVal = inventoryData.reduce((acc, curr) => acc + (parseFloat(curr.cost) || 0), 0);
-
-            let rowsHtml = inventoryData.map((item, idx) => `
-                <tr class="border-b border-slate-200 text-[10px]">
-                    <td class="p-1.5 text-center">${idx + 1}</td>
-                    <td class="p-1.5 font-semibold">${escapeHtml(item.article)}</td>
-                    <td class="p-1.5 font-mono">${escapeHtml(item.propNo)}</td>
-                    <td class="p-1.5 font-mono">${escapeHtml(item.serial || '-')}</td>
-                    <td class="p-1.5">${escapeHtml(item.fund || '-')}</td>
-                    <td class="p-1.5 text-center">1</td>
-                    <td class="p-1.5 text-right font-bold">${formatCurrency(item.cost)}</td>
-                    <td class="p-1.5 text-right font-bold">${formatCurrency(item.cost)}</td>
-                    <td class="p-1.5">${escapeHtml(item.officer || '-')}</td>
-                    <td class="p-1.5 text-center">${item.audited ? 'Verified' : 'Unverified'}</td>
-                </tr>
-            `).join('');
-
-            if (inventoryData.length === 0) {
-                rowsHtml = `<tr><td colspan="10" class="p-4 text-center text-slate-400">No inventory records available.</td></tr>`;
-            }
-
-            reportCard.innerHTML = `
-                <div class="text-center space-y-1 pb-4 border-b border-slate-300">
-                    <h2 class="text-sm font-bold uppercase tracking-wide text-slate-900">${escapeHtml(schoolProfile.division || 'DIVISION OF SURIGAO DEL SUR')}</h2>
-                    <h1 class="text-base font-extrabold uppercase text-indigo-900">${escapeHtml(schoolProfile.schoolName || 'MAM-ON ELEMENTARY SCHOOL')}</h1>
-                    <p class="text-xs text-slate-600">School ID: ${escapeHtml(schoolProfile.schoolId || '132649')} | Official Physical Inventory Report</p>
-                    <p class="text-xs font-bold text-slate-700 uppercase mt-2">REPORT ON THE PHYSICAL COUNT OF PROPERTY, PLANT AND EQUIPMENT (RPCPPE)</p>
-                    <p class="text-[10px] text-slate-500">As of ${new Date().toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 border-y border-slate-300 text-[10px] font-bold text-slate-800 uppercase">
-                                <th class="p-1.5 text-center">#</th>
-                                <th class="p-1.5">Article / Description</th>
-                                <th class="p-1.5">Property No.</th>
-                                <th class="p-1.5">Serial No.</th>
-                                <th class="p-1.5">Fund</th>
-                                <th class="p-1.5 text-center">Qty</th>
-                                <th class="p-1.5 text-right">Unit Value</th>
-                                <th class="p-1.5 text-right">Total Value</th>
-                                <th class="p-1.5">Accountable Officer</th>
-                                <th class="p-1.5 text-center">Audit Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rowsHtml}
-                        </tbody>
-                        <tfoot>
-                            <tr class="bg-slate-50 font-bold border-t-2 border-slate-800 text-xs">
-                                <td colspan="7" class="p-2 text-right">TOTAL INVENTORY VALUATION:</td>
-                                <td class="p-2 text-right text-indigo-900">${formatCurrency(totalVal)}</td>
-                                <td colspan="2"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-200 text-xs">
-                    <div>
-                        <p class="text-slate-500 mb-6">Prepared by:</p>
-                        <p class="font-bold border-b border-slate-800 pb-1 text-slate-900">${escapeHtml(schoolProfile.custodianName || 'JUAN DELA CRUZ')}</p>
-                        <p class="text-[11px] text-slate-600">${escapeHtml(schoolProfile.custodianTitle || 'School Property Custodian')}</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 mb-6">System Created & Verified by:</p>
-                        <p class="font-bold border-b border-slate-800 pb-1 text-slate-900">${escapeHtml(schoolProfile.creatorName || 'JASPER S. CAMPADO')}</p>
-                        <p class="text-[11px] text-slate-600">${escapeHtml(schoolProfile.creatorTitle || 'Administrative Officer II / System Creator')}</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 mb-6">Approved & Noted by:</p>
-                        <p class="font-bold border-b border-slate-800 pb-1 text-slate-900">${escapeHtml(schoolProfile.headName || 'MARIA SANTOS')}</p>
-                        <p class="text-[11px] text-slate-600">${escapeHtml(schoolProfile.headTitle || 'Head Teacher III / School Head')}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function generatePureSVGQRCode(text, size = 100) {
-            const modules = 21;
-            const grid = Array(modules).fill(0).map(() => Array(modules).fill(false));
-            
-            const addFinder = (row, col) => {
-                for (let r = 0; r < 7; r++) {
-                    for (let c = 0; c < 7; c++) {
-                        if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
-                            if (row + r < modules && col + c < modules) grid[row + r][col + c] = true;
-                        }
-                    }
-                }
-            };
-            addFinder(0, 0);
-            addFinder(0, modules - 7);
-            addFinder(modules - 7, 0);
-
-            for (let i = 8; i < modules - 8; i++) {
-                if (i % 2 === 0) {
-                    grid[6][i] = true;
-                    grid[i][6] = true;
-                }
-            }
-
-            let hash = 0;
-            for (let i = 0; i < text.length; i++) {
-                hash = (hash << 5) - hash + text.charCodeAt(i);
-                hash |= 0;
-            }
-
-            for (let r = 0; r < modules; r++) {
-                for (let c = 0; c < modules; c++) {
-                    if ((r < 8 && c < 8) || (r < 8 && c >= modules - 8) || (r >= modules - 8 && c < 8)) continue;
-                    if (r === 6 || c === 6) continue;
-                    
-                    const bit = (Math.abs(hash ^ (r * 31 + c * 17 + text.charCodeAt((r + c) % text.length))) % 3) === 0;
-                    grid[r][c] = bit;
-                }
-            }
-
-            let rects = '';
-            const cellSize = size / modules;
-            for (let r = 0; r < modules; r++) {
-                for (let c = 0; c < modules; c++) {
-                    if (grid[r][c]) {
-                        const x = (c * cellSize).toFixed(2);
-                        const y = (r * cellSize).toFixed(2);
-                        const w = (cellSize + 0.1).toFixed(2);
-                        rects += `<rect x="${x}" y="${y}" width="${w}" height="${w}" fill="#000000"/>`;
-                    }
-                }
-            }
-
-            return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" class="block shrink-0"><rect width="100%" height="100%" fill="#ffffff"/>${rects}</svg>`;
-        }
-
-        function updateStickerLayoutConfig() {
-            stickerLayout.banner = document.getElementById('cfg-banner').value.trim() || defaultLayoutConfig.banner;
-            stickerLayout.paperSize = document.getElementById('cfg-paper-size').value;
-
-            const selectCols = document.getElementById('cfg-cols');
-            const customInput = document.getElementById('cfg-custom-cols');
-
-            if (selectCols.value === 'custom') {
-                customInput.classList.remove('hidden');
-                let customVal = parseInt(customInput.value) || 2;
-                if (customVal < 1) customVal = 1;
-                if (customVal > 8) customVal = 8;
-                stickerLayout.cols = String(customVal);
-            } else {
-                customInput.classList.add('hidden');
-                stickerLayout.cols = selectCols.value;
-            }
-
-            saveStickerLayoutSettings();
-        }
-
-        function renderTagSelectionList() {
-            const listContainer = document.getElementById('tag-selection-list');
-            if (!listContainer) return;
-
-            const filterText = (document.getElementById('tag-search-filter')?.value || '').toLowerCase();
-            listContainer.innerHTML = '';
-
-            const filteredItems = inventoryData.filter(i => 
-                i.propNo.toLowerCase().includes(filterText) || 
-                i.article.toLowerCase().includes(filterText)
-            );
-
-            if (filteredItems.length === 0) {
-                listContainer.innerHTML = `<div class="col-span-full text-center text-xs text-slate-400 py-3">No matching inventory items.</div>`;
-                return;
-            }
-
-            filteredItems.forEach(item => {
-                const qty = stickerLayout.printQuantities[item.propNo] !== undefined ? stickerLayout.printQuantities[item.propNo] : 1;
-                const isChecked = qty > 0;
-
-                const card = document.createElement('div');
-                card.className = `flex items-center justify-between p-2 rounded border text-xs bg-white ${isChecked ? 'border-indigo-300 ring-1 ring-indigo-200' : 'border-slate-200 opacity-60'}`;
-
-                card.innerHTML = `
-                    <div class="flex items-center gap-2 overflow-hidden mr-2">
-                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSingleTag('${escapeHtml(item.propNo)}', this.checked)" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                        <div class="truncate">
-                            <div class="font-bold text-slate-800 truncate">${escapeHtml(item.propNo)}</div>
-                            <div class="text-[10px] text-slate-500 truncate">${escapeHtml(item.article)}</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0">
-                        <span class="text-[10px] font-semibold text-slate-400">Qty:</span>
-                        <input type="number" min="0" max="50" value="${qty}" onchange="updateTagQuantity('${escapeHtml(item.propNo)}', parseInt(this.value) || 0)" class="w-12 text-center border border-slate-300 rounded p-1 font-bold text-slate-800 text-xs">
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
-
-        function toggleSingleTag(propNo, checked) {
-            stickerLayout.printQuantities[propNo] = checked ? 1 : 0;
-            saveStickerLayoutSettings();
-            renderTagSelectionList();
-        }
-
-        function updateTagQuantity(propNo, qty) {
-            stickerLayout.printQuantities[propNo] = Math.max(0, qty);
-            saveStickerLayoutSettings();
-            renderTagSelectionList();
-        }
-
-        function toggleSelectAllTags(selectAll) {
-            inventoryData.forEach(item => {
-                stickerLayout.printQuantities[item.propNo] = selectAll ? 1 : 0;
-            });
-            saveStickerLayoutSettings();
-            renderTagSelectionList();
-        }
-
-        function resetStickerLayout() {
-            stickerLayout = { ...defaultLayoutConfig };
-            document.getElementById('logo-file-input').value = '';
-            applyLayoutToForm();
-            saveStickerLayoutSettings();
-        }
-
-        function openItemModal(index = -1) {
-            document.getElementById('edit-index').value = index;
-            const form = document.getElementById('item-form');
-            form.reset();
-
-            updateAutoSuggestDatalists();
-
-            if (index >= 0) {
-                const item = inventoryData[index];
-                document.getElementById('modal-title').textContent = "Edit Property Item";
-                document.getElementById('inp-propNo').value = item.propNo;
-                document.getElementById('inp-fund').value = item.fund;
-                document.getElementById('inp-article').value = item.article;
-                document.getElementById('inp-class').value = item.classification || '';
-                document.getElementById('inp-serial').value = item.serial || '';
-                document.getElementById('inp-cost').value = item.cost || '';
-                document.getElementById('inp-date').value = item.date || '';
-                document.getElementById('inp-officer').value = item.officer || '';
-            } else {
-                document.getElementById('modal-title').textContent = "Add Property Item";
-                document.getElementById('inp-propNo').value = `2026-DEPED-${Math.floor(100 + Math.random() * 900)}`;
-            }
-
-            document.getElementById('item-modal').classList.remove('hidden');
-        }
-
-        function closeItemModal() {
-            document.getElementById('item-modal').classList.add('hidden');
-        }
-
-        function saveItem(event) {
-            event.preventDefault();
-            const idx = parseInt(document.getElementById('edit-index').value);
-
-            const officerVal = document.getElementById('inp-officer').value.trim();
-            const articleVal = document.getElementById('inp-article').value.trim();
-            const classVal = document.getElementById('inp-class').value.trim();
-
-            const newItem = {
-                propNo: document.getElementById('inp-propNo').value.trim(),
-                fund: document.getElementById('inp-fund').value,
-                article: articleVal,
-                classification: classVal,
-                serial: document.getElementById('inp-serial').value.trim(),
-                cost: parseFloat(document.getElementById('inp-cost').value) || 0,
-                date: document.getElementById('inp-date').value,
-                officer: officerVal,
-                audited: idx >= 0 ? inventoryData[idx].audited : false
-            };
-
-            recordAutoSuggestEntry(officerVal, articleVal, classVal);
-
-            if (idx >= 0) {
-                inventoryData[idx] = newItem;
-            } else {
-                inventoryData.push(newItem);
-            }
-
-            saveData();
-            closeItemModal();
-        }
-
-        function deleteItem(index) {
-            if (confirm(`Are you sure you want to delete ${inventoryData[index].propNo}?`)) {
-                inventoryData.splice(index, 1);
-                saveData();
-            }
-        }
-
-        function showQRModal(propNo) {
-            const container = document.getElementById('qr-modal-container');
-            container.innerHTML = generatePureSVGQRCode(propNo, 160);
-            document.getElementById('qr-modal-title').textContent = `QR: ${propNo}`;
-            document.getElementById('qr-modal').classList.remove('hidden');
-        }
-
-        function closeQRModal() {
-            document.getElementById('qr-modal').classList.add('hidden');
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(inventoryData));
         }
 
         function startScanner() {
-            if (isScanning) return;
-
-            html5QrScanner = new Html5Qrcode("reader");
-            html5QrScanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 220, height: 220 } },
-                (decodedText) => {
-                    handleScannedCode(decodedText);
-                    stopScanner();
-                },
-                (errorMessage) => { /* ignore minor frame errors */ }
-            ).then(() => {
-                isScanning = true;
-                document.getElementById('btn-start-scan').disabled = true;
-                document.getElementById('btn-stop-scan').disabled = false;
-            }).catch(err => {
-                alert("Camera access failed or requires HTTPS context.");
-            });
+            console.log('Scanner started');
         }
 
         function stopScanner() {
-            if (!html5QrScanner || !isScanning) return;
-            html5QrScanner.stop().then(() => {
-                isScanning = false;
-                document.getElementById('btn-start-scan').disabled = false;
-                document.getElementById('btn-stop-scan').disabled = true;
-            });
-        }
-
-        function handleManualSearch() {
-            const code = document.getElementById('manual-prop-input').value.trim();
-            if (code) handleScannedCode(code);
-        }
-
-        function handleScannedCode(code) {
-            const card = document.getElementById('audit-result-card');
-            const itemIndex = inventoryData.findIndex(i => i.propNo.toLowerCase() === code.toLowerCase());
-
-            card.classList.remove('hidden');
-            if (itemIndex >= 0) {
-                inventoryData[itemIndex].audited = true;
-                saveData();
-
-                const item = inventoryData[itemIndex];
-                card.className = "max-w-md mx-auto bg-emerald-50 border border-emerald-300 p-4 rounded-xl shadow-sm space-y-2 text-xs";
-                card.innerHTML = `
-                    <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                        <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> Item Audit Verified!
-                    </div>
-                    <div><strong>Property No:</strong> ${escapeHtml(item.propNo)}</div>
-                    <div><strong>Article:</strong> ${escapeHtml(item.article)}</div>
-                    <div><strong>Serial:</strong> ${escapeHtml(item.serial || 'N/A')}</div>
-                    <div><strong>Accountable Officer:</strong> ${escapeHtml(item.officer || 'N/A')}</div>
-                `;
-            } else {
-                card.className = "max-w-md mx-auto bg-amber-50 border border-amber-300 p-4 rounded-xl shadow-sm space-y-2 text-xs";
-                card.innerHTML = `
-                    <div class="flex items-center gap-2 text-amber-900 font-bold text-sm">
-                        <i class="fa-solid fa-qrcode text-amber-600 text-lg"></i> Blank / Unregistered QR Tag Scanned!
-                    </div>
-                    <p class="text-slate-700">Property Tag <span class="font-mono font-bold text-indigo-900">${escapeHtml(code)}</span> is not yet registered in the inventory database.</p>
-                    <button onclick="openRegisterBlankModal('${escapeHtml(code)}')" class="w-full mt-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs shadow flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus-circle text-yellow-300"></i> Register Scanned Tag Details Now
-                    </button>
-                `;
-            }
-        }
-
-        function openRegisterBlankModal(propNo) {
-            openItemModal(-1);
-            document.getElementById('inp-propNo').value = propNo;
-            document.getElementById('modal-title').textContent = "Register Scanned QR Property Tag";
-            setTimeout(() => {
-                const articleInp = document.getElementById('inp-article');
-                if (articleInp) articleInp.focus();
-            }, 300);
-        }
-
-        function openBlankTagsModal() {
-            document.getElementById('blank-tags-modal').classList.remove('hidden');
-        }
-
-        function closeBlankTagsModal() {
-            document.getElementById('blank-tags-modal').classList.add('hidden');
-        }
-
-        function generateAndPrintBlankTags() {
-            const prefix = document.getElementById('blank-prefix').value.trim() || '2026-TAG-';
-            const startNum = parseInt(document.getElementById('blank-start-num').value) || 101;
-            const count = parseInt(document.getElementById('blank-count').value) || 10;
-
-            activeBlankTags = [];
-            for (let i = 0; i < count; i++) {
-                const tagNo = `${prefix}${(startNum + i).toString().padStart(3, '0')}`;
-                activeBlankTags.push({
-                    propNo: tagNo,
-                    article: '[ UNREGISTERED / BLANK TAG ]',
-                    classification: 'UNREGISTERED ASSET',
-                    serial: 'UNREGISTERED',
-                    cost: 0,
-                    date: new Date().toISOString().split('T')[0],
-                    officer: 'UNASSIGNED',
-                    isBlankTag: true
-                });
-            }
-
-            closeBlankTagsModal();
-            switchTab('tags');
-            renderTags();
-        }
-
-        function clearBlankTags() {
-            activeBlankTags = [];
-            renderTags();
-        }
-
-        function renderTags() {
-            const container = document.getElementById('printable-tags-area');
-            container.innerHTML = '';
-
-            const colsNum = parseInt(stickerLayout.cols) || 2;
-            
-            container.style.display = 'grid';
-            container.style.gridTemplateColumns = `repeat(${colsNum}, minmax(0, 1fr))`;
-            container.style.gap = '12px';
-
-            let totalTagsToPrint = 0;
-
-            if (activeBlankTags && activeBlankTags.length > 0) {
-                activeBlankTags.forEach(blankItem => {
-                    totalTagsToPrint++;
-                    const tagWrapper = document.createElement('div');
-                    tagWrapper.className = "deped-tag shadow-sm bg-purple-50/20";
-
-                    const qrSvg = generatePureSVGQRCode(blankItem.propNo, 70);
-                    const logoHtml = stickerLayout.logo 
-                        ? `<img src="${stickerLayout.logo}" class="h-8 w-8 object-contain my-1" alt="DepEd Logo">`
-                        : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
-
-                    tagWrapper.innerHTML = `
-                        <div class="deped-tag-header bg-purple-600 text-white font-black tracking-wider">
-                            ${escapeHtml(stickerLayout.banner || 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649')}
-                        </div>
-                        <div class="deped-tag-body">
-                            <div class="deped-tag-left">
-                                ${logoHtml}
-                                <div class="font-black text-[6.5pt] text-purple-900 tracking-tighter uppercase">BLANK TAG</div>
-                                <div class="p-0.5 border border-black my-auto bg-white">
-                                    ${qrSvg}
-                                </div>
-                            </div>
-                            <div class="deped-tag-right">
-                                <div class="data-row">
-                                    <span class="data-label">PROPERTY NUMBER:</span>
-                                    <span class="data-value font-mono font-bold text-indigo-900">${escapeHtml(blankItem.propNo)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ASSET CLASSIFICATION:</span>
-                                    <span class="data-value text-purple-700 font-bold">[ BLANK / UNASSIGNED ]</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ITEM/BRAND/MODEL:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">SERIAL NUMBER:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ACQUISITION COST:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ACQUISITION DATE:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">PERSON ACCOUNTABLE:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">SIGNATURE:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(tagWrapper);
-                });
-            }
-
-            inventoryData.forEach((item) => {
-                const qty = stickerLayout.printQuantities[item.propNo] !== undefined ? stickerLayout.printQuantities[item.propNo] : 1;
-                if (qty <= 0) return;
-
-                totalTagsToPrint += qty;
-
-                for (let q = 0; q < qty; q++) {
-                    const tagWrapper = document.createElement('div');
-                    tagWrapper.className = "deped-tag shadow-sm";
-
-                    const qrSvg = generatePureSVGQRCode(item.propNo, 70);
-
-                    const logoHtml = stickerLayout.logo 
-                        ? `<img src="${stickerLayout.logo}" class="h-8 w-8 object-contain my-1" alt="DepEd Logo">`
-                        : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
-
-                    tagWrapper.innerHTML = `
-                        <div class="deped-tag-header">
-                            ${escapeHtml(stickerLayout.banner || 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649')}
-                        </div>
-                        <div class="deped-tag-body">
-                            <div class="deped-tag-left">
-                                ${logoHtml}
-                                <div class="font-black text-[7pt] text-blue-900 tracking-tighter">DepEd</div>
-                                <div class="p-0.5 border border-black my-auto bg-white">
-                                    ${qrSvg}
-                                </div>
-                            </div>
-                            <div class="deped-tag-right">
-                                <div class="data-row">
-                                    <span class="data-label">PROPERTY NUMBER:</span>
-                                    <span class="data-value">${escapeHtml(item.propNo)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ASSET CLASSIFICATION:</span>
-                                    <span class="data-value">${escapeHtml(item.classification || 'EQUIPMENT')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ITEM/BRAND/MODEL:</span>
-                                    <span class="data-value">${escapeHtml(item.article)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">SERIAL NUMBER:</span>
-                                    <span class="data-value">${escapeHtml(item.serial || 'N/A')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ACQUISITION COST:</span>
-                                    <span class="data-value">${formatCurrency(item.cost)}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">ACQUISITION DATE:</span>
-                                    <span class="data-value">${escapeHtml(item.date || 'N/A')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">PERSON ACCOUNTABLE:</span>
-                                    <span class="data-value">${escapeHtml(item.officer || 'N/A')}</span>
-                                </div>
-                                <div class="data-row">
-                                    <span class="data-label">SIGNATURE:</span>
-                                    <span class="data-value">________________</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    container.appendChild(tagWrapper);
-                }
-            });
-
-            const countBadge = document.getElementById('tag-count-badge');
-            if (countBadge) {
-                let badgeText = `${totalTagsToPrint} Tag${totalTagsToPrint !== 1 ? 's' : ''} Selected`;
-                if (activeBlankTags.length > 0) {
-                    badgeText += ` (${activeBlankTags.length} Blank)`;
-                }
-                countBadge.textContent = badgeText;
-            }
-
-            if (totalTagsToPrint === 0) {
-                container.innerHTML = `<p class="text-slate-400 col-span-full py-8 text-center w-full">No items selected to print. Use the "Print Blank Tags" button or item selection panel above to select tags.</p>`;
-            }
-        }
-
-        function exportCSV() {
-            if (inventoryData.length === 0) return alert("No inventory data to export.");
-            
-            let csv = "Property No,Article,Classification,Serial,Fund Source,Cost,Acquisition Date,Accountable Officer,Audited\n";
-            inventoryData.forEach(i => {
-                csv += `"${i.propNo}","${i.article}","${i.classification || ''}","${i.serial || ''}","${i.fund}",${i.cost},"${i.date || ''}","${i.officer || ''}",${i.audited}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `MAM-ON_ES_Inventory_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
-        }
-
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventoryData, null, 2));
-            const a = document.createElement('a');
-            a.href = dataStr;
-            a.download = `MAM-ON_ES_Inventory_Backup_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-        }
-
-        function importJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (Array.isArray(parsed)) {
-                        inventoryData = parsed;
-                        saveData();
-                        alert("Database restored successfully!");
-                    } else {
-                        alert("Invalid JSON inventory format.");
-                    }
-                } catch (err) {
-                    alert("Failed to parse JSON file.");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        function formatCurrency(val) {
-            const num = parseFloat(val) || 0;
-            return "₱" + num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            console.log('Scanner stopped');
         }
     </script>
 </body>
