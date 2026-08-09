@@ -16,10 +16,22 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
+            transition: background 0.3s ease, color 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
+
+        /* Web Themes */
+        body.theme-slate { background-color: #f8fafc; color: #1e293b; }
+        body.theme-deped { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #f8fafc; }
+        body.theme-emerald { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); color: #f8fafc; }
+        body.theme-dark { background-color: #0f172a; color: #f1f5f9; }
+        body.theme-custom { background-size: cover; background-position: center; background-attachment: fixed; }
 
         /* Prevent iOS Safari auto-zoom on input focus */
         @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -40,7 +52,7 @@
             border-radius: 0.75rem;
         }
 
-        /* DepEd Surigao del Sur Sticker Tag Layout */
+        /* DepEd Tag Layout */
         .deped-tag {
             width: 90mm;
             min-height: 55mm;
@@ -51,10 +63,11 @@
             page-break-inside: avoid;
             position: relative;
             overflow: hidden;
+            color: #000 !important;
         }
 
         .deped-tag-header {
-            background-color: #facc15; /* DepEd Yellow */
+            background-color: #facc15; /* Default DepEd Yellow */
             color: #000;
             font-weight: 800;
             font-size: 8.5pt;
@@ -68,7 +81,7 @@
 
         .deped-tag-body {
             display: flex;
-            height: calc(100% - 22px);
+            height: calc(100% - 24px);
         }
 
         .deped-tag-left {
@@ -84,26 +97,12 @@
 
         .deped-tag-right {
             width: 68%;
-            background-color: #87ce88; /* Surigao Green */
-            padding: 3px 4px;
+            background-color: #87ce88; /* Default Surigao Green */
+            padding: 4px 5px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-        }
-
-        /* Translucent School Seal Watermark Background */
-        .deped-tag-right::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 110px;
-            height: 110px;
-            background-image: radial-gradient(circle, rgba(0,80,0,0.12) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
         }
 
         .data-row {
@@ -145,6 +144,7 @@
             }
             body {
                 background: white !important;
+                color: black !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
@@ -166,22 +166,22 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col theme-slate" id="main-body">
 
     <!-- Top Fixed Header -->
     <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-40 pt-[env(safe-area-inset-top)] no-print">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-xl font-bold border border-white/20">
+                <div id="header-logo-container" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-xl font-bold border border-white/20 overflow-hidden shrink-0">
                     <i class="fa-solid fa-boxes-packing text-yellow-300"></i>
                 </div>
                 <div>
                     <h1 id="header-school-name" class="text-base sm:text-lg font-bold tracking-tight">MAM-ON ELEMENTARY SCHOOL</h1>
-                    <p class="text-xs text-indigo-200">DepEd Surigao del Sur • School ID: 132649</p>
+                    <p id="header-school-sub" class="text-xs text-indigo-200">DepEd Surigao del Sur • School ID: 132649</p>
                 </div>
             </div>
 
-            <!-- Dynamic Cloud Sync Badge -->
+            <!-- Cloud Sync Badge -->
             <div class="flex items-center gap-2 text-xs">
                 <div id="sync-status-badge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5 font-medium cursor-pointer" onclick="switchTab('settings')">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -209,7 +209,7 @@
                     <i class="fa-solid fa-file-invoice mr-1.5"></i> Official Reports
                 </button>
                 <button onclick="switchTab('settings')" id="tab-settings" class="px-3 py-2.5 rounded-t-lg transition whitespace-nowrap text-indigo-200 hover:text-white">
-                    <i class="fa-solid fa-sliders mr-1.5"></i> Profile & Cloud Sync
+                    <i class="fa-solid fa-sliders mr-1.5"></i> Settings & Web Theme
                 </button>
             </div>
         </div>
@@ -220,55 +220,55 @@
         <!-- TAB 1: DASHBOARD -->
         <section id="sec-dashboard" class="section-page space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 text-slate-800">
                     <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i class="fa-solid fa-box text-xl"></i></div>
                     <div>
-                        <div id="stat-total-items" class="text-xl font-bold text-slate-800">0</div>
+                        <div id="stat-total-items" class="text-xl font-bold">0</div>
                         <div class="text-xs text-slate-500 font-medium">Total Property Items</div>
                     </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 text-slate-800">
                     <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fa-solid fa-peso-sign text-xl"></i></div>
                     <div>
-                        <div id="stat-total-value" class="text-lg font-bold text-slate-800">₱0.00</div>
+                        <div id="stat-total-value" class="text-lg font-bold">₱0.00</div>
                         <div class="text-xs text-slate-500 font-medium">Total Valuation</div>
                     </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 text-slate-800">
                     <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i class="fa-solid fa-clipboard-check text-xl"></i></div>
                     <div>
-                        <div id="stat-audited-items" class="text-xl font-bold text-slate-800">0</div>
+                        <div id="stat-audited-items" class="text-xl font-bold">0</div>
                         <div class="text-xs text-slate-500 font-medium">Audited & Verified</div>
                     </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 text-slate-800">
                     <div class="p-3 bg-purple-50 text-purple-600 rounded-lg"><i class="fa-solid fa-laptop text-xl"></i></div>
                     <div>
-                        <div id="stat-dcp-items" class="text-xl font-bold text-slate-800">0</div>
+                        <div id="stat-dcp-items" class="text-xl font-bold">0</div>
                         <div class="text-xs text-slate-500 font-medium">DCP / IT Packages</div>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Action Panel -->
-            <div class="bg-indigo-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="bg-indigo-900/90 text-white p-6 rounded-2xl shadow-lg border border-indigo-700 flex flex-col md:flex-row justify-between items-center gap-4 backdrop-blur">
                 <div>
                     <h2 class="text-lg font-bold">DepEd Physical Property Audit Helper</h2>
                     <p class="text-xs text-indigo-200 mt-1 max-w-xl">
-                        Scan, tag, and verify equipment offline or live-synced to Google Sheets. Fully compliant with DepEd Surigao del Sur property division standards.
+                        Scan, tag, and verify equipment offline or live-synced to Google Sheets. Custom tags fully compliant with DepEd Surigao del Sur property standards.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
                     <button onclick="openItemModal()" class="flex-1 md:flex-none px-4 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-bold rounded-lg text-xs shadow flex items-center justify-center gap-2">
                         <i class="fa-solid fa-plus"></i> Add Property Item
                     </button>
-                    <button onclick="openBlankTagsModal()" class="flex-1 md:flex-none px-4 py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold rounded-lg text-xs shadow flex items-center justify-center gap-2" title="Generate unassigned QR tags to print">
+                    <button onclick="openBlankTagsModal()" class="flex-1 md:flex-none px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow flex items-center justify-center gap-2">
                         <i class="fa-solid fa-qrcode text-yellow-300"></i> Print Blank Tags
                     </button>
                     <button onclick="switchTab('scanner')" class="flex-1 md:flex-none px-4 py-2.5 bg-indigo-700 hover:bg-indigo-600 text-white font-semibold rounded-lg text-xs border border-indigo-500 shadow flex items-center justify-center gap-2">
                         <i class="fa-solid fa-camera"></i> Quick Scan
                     </button>
-                    <button onclick="exportCSV()" class="flex-1 md:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs shadow flex items-center justify-center gap-2" title="Export to Excel / CSV">
+                    <button onclick="exportCSV()" class="flex-1 md:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs shadow flex items-center justify-center gap-2">
                         <i class="fa-solid fa-file-excel"></i> Export CSV
                     </button>
                     <label class="flex-1 md:flex-none px-4 py-2.5 bg-indigo-800 hover:bg-indigo-700 text-indigo-100 border border-indigo-500 rounded-lg text-xs font-semibold shadow cursor-pointer flex items-center justify-center gap-2">
@@ -281,7 +281,7 @@
 
         <!-- TAB 2: INVENTORY LIST -->
         <section id="sec-inventory" class="section-page hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3 text-slate-800">
                 <div class="relative w-full md:w-80">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
                     <input type="text" id="search-inventory" oninput="renderInventory()" placeholder="Search Property No, Article, Serial..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
@@ -294,7 +294,7 @@
                         <option value="DCP">DCP Package</option>
                         <option value="Donation/PTA">Donation / PTA</option>
                     </select>
-                    <button onclick="exportCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 whitespace-nowrap" title="Export Spreadsheet">
+                    <button onclick="exportCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 whitespace-nowrap">
                         <i class="fa-solid fa-file-excel"></i> Export CSV
                     </button>
                     <button onclick="openItemModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 whitespace-nowrap">
@@ -304,10 +304,10 @@
             </div>
 
             <!-- Table -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+            <div class="bg-white/90 backdrop-blur rounded-xl border border-slate-200 shadow-sm overflow-x-auto text-slate-800">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                        <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase font-semibold">
                             <th class="p-3">Property No.</th>
                             <th class="p-3">Article / Description</th>
                             <th class="p-3">Serial No.</th>
@@ -327,7 +327,7 @@
 
         <!-- TAB 3: AUDIT SCANNER -->
         <section id="sec-scanner" class="section-page hidden space-y-4">
-            <div class="max-w-md mx-auto bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center space-y-4">
+            <div class="max-w-md mx-auto bg-white/90 backdrop-blur p-5 rounded-xl border border-slate-200 shadow-sm text-center space-y-4 text-slate-800">
                 <h2 class="text-base font-bold text-slate-800 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-camera text-indigo-600"></i> Property Tag QR Camera Scanner
                 </h2>
@@ -355,17 +355,17 @@
             </div>
 
             <!-- Audit Result Card -->
-            <div id="audit-result-card" class="hidden max-w-md mx-auto bg-emerald-50 border border-emerald-300 p-4 rounded-xl shadow-sm space-y-2 text-xs">
+            <div id="audit-result-card" class="hidden max-w-md mx-auto bg-emerald-50 border border-emerald-300 p-4 rounded-xl shadow-sm space-y-2 text-xs text-slate-800">
                 <!-- Dynamic Scan Match Details -->
             </div>
         </section>
 
         <!-- TAB 4: TAG GENERATOR & PRINT -->
         <section id="sec-tags" class="section-page hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3 no-print">
+            <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3 no-print text-slate-800">
                 <div>
                     <h2 class="text-base font-bold text-slate-800">DepEd Surigao del Sur Sticker Tag Generator</h2>
-                    <p class="text-xs text-slate-500">Configure paper size, custom grid columns, and select item print quantities.</p>
+                    <p class="text-xs text-slate-500">Configure layout styles, banner colors, grid columns, and select print items.</p>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                     <button onclick="openBlankTagsModal()" class="w-full sm:w-auto px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow">
@@ -380,11 +380,11 @@
                 </div>
             </div>
 
-            <!-- Customization Panel -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm no-print space-y-4">
+            <!-- Layout & Tag Customization Controls Panel -->
+            <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm no-print space-y-4 text-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-200 pb-2">
                     <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-indigo-600"></i> Print Grid & Paper Layout Controls
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Printable Tag Layout & Design Controls
                     </h3>
                     <button onclick="resetStickerLayout()" class="text-xs text-indigo-600 hover:underline">Reset Defaults</button>
                 </div>
@@ -406,9 +406,9 @@
                         <label class="block text-xs font-semibold text-slate-700">Grid Columns Count</label>
                         <div class="flex gap-2">
                             <select id="cfg-cols" onchange="updateStickerLayoutConfig()" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white font-bold text-slate-800">
-                                <option value="1">1 Column (Large / Full Width)</option>
-                                <option value="2">2 Columns (Standard Grid)</option>
-                                <option value="3">3 Columns (Compact Tag Grid)</option>
+                                <option value="1">1 Column (Full Width)</option>
+                                <option value="2">2 Columns (Standard Tag Grid)</option>
+                                <option value="3">3 Columns (Compact Tags)</option>
                                 <option value="4">4 Columns (Micro Tags)</option>
                                 <option value="custom">Custom Columns...</option>
                             </select>
@@ -416,25 +416,45 @@
                         </div>
                     </div>
 
-                    <!-- Header Banner Input -->
+                    <!-- Tag Header Banner Input -->
                     <div class="space-y-1">
                         <label class="block text-xs font-semibold text-slate-700">Header Banner Text</label>
                         <input type="text" id="cfg-banner" oninput="updateStickerLayoutConfig()" placeholder="DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold">
                     </div>
 
-                    <!-- Upload Logo -->
+                    <!-- Header Banner Background Color -->
                     <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-700">Banner Background Color</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="cfg-header-color" value="#facc15" onchange="updateStickerLayoutConfig()" class="w-10 h-8 rounded border border-slate-300 cursor-pointer p-0.5">
+                            <span class="text-xs text-slate-500 font-mono" id="cfg-header-color-hex">#facc15</span>
+                        </div>
+                    </div>
+
+                    <!-- Tag Body Right Panel Color -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-700">Tag Accent Color</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="cfg-body-color" value="#87ce88" onchange="updateStickerLayoutConfig()" class="w-10 h-8 rounded border border-slate-300 cursor-pointer p-0.5">
+                            <span class="text-xs text-slate-500 font-mono" id="cfg-body-color-hex">#87ce88</span>
+                        </div>
+                    </div>
+
+                    <!-- Upload Logo -->
+                    <div class="space-y-1 lg:col-span-3">
                         <label class="block text-xs font-semibold text-slate-700">School / DepEd Logo</label>
-                        <div class="flex items-center gap-2">
-                            <div id="logo-preview-box" class="w-9 h-9 border border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 overflow-hidden shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div id="logo-preview-box" class="w-10 h-10 border border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 overflow-hidden shrink-0">
                                 <i class="fa-solid fa-image text-slate-400 text-sm"></i>
                             </div>
-                            <div class="flex-grow space-y-1">
+                            <div class="flex items-center gap-2">
                                 <input type="file" id="logo-file-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
-                                <button type="button" onclick="document.getElementById('logo-file-input').click()" class="w-full py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium border border-slate-300">
-                                    <i class="fa-solid fa-upload mr-1"></i> Upload
+                                <button type="button" onclick="document.getElementById('logo-file-input').click()" class="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium border border-slate-300">
+                                    <i class="fa-solid fa-upload mr-1"></i> Upload Logo
                                 </button>
-                                <button type="button" id="remove-logo-btn" onclick="removeLogo()" class="hidden w-full text-rose-600 hover:underline text-[10px] text-center">Remove</button>
+                                <button type="button" id="remove-logo-btn" onclick="removeLogo()" class="hidden py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-medium border border-rose-200">
+                                    Remove
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -464,15 +484,15 @@
                 </div>
             </div>
 
-            <!-- Container for Printable Tags -->
-            <div id="printable-tags-area" class="w-full justify-items-start">
+            <!-- Printable Tags Workspace -->
+            <div id="printable-tags-area" class="w-full justify-items-start bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <!-- Dynamic Tag Elements Generated Here -->
             </div>
         </section>
 
         <!-- TAB 5: REPORTS -->
         <section id="sec-reports" class="section-page hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3 no-print">
+            <div class="bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3 no-print text-slate-800">
                 <div>
                     <h2 class="text-base font-bold text-slate-800">RPCPPE / RPCI DepEd Physical Inventory Report</h2>
                     <p class="text-xs text-slate-500">Official Report on the Physical Count of Property, Plant and Equipment.</p>
@@ -483,15 +503,44 @@
             </div>
 
             <!-- Report Sheet Canvas -->
-            <div id="printable-report-card" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+            <div id="printable-report-card" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6 text-slate-900">
                 <!-- Dynamic Report Content Generated Here -->
             </div>
         </section>
 
-        <!-- TAB 6: SCHOOL PROFILE & CLOUD SETTINGS -->
+        <!-- TAB 6: SCHOOL PROFILE, WEB THEME & SETTINGS -->
         <section id="sec-settings" class="section-page hidden space-y-6">
             
-            <!-- Google Sheets Live Central Sync Box -->
+            <!-- Web UI Theme & Background Customization Box -->
+            <div class="bg-white/90 backdrop-blur p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 text-slate-800">
+                <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-indigo-600"></i> Web UI Theme & Custom Background Design
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Preset Web Themes</label>
+                        <select id="cfg-web-theme" onchange="changeWebTheme(this.value)" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs font-medium bg-white">
+                            <option value="slate">Slate Clean (Default Light)</option>
+                            <option value="deped">DepEd Royal Blue Gradient</option>
+                            <option value="emerald">Emerald Surigao Green</option>
+                            <option value="dark">Dark Obsidian Modern</option>
+                            <option value="custom">Custom Image Background</option>
+                        </select>
+                    </div>
+
+                    <div id="custom-bg-input-container" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Custom Background Image URL or File</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="cfg-bg-url" placeholder="https://example.com/background.jpg" oninput="applyCustomBgUrl(this.value)" class="flex-grow border border-slate-300 rounded-lg p-2 text-xs">
+                            <input type="file" id="bg-file-input" accept="image/*" class="hidden" onchange="handleBgFileUpload(event)">
+                            <button type="button" onclick="document.getElementById('bg-file-input').click()" class="px-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google Sheets Central Sync Box -->
             <div class="bg-emerald-950 text-white p-6 rounded-2xl shadow-lg border border-emerald-700 space-y-4">
                 <div class="flex items-center justify-between flex-wrap gap-2 border-b border-emerald-800 pb-3">
                     <div class="flex items-center gap-3">
@@ -531,7 +580,7 @@
             </div>
 
             <!-- School Data Customization Form -->
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div class="bg-white/90 backdrop-blur p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 text-slate-800">
                 <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
                     <i class="fa-solid fa-school text-indigo-600"></i> School Profile & Official Personnel Settings
                 </h2>
@@ -550,7 +599,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Property Custodian Name</label>
-                        <input type="text" id="prof-custodian-name" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Juan Del Cruz">
+                        <input type="text" id="prof-custodian-name" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="Juan Dela Cruz">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Property Custodian Title</label>
@@ -580,7 +629,7 @@
                 </div>
             </div>
 
-            <!-- System Creator Info Card -->
+            <!-- Creator Info Card -->
             <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between flex-wrap gap-4 border border-indigo-700">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-xl bg-yellow-400 text-indigo-950 flex items-center justify-center text-xl font-black shadow-inner">
@@ -598,7 +647,7 @@
             </div>
 
             <!-- Data Export & Backup Box -->
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div class="bg-white/90 backdrop-blur p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 text-slate-800">
                 <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
                     <i class="fa-solid fa-database text-indigo-600"></i> Data Backup & Excel/CSV Export
                 </h2>
@@ -619,7 +668,7 @@
 
     </main>
 
-    <!-- Footer with Creator Attribution -->
+    <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-4 px-4 text-center text-xs mt-auto border-t border-slate-800 no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
             <div>
@@ -635,7 +684,7 @@
 
     <!-- Add/Edit Item Modal -->
     <div id="item-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden space-y-4 p-5">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden space-y-4 p-5 text-slate-800">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <h3 id="modal-title" class="text-base font-bold text-slate-800">Add Property Item</h3>
                 <button onclick="closeItemModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -690,10 +739,9 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Person Accountable / Officer (Teachers)</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Person Accountable / Officer</label>
                     <input type="text" id="inp-officer" list="datalist-officer" class="w-full border border-slate-300 rounded-lg p-2 text-xs" placeholder="e.g. Juan Dela Cruz (Grade 1 Teacher)" autocomplete="off">
                     <datalist id="datalist-officer"></datalist>
-                    <p class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-bolt text-amber-500"></i> Remembers typed teacher names automatically for fast input</p>
                 </div>
 
                 <div class="pt-3 flex justify-end gap-2 border-t border-slate-200">
@@ -706,7 +754,7 @@
 
     <!-- QR Viewer Modal -->
     <div id="qr-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 text-center space-y-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 text-center space-y-4 text-slate-800">
             <h3 id="qr-modal-title" class="text-sm font-bold text-slate-800">Property QR Code</h3>
             <div id="qr-modal-container" class="p-3 bg-white border border-slate-200 rounded-lg flex justify-center"></div>
             <button onclick="closeQRModal()" class="w-full py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold">Close</button>
@@ -715,7 +763,7 @@
 
     <!-- Blank QR Tags Generator Modal -->
     <div id="blank-tags-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden p-5 space-y-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden p-5 space-y-4 text-slate-800">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-qrcode text-purple-600"></i> Batch Generate Blank QR Tags
@@ -725,7 +773,7 @@
             
             <p class="text-xs text-slate-600 bg-purple-50 border border-purple-200 p-3 rounded-lg">
                 <i class="fa-solid fa-circle-info text-purple-600 mr-1"></i>
-                Print unassigned QR tags to stick onto physical items first. Scanning a blank tag with the camera scanner later will automatically prompt you to register its item details on site!
+                Print unassigned QR tags to stick onto physical items first. Scanning a blank tag with the scanner later will prompt you to register its details on site!
             </p>
 
             <div class="space-y-3 text-xs">
@@ -761,6 +809,7 @@
         const PROFILE_KEY = 'mamon_es_school_profile_config';
         const AUTOSUGGEST_KEY = 'mamon_es_autosuggest_history';
         const CLOUD_URL_KEY = 'mamon_es_cloud_sync_url';
+        const THEME_KEY = 'mamon_es_web_theme_config';
 
         const defaultProfile = {
             schoolName: 'MAM-ON ELEMENTARY SCHOOL',
@@ -778,6 +827,8 @@
             banner: 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649',
             paperSize: 'a4',
             cols: '2',
+            headerColor: '#facc15',
+            bodyColor: '#87ce88',
             logo: '',
             printQuantities: {}
         };
@@ -796,12 +847,14 @@
         let activeBlankTags = [];
         let schoolProfile = { ...defaultProfile };
         let stickerLayout = { ...defaultLayoutConfig };
+        let webThemeConfig = { theme: 'slate', customBg: '' };
 
         window.onload = function() {
             cloudSyncUrl = localStorage.getItem(CLOUD_URL_KEY) || '';
             const cloudInput = document.getElementById('cfg-cloud-url');
             if (cloudInput) cloudInput.value = cloudSyncUrl;
 
+            loadWebTheme();
             loadSchoolProfile();
             loadStickerLayoutSettings();
             loadAutoSuggestHistory();
@@ -835,6 +888,68 @@
             }
         }
 
+        /* --- WEB UI THEME & DESIGN CONTROL --- */
+        function loadWebTheme() {
+            const saved = localStorage.getItem(THEME_KEY);
+            if (saved) {
+                try { webThemeConfig = JSON.parse(saved); } catch (e) { webThemeConfig = { theme: 'slate', customBg: '' }; }
+            }
+            applyWebTheme();
+        }
+
+        function changeWebTheme(themeName) {
+            webThemeConfig.theme = themeName;
+            const customContainer = document.getElementById('custom-bg-input-container');
+            if (themeName === 'custom') {
+                if (customContainer) customContainer.classList.remove('hidden');
+            } else {
+                if (customContainer) customContainer.classList.add('hidden');
+            }
+            applyWebTheme();
+            localStorage.setItem(THEME_KEY, JSON.stringify(webThemeConfig));
+        }
+
+        function applyCustomBgUrl(url) {
+            webThemeConfig.customBg = url;
+            applyWebTheme();
+            localStorage.setItem(THEME_KEY, JSON.stringify(webThemeConfig));
+        }
+
+        function handleBgFileUpload(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                webThemeConfig.customBg = evt.target.result;
+                document.getElementById('cfg-bg-url').value = '';
+                applyWebTheme();
+                localStorage.setItem(THEME_KEY, JSON.stringify(webThemeConfig));
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyWebTheme() {
+            const body = document.getElementById('main-body');
+            const selectEl = document.getElementById('cfg-web-theme');
+            const urlInp = document.getElementById('cfg-bg-url');
+
+            if (selectEl) selectEl.value = webThemeConfig.theme || 'slate';
+            if (urlInp) urlInp.value = webThemeConfig.customBg || '';
+
+            body.className = "min-h-screen flex flex-col theme-" + (webThemeConfig.theme || 'slate');
+            body.style.backgroundImage = '';
+
+            if (webThemeConfig.theme === 'custom' && webThemeConfig.customBg) {
+                body.style.backgroundImage = `url('${webThemeConfig.customBg}')`;
+            }
+
+            const customContainer = document.getElementById('custom-bg-input-container');
+            if (customContainer) {
+                if (webThemeConfig.theme === 'custom') customContainer.classList.remove('hidden');
+                else customContainer.classList.add('hidden');
+            }
+        }
+
         /* --- CLOUD SYNC LOGIC --- */
         function saveCloudUrl() {
             const url = document.getElementById('cfg-cloud-url').value.trim();
@@ -859,7 +974,6 @@
                 const cloudData = await response.json();
 
                 if (Array.isArray(cloudData) && cloudData.length > 0) {
-                    // Standardize cloud numeric & boolean types
                     inventoryData = cloudData.map(item => ({
                         propNo: String(item.propNo || ''),
                         article: String(item.article || ''),
@@ -875,7 +989,6 @@
                     saveDataLocallyOnly();
                     updateSyncBadgeUI('online', 'Live Google Sheet Connected');
                 } else if (Array.isArray(cloudData) && cloudData.length === 0 && inventoryData.length > 0) {
-                    // Sheet is newly initialized, populate sheet with initial local data
                     syncToCloud();
                 } else {
                     loadLocalData();
@@ -969,7 +1082,9 @@
 
         function updateHeaderSchoolInfo() {
             const nameEl = document.getElementById('header-school-name');
+            const subEl = document.getElementById('header-school-sub');
             if (nameEl) nameEl.textContent = schoolProfile.schoolName || 'MAM-ON ELEMENTARY SCHOOL';
+            if (subEl) subEl.textContent = `${schoolProfile.division || 'DepEd Surigao del Sur'} • School ID: ${schoolProfile.schoolId || '132649'}`;
         }
 
         function saveSchoolProfile() {
@@ -1105,20 +1220,30 @@
         }
 
         function applyLayoutToForm() {
-            document.getElementById('cfg-banner').value = stickerLayout.banner || '';
-            document.getElementById('cfg-paper-size').value = stickerLayout.paperSize || 'a4';
+            if (document.getElementById('cfg-banner')) document.getElementById('cfg-banner').value = stickerLayout.banner || '';
+            if (document.getElementById('cfg-paper-size')) document.getElementById('cfg-paper-size').value = stickerLayout.paperSize || 'a4';
+            if (document.getElementById('cfg-header-color')) {
+                document.getElementById('cfg-header-color').value = stickerLayout.headerColor || '#facc15';
+                document.getElementById('cfg-header-color-hex').textContent = stickerLayout.headerColor || '#facc15';
+            }
+            if (document.getElementById('cfg-body-color')) {
+                document.getElementById('cfg-body-color').value = stickerLayout.bodyColor || '#87ce88';
+                document.getElementById('cfg-body-color-hex').textContent = stickerLayout.bodyColor || '#87ce88';
+            }
 
             const colsVal = stickerLayout.cols || '2';
             const selectCols = document.getElementById('cfg-cols');
             const customInput = document.getElementById('cfg-custom-cols');
 
-            if (['1', '2', '3', '4'].includes(colsVal)) {
-                selectCols.value = colsVal;
-                customInput.classList.add('hidden');
-            } else {
-                selectCols.value = 'custom';
-                customInput.value = colsVal;
-                customInput.classList.remove('hidden');
+            if (selectCols && customInput) {
+                if (['1', '2', '3', '4'].includes(colsVal)) {
+                    selectCols.value = colsVal;
+                    customInput.classList.add('hidden');
+                } else {
+                    selectCols.value = 'custom';
+                    customInput.value = colsVal;
+                    customInput.classList.remove('hidden');
+                }
             }
 
             updateLogoPreviewUI();
@@ -1127,12 +1252,16 @@
 
         function updateLogoPreviewUI() {
             const box = document.getElementById('logo-preview-box');
+            const headerBox = document.getElementById('header-logo-container');
             const removeBtn = document.getElementById('remove-logo-btn');
+
             if (stickerLayout.logo) {
                 if (box) box.innerHTML = `<img src="${stickerLayout.logo}" class="w-full h-full object-contain p-0.5" alt="Logo">`;
+                if (headerBox) headerBox.innerHTML = `<img src="${stickerLayout.logo}" class="w-full h-full object-contain" alt="Logo">`;
                 if (removeBtn) removeBtn.classList.remove('hidden');
             } else {
                 if (box) box.innerHTML = `<i class="fa-solid fa-image text-slate-400 text-sm"></i>`;
+                if (headerBox) headerBox.innerHTML = `<i class="fa-solid fa-boxes-packing text-yellow-300"></i>`;
                 if (removeBtn) removeBtn.classList.add('hidden');
             }
         }
@@ -1202,11 +1331,11 @@
                     : `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">Pending</span>`;
 
                 return `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 text-slate-800">
                         <td class="p-3 font-bold text-indigo-900">${escapeHtml(item.propNo)}</td>
                         <td class="p-3">
                             <div class="font-bold text-slate-800">${escapeHtml(item.article)}</div>
-                            <div class="text-[10px] text-slate-400">${escapeHtml(item.classification || '')}</div>
+                            <div class="text-[10px] text-slate-500">${escapeHtml(item.classification || '')}</div>
                         </td>
                         <td class="p-3 font-mono text-slate-600">${escapeHtml(item.serial || 'N/A')}</td>
                         <td class="p-3 font-bold text-slate-700">${formatCurrency(item.cost)}</td>
@@ -1367,6 +1496,11 @@
         function updateStickerLayoutConfig() {
             stickerLayout.banner = document.getElementById('cfg-banner').value.trim() || defaultLayoutConfig.banner;
             stickerLayout.paperSize = document.getElementById('cfg-paper-size').value;
+            stickerLayout.headerColor = document.getElementById('cfg-header-color').value;
+            stickerLayout.bodyColor = document.getElementById('cfg-body-color').value;
+
+            document.getElementById('cfg-header-color-hex').textContent = stickerLayout.headerColor;
+            document.getElementById('cfg-body-color-hex').textContent = stickerLayout.bodyColor;
 
             const selectCols = document.getElementById('cfg-cols');
             const customInput = document.getElementById('cfg-custom-cols');
@@ -1504,20 +1638,7 @@
             };
 
             recordAutoSuggestEntry(officerVal, articleVal, classVal);
-const currentPropNo =
-document.getElementById('inp-propNo').value.trim();
 
-if(currentPropNo.startsWith('T')){
-
-    const nextNumber =
-    inventoryData.length + 1;
-
-    newItem.tempTag = currentPropNo;
-
-    newItem.propNo =
-    String(nextNumber).padStart(4,'0');
-
-}
             if (idx >= 0) {
                 inventoryData[idx] = newItem;
             } else {
@@ -1591,7 +1712,7 @@ if(currentPropNo.startsWith('T')){
                 saveData();
 
                 const item = inventoryData[itemIndex];
-                card.className = "max-w-md mx-auto bg-emerald-50 border border-emerald-300 p-4 rounded-xl shadow-sm space-y-2 text-xs";
+                card.className = "max-w-md mx-auto bg-emerald-50 border border-emerald-300 p-4 rounded-xl shadow-sm space-y-2 text-xs text-slate-800";
                 card.innerHTML = `
                     <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm">
                         <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> Item Audit Verified!
@@ -1602,7 +1723,7 @@ if(currentPropNo.startsWith('T')){
                     <div><strong>Accountable Officer:</strong> ${escapeHtml(item.officer || 'N/A')}</div>
                 `;
             } else {
-                card.className = "max-w-md mx-auto bg-amber-50 border border-amber-300 p-4 rounded-xl shadow-sm space-y-2 text-xs";
+                card.className = "max-w-md mx-auto bg-amber-50 border border-amber-300 p-4 rounded-xl shadow-sm space-y-2 text-xs text-slate-800";
                 card.innerHTML = `
                     <div class="flex items-center gap-2 text-amber-900 font-bold text-sm">
                         <i class="fa-solid fa-qrcode text-amber-600 text-lg"></i> Blank / Unregistered QR Tag Scanned!
@@ -1658,13 +1779,9 @@ if(currentPropNo.startsWith('T')){
             renderTags();
         }
 
-        function clearBlankTags() {
-            activeBlankTags = [];
-            renderTags();
-        }
-
         function renderTags() {
             const container = document.getElementById('printable-tags-area');
+            if (!container) return;
             container.innerHTML = '';
 
             const colsNum = parseInt(stickerLayout.cols) || 2;
@@ -1675,94 +1792,23 @@ if(currentPropNo.startsWith('T')){
 
             let totalTagsToPrint = 0;
 
+            const headerBg = stickerLayout.headerColor || '#facc15';
+            const bodyBg = stickerLayout.bodyColor || '#87ce88';
+            const logoHtml = stickerLayout.logo 
+                ? `<img src="${stickerLayout.logo}" class="h-8 w-8 object-contain my-1" alt="DepEd Logo">`
+                : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
+
+            // Render Blank Tags
             if (activeBlankTags && activeBlankTags.length > 0) {
                 activeBlankTags.forEach(blankItem => {
-                  if (activeBlankTags && activeBlankTags.length > 0) {
+                    totalTagsToPrint++;
+                    const tagWrapper = document.createElement('div');
+                    tagWrapper.className = "deped-tag shadow-sm";
 
-    activeBlankTags.forEach(blankItem => {
-
-        totalTagsToPrint++;
-
-        const tagWrapper =
-        document.createElement('div');
-
-        tagWrapper.className =
-        "deped-tag shadow-sm";
-
-        const qrSvg =
-        generatePureSVGQRCode(
-            blankItem.propNo,
-            90
-        );
-
-        tagWrapper.innerHTML = `
-
-        <div style="
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        width:100%;
-        height:100%;
-        background:white;
-        padding:10px;
-        ">
-
-            <div>
-                ${qrSvg}
-            </div>
-
-            <div style="
-            font-size:80px;
-            font-weight:900;
-            color:black;
-            ">
-                T${blankItem.tempNumber}
-            </div>
-
-        </div>
-
-        `;
-
-        container.appendChild(tagWrapper);
-
-    });
-
-}`;
+                    const qrSvg = generatePureSVGQRCode(blankItem.propNo, 70);
 
                     tagWrapper.innerHTML = `
-<div style="
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    width:100%;
-    height:100%;
-    background:white;
-    padding:8px;
-">
-
-    <div style="
-        width:90px;
-        height:90px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-    ">
-        ${qrSvg}
-    </div>
-
-    <div style="
-        font-size:90px;
-        font-weight:900;
-        color:#000;
-        line-height:1;
-        padding-right:10px;
-    ">
-        ${blankItem.tempNumber}
-    </div>
-
-</div>
-`;
-                        <div class="deped-tag-header bg-purple-600 text-white font-black tracking-wider">
+                        <div class="deped-tag-header" style="background-color: ${headerBg};">
                             ${escapeHtml(stickerLayout.banner || 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649')}
                         </div>
                         <div class="deped-tag-body">
@@ -1773,18 +1819,7 @@ if(currentPropNo.startsWith('T')){
                                     ${qrSvg}
                                 </div>
                             </div>
-                            <div class="deped<div class="deped-tag-right flex items-center justify-center">
-
-    <div style="
-        font-size:72px;
-        font-weight:900;
-        color:#000;
-        line-height:1;
-    ">
-        ${blankItem.tempNumber}
-    </div>
-
-</div>
+                            <div class="deped-tag-right" style="background-color: ${bodyBg};">
                                 <div class="data-row">
                                     <span class="data-label">PROPERTY NUMBER:</span>
                                     <span class="data-value font-mono font-bold text-indigo-900">${escapeHtml(blankItem.propNo)}</span>
@@ -1824,6 +1859,7 @@ if(currentPropNo.startsWith('T')){
                 });
             }
 
+            // Render Selected Inventory Items
             inventoryData.forEach((item) => {
                 const qty = stickerLayout.printQuantities[item.propNo] !== undefined ? stickerLayout.printQuantities[item.propNo] : 1;
                 if (qty <= 0) return;
@@ -1836,12 +1872,8 @@ if(currentPropNo.startsWith('T')){
 
                     const qrSvg = generatePureSVGQRCode(item.propNo, 70);
 
-                    const logoHtml = stickerLayout.logo 
-                        ? `<img src="${stickerLayout.logo}" class="h-8 w-8 object-contain my-1" alt="DepEd Logo">`
-                        : `<i class="fa-solid fa-fire-flame-curved text-red-600 text-2xl my-1"></i>`;
-
                     tagWrapper.innerHTML = `
-                        <div class="deped-tag-header">
+                        <div class="deped-tag-header" style="background-color: ${headerBg};">
                             ${escapeHtml(stickerLayout.banner || 'DIVISION OF SURIGAO DEL SUR – MAM-ON ES -132649')}
                         </div>
                         <div class="deped-tag-body">
@@ -1852,7 +1884,7 @@ if(currentPropNo.startsWith('T')){
                                     ${qrSvg}
                                 </div>
                             </div>
-                            <div class="deped-tag-right">
+                            <div class="deped-tag-right" style="background-color: ${bodyBg};">
                                 <div class="data-row">
                                     <span class="data-label">PROPERTY NUMBER:</span>
                                     <span class="data-value">${escapeHtml(item.propNo)}</span>
