@@ -10,80 +10,146 @@
   <!-- PapaParse for Google Sheets Live CSV Parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col antialiased">
 
   <!-- Header -->
-  <header class="bg-blue-900 text-white p-4 shadow-lg">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
-        <i class="fa-solid fa-boxes-stacked text-2xl text-blue-300"></i>
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-inner">
+          <i class="fa-solid fa-boxes-stacked text-xl text-white"></i>
+        </div>
         <div>
-          <h1 class="text-xl font-bold tracking-wide">MAM-ON ES INVENTORY PORTAL</h1>
-          <p class="text-xs text-blue-200">School ID: 132649 | Live Google Sheet Sync</p>
+          <h1 class="text-lg font-bold tracking-tight text-white">MAM-ON ES INVENTORY PORTAL</h1>
+          <p class="text-xs text-slate-400">School ID: 132649 | Live Google Sheet Dashboard</p>
         </div>
       </div>
       
-      <div class="flex items-center gap-2">
-        <!-- Sync Indicator -->
-        <div id="syncStatus" class="flex items-center gap-2 bg-blue-950 px-3 py-1.5 rounded text-xs text-blue-200 border border-blue-700">
-          <i class="fa-solid fa-rotate text-blue-400" id="syncSpinner"></i>
-          <span id="syncText">Syncing Google Sheet...</span>
+      <div class="flex items-center gap-3">
+        <!-- Live Sync Status Badge -->
+        <div id="syncStatus" class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full text-xs text-slate-300 border border-slate-700">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="syncText" class="font-medium">Syncing...</span>
         </div>
 
         <!-- Refresh Button -->
-        <button onclick="fetchGoogleSheetData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition flex items-center gap-1.5">
-          <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+        <button onclick="fetchGoogleSheetData()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate text-xs" id="syncSpinner"></i>
+          <span>Refresh</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl w-full mx-auto my-6 p-4 flex-1">
-    
-    <!-- Filter Bar -->
-    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
-      <!-- Search Input -->
-      <div class="relative w-full md:w-1/2">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        <input type="text" id="searchInput" onkeyup="filterItems()" 
-               placeholder="Search item, room, property no, or teacher..." 
-               class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+  <!-- Main Content Area -->
+  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1 space-y-6">
+
+    <!-- KPI Summary Metrics Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <!-- Card 1: Total Items -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Articles</p>
+          <h3 id="statTotalItems" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-list-check"></i>
+        </div>
       </div>
-      
-      <!-- Status Filter -->
-      <div class="w-full md:w-1/4">
-        <select id="statusFilter" onchange="filterItems()" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
-          <option value="ALL">(All conditions)</option>
-          <option value="Good">Good / Serviceable</option>
-          <option value="Needs Repair">Needs Repair</option>
-          <option value="Unserviceable">Unserviceable</option>
-        </select>
+
+      <!-- Card 2: Total Units -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Units (Qty)</p>
+          <h3 id="statTotalQty" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-cubes"></i>
+        </div>
+      </div>
+
+      <!-- Card 3: Good Condition -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Good Condition</p>
+          <h3 id="statGood" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+      </div>
+
+      <!-- Card 4: Needs Attention -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Needs Attention</p>
+          <h3 id="statAttention" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Controls & Filters Bar -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
+        
+        <!-- Search Input -->
+        <div class="relative w-full md:w-1/2">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <input type="text" id="searchInput" onkeyup="filterItems()" 
+                 placeholder="Search item name, location, custodian, or code..." 
+                 class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm transition">
+        </div>
+        
+        <!-- Status & Category Filters -->
+        <div class="flex gap-2 w-full md:w-auto">
+          <!-- Category Filter -->
+          <select id="categoryFilter" onchange="filterItems()" class="w-1/2 md:w-48 p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            <option value="ALL">All Categories</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="statusFilter" onchange="filterItems()" class="w-1/2 md:w-44 p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            <option value="ALL">All Conditions</option>
+            <option value="Good">Good / Serviceable</option>
+            <option value="Needs Repair">Needs Repair</option>
+            <option value="Unserviceable">Unserviceable</option>
+          </select>
+        </div>
+
       </div>
     </div>
 
-    <!-- Data Table -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-      <table class="w-full text-left border-collapse text-sm">
-        <thead class="bg-gray-800 text-white text-xs uppercase tracking-wider">
-          <tr>
-            <th class="p-3">ITEM DETAILS</th>
-            <th class="p-3">CATEGORY & QTY</th>
-            <th class="p-3">LOCATION</th>
-            <th class="p-3">ASSIGNED TO</th>
-            <th class="p-3">STATUS</th>
-          </tr>
-        </thead>
-        <tbody id="inventoryTableBody" class="divide-y divide-gray-200">
-          <!-- Live dynamic rows render here -->
-        </tbody>
-      </table>
+    <!-- Data Table Container -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-600 text-xs font-bold tracking-wider uppercase">
+              <th class="py-3 px-4">Article / Item Details</th>
+              <th class="py-3 px-4">Category</th>
+              <th class="py-3 px-4 text-center">Qty</th>
+              <th class="py-3 px-4">Location</th>
+              <th class="py-3 px-4">Person Responsible</th>
+              <th class="py-3 px-4 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
+            <!-- Dynamic rows injected here -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
 
   <script>
-    // Live Published CSV Link from your Google Sheet
+    // Live Published CSV URL from your Google Sheet
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWsbypcVljQu73WOcMllaBebHDNgvo2SB0fLM2d6wobh7d9CM_rYiUQMUJFC40bQ/pub?output=csv";
 
     let liveDatabase = [];
@@ -101,19 +167,24 @@
         header: true,
         skipEmptyLines: true,
         complete: function(results) {
-          liveDatabase = results.data.map((row, idx) => ({
-            id: idx + 1,
-            name: row['Article/Item'] || row['Item Name'] || row['Article'] || row['Description'] || 'Unnamed Item',
-            category: row['Category'] || row['Instruction'] || 'General Property',
-            qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || row['Quantity per Property Card'] || 1, 10),
-            value: row['Unit Value'] ? `₱${row['Unit Value']}` : '',
-            location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
-            assigned: row['Assigned To'] || row['Person Responsible'] || 'School Admin',
-            status: row['Status'] || row['Condition'] || 'Good'
-          }));
+          liveDatabase = results.data
+            .filter(row => row['Article/Item'] || row['Item Name'] || row['Article'] || row['Description'])
+            .map((row, idx) => ({
+              id: idx + 1,
+              name: row['Article/Item'] || row['Item Name'] || row['Article'] || row['Description'] || 'Unnamed Item',
+              category: row['Category'] || row['Instruction'] || 'General Property',
+              qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || row['Quantity per Property Card'] || 1, 10) || 1,
+              value: row['Unit Value'] ? `₱${row['Unit Value']}` : '',
+              location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
+              assigned: row['Assigned To'] || row['Person Responsible'] || row['Custodian'] || 'School Admin',
+              status: row['Status'] || row['Condition'] || 'Good'
+            }));
 
-          syncText.innerText = "Live Sheet Sync Active";
+          syncText.innerText = "Live Sync Active";
           syncSpinner.classList.remove('animate-spin');
+          
+          populateCategories();
+          updateMetrics(liveDatabase);
           filterItems();
         },
         error: function(err) {
@@ -124,7 +195,34 @@
       });
     }
 
-    // Render Table Rows
+    // Dynamic Category Dropdown
+    function populateCategories() {
+      const catSelect = document.getElementById('categoryFilter');
+      const categories = [...new Set(liveDatabase.map(i => i.category))].filter(Boolean);
+      
+      catSelect.innerHTML = `<option value="ALL">All Categories (${categories.length})</option>`;
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        catSelect.appendChild(option);
+      });
+    }
+
+    // Update KPI Header Metrics
+    function updateMetrics(items) {
+      const totalArticles = items.length;
+      const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+      const goodCount = items.filter(i => i.status.toLowerCase().includes('good') || i.status.toLowerCase().includes('serviceable')).length;
+      const attentionCount = totalArticles - goodCount;
+
+      document.getElementById('statTotalItems').innerText = totalArticles.toLocaleString();
+      document.getElementById('statTotalQty').innerText = totalQty.toLocaleString();
+      document.getElementById('statGood').innerText = goodCount.toLocaleString();
+      document.getElementById('statAttention').innerText = attentionCount.toLocaleString();
+    }
+
+    // Render Table Rows cleanly
     function renderTable(items) {
       const tbody = document.getElementById('inventoryTableBody');
       tbody.innerHTML = '';
@@ -132,38 +230,55 @@
       if (!items || items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="5" class="p-8 text-center text-gray-400">
-              <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
-              <p>No inventory records found.</p>
+            <td colspan="6" class="py-12 text-center text-slate-400">
+              <i class="fa-regular fa-folder-open text-4xl mb-3 block"></i>
+              <p class="font-medium">No matching inventory items found.</p>
             </td>
           </tr>`;
         return;
       }
 
       items.forEach(item => {
-        let statusBadge = "bg-emerald-100 text-emerald-800 border-emerald-300";
-        if (item.status && item.status.toLowerCase().includes('repair')) {
-          statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
-        }
-        if (item.status && item.status.toLowerCase().includes('unserviceable')) {
-          statusBadge = "bg-rose-100 text-rose-800 border-rose-300";
+        let statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        let statusDot = "bg-emerald-500";
+
+        const statusLower = item.status ? item.status.toLowerCase() : '';
+        if (statusLower.includes('repair')) {
+          statusBadge = "bg-amber-50 text-amber-700 border-amber-200";
+          statusDot = "bg-amber-500";
+        } else if (statusLower.includes('unserviceable')) {
+          statusBadge = "bg-rose-50 text-rose-700 border-rose-200";
+          statusDot = "bg-rose-500";
         }
 
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-gray-50 transition";
+        tr.className = "hover:bg-slate-50/80 transition-colors";
         tr.innerHTML = `
-          <td class="p-3 font-semibold text-gray-800">
-            ${item.name}
-            ${item.value ? `<span class="block text-xs font-normal text-gray-500">Val: ${item.value}</span>` : ''}
+          <td class="py-3 px-4">
+            <div class="font-semibold text-slate-800">${item.name}</div>
+            ${item.value ? `<div class="text-xs text-slate-400 mt-0.5">Unit Value: ${item.value}</div>` : ''}
           </td>
-          <td class="p-3 text-gray-600">
-            <span class="block text-xs text-gray-500">${item.category}</span>
-            <span class="font-medium">Qty: ${item.qty}</span>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+              ${item.category}
+            </span>
           </td>
-          <td class="p-3 text-gray-600">${item.location}</td>
-          <td class="p-3 text-gray-600">${item.assigned}</td>
-          <td class="p-3">
-            <span class="px-2.5 py-1 text-xs font-semibold border rounded-full ${statusBadge}">
+          <td class="py-3 px-4 text-center font-bold text-slate-700">${item.qty}</td>
+          <td class="py-3 px-4 text-slate-600">
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-location-dot text-slate-400 text-xs"></i>
+              <span>${item.location}</span>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-slate-600">
+            <div class="flex items-center gap-1.5">
+              <i class="fa-regular fa-user text-slate-400 text-xs"></i>
+              <span>${item.assigned}</span>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold border rounded-full ${statusBadge}">
+              <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>
               ${item.status}
             </span>
           </td>
@@ -176,6 +291,7 @@
     function filterItems() {
       const search = document.getElementById('searchInput').value.toLowerCase();
       const statusFilter = document.getElementById('statusFilter').value;
+      const categoryFilter = document.getElementById('categoryFilter').value;
 
       const filtered = liveDatabase.filter(item => {
         const matchesSearch = 
@@ -185,8 +301,9 @@
           item.category.toLowerCase().includes(search);
 
         const matchesStatus = statusFilter === "ALL" || item.status.toLowerCase().includes(statusFilter.toLowerCase());
+        const matchesCategory = categoryFilter === "ALL" || item.category === categoryFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesCategory;
       });
 
       renderTable(filtered);
