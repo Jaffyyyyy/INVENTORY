@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Web App</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #2da44e; color: white; }
+        .status { padding: 10px; background: #e1f5fe; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>📦 Inventory Data Store</h1>
+    <div class="status" id="status">Loading stored inventory...</div>
+
+    <table id="inventoryTable">
+        <thead>
+            <tr id="tableHeader"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        // Fetches and parses the uploaded inventory.csv file
+        fetch('inventory.csv')
+            .then(response => {
+                if (!response.ok) throw new Error("File not found");
+                return response.text();
+            })
+            .then(data => {
+                const rows = data.trim().split('\n').map(row => row.split(','));
+                
+                // Set Headers
+                const headerRow = document.getElementById('tableHeader');
+                rows[0].forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header.trim();
+                    headerRow.appendChild(th);
+                });
+
+                // Set Data Rows
+                const tableBody = document.getElementById('tableBody');
+                rows.slice(1).forEach(row => {
+                    const tr = document.createElement('tr');
+                    row.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.textContent = cell.trim();
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
+
+                document.getElementById('status').innerText = "✅ Uploaded Data Successfully Loaded!";
+            })
+            .catch(err => {
+                document.getElementById('status').innerText = "⚠️ No inventory file found or upload pending.";
+            });
+    </script>
+</body>
+</html>
