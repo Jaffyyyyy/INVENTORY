@@ -37,7 +37,7 @@
 
         <!-- Reset Portal -->
         <button onclick="clearData()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
-          <i class="fa-solid fa-rotate-left"></i> Reset
+          <i class="fa-solid fa-rotate-left"></i> Reset to Default
         </button>
       </div>
     </div>
@@ -52,7 +52,7 @@
       <div class="relative w-full md:w-1/2">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
         <input type="text" id="searchInput" onkeyup="filterItems()" 
-               placeholder="Search item, room, ID or teacher..." 
+               placeholder="Search item, room, property no, or teacher..." 
                class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
       </div>
       
@@ -60,7 +60,7 @@
       <div class="w-full md:w-1/4">
         <select id="statusFilter" onchange="filterItems()" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
           <option value="ALL">(All conditions)</option>
-          <option value="Good">Good</option>
+          <option value="Good">Good / Serviceable</option>
           <option value="Needs Repair">Needs Repair</option>
           <option value="Unserviceable">Unserviceable</option>
         </select>
@@ -97,13 +97,13 @@
       </div>
       <form id="addForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name</label>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name / Article</label>
           <input type="text" id="itemName" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
-            <input type="text" id="itemCat" placeholder="e.g. ICT, Office" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="itemCat" placeholder="e.g. ICT Equipment" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
@@ -121,7 +121,7 @@
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
           <select id="itemStatus" class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-            <option value="Good">Good</option>
+            <option value="Good">Good / Serviceable</option>
             <option value="Needs Repair">Needs Repair</option>
             <option value="Unserviceable">Unserviceable</option>
           </select>
@@ -135,13 +135,28 @@
   </div>
 
   <script>
-    // Initial sample dataset
+    // Embedded initial database directly from INVENTORY COUNT FORM 2026.xlsx
     const initialDatabase = [
-      { id: 1, name: "Desktop Package (COBY)", category: "ICT Equipment", qty: 1, location: "Computer Room", assigned: "Property Custodian", status: "Good" },
-      { id: 2, name: "Interactive Projector (PIXPRO)", category: "ICT Equipment", qty: 1, location: "Computer Room", assigned: "Grade 1 Teacher", status: "Unserviceable" },
-      { id: 3, name: "Epson Printer L3210 3-in-1", category: "ICT Equipment", qty: 1, location: "Computer Room", assigned: "Office Clerk", status: "Good" },
-      { id: 4, name: "DEVANT 55\" Smart UHD TV", category: "ICT Equipment", qty: 1, location: "Grade 2 Classroom", assigned: "Grade 2 Adviser", status: "Good" },
-      { id: 5, name: "Stand Fan", category: "Office Equipment", qty: 2, location: "Kindergarten Room", assigned: "Kinder Adviser", status: "Needs Repair" }
+      // ICF-CONSO: ICT Equipment
+      { id: 1, name: "Desktop Package (COBY, CAAG038120111)", category: "ICT Equipment", qty: 1, value: "₱35,639.34", location: "Computer Room", assigned: "Property Custodian", status: "Good" },
+      { id: 2, name: "Interactive Projector (PIXPRO iSHOW ACTIVA X1600)", category: "ICT Equipment", qty: 1, value: "₱38,426.17", location: "Computer Room", assigned: "Grade 1 Teacher", status: "Unserviceable" },
+      { id: 3, name: "Epson Printer L3210 3-in-1", category: "ICT Equipment", qty: 1, value: "₱9,000.00", location: "Computer Room", assigned: "Office Clerk", status: "Good" },
+      { id: 4, name: "TCL LED TV 32\" (S/N: 2203ALY176378B00503)", category: "ICT Equipment", qty: 1, value: "₱11,988.00", location: "Computer Room", assigned: "Property Custodian", status: "Good" },
+      { id: 5, name: "DEVANT UHD TV 55\" (S/N: 55UHW201L112301699)", category: "ICT Equipment", qty: 1, value: "₱21,100.00", location: "Grade 2 Classroom", assigned: "Grade 2 Adviser", status: "Good" },
+      { id: 6, name: "SAMSUNG Smart TV 55\" (S/N: 08F43NMX800262V)", category: "ICT Equipment", qty: 1, value: "₱24,990.00", location: "Grade 3 Classroom", assigned: "Grade 3 Adviser", status: "Good" },
+
+      // ICF-CONSO: Office Equipment
+      { id: 7, name: "Stand Fan (Standard 16\")", category: "Office Equipment", qty: 1, value: "₱1,500.00", location: "Kindergarten Room", assigned: "Kinder Adviser", status: "Good" },
+      { id: 8, name: "Wall Fan (Asahi 16\")", category: "Office Equipment", qty: 2, value: "₱3,200.00", location: "Office / Staff Room", assigned: "School Admin", status: "Good" },
+
+      // ICF-CONSO (2): Buildings & Facilities
+      { id: 9, name: "Building 1 (Office, Kinder, G1, Computer Lab)", category: "Buildings & Facilities", qty: 1, value: "N/A", location: "Mam-on ES Main Campus", assigned: "School Head", status: "Good" },
+      { id: 10, name: "Building 2 (Grade 2 & Grade 3 Classrooms)", category: "Buildings & Facilities", qty: 1, value: "N/A", location: "Mam-on ES Main Campus", assigned: "School Head", status: "Good" },
+
+      // ICF-CONSO (2): Books & Learning Materials
+      { id: 11, name: "Pagpahanas sa Pagpangadam (Kinder LRM)", category: "Books & Learning Materials", qty: 52, value: "N/A", location: "Kindergarten Room", assigned: "Kinder Teacher", status: "Good" },
+      { id: 12, name: "Mother Tongue - Grade 1 Learner's Material", category: "Books & Learning Materials", qty: 45, value: "N/A", location: "Grade 1 Classroom", assigned: "Grade 1 Teacher", status: "Good" },
+      { id: 13, name: "Mathematics Grade 2 Learner's Material", category: "Books & Learning Materials", qty: 38, value: "N/A", location: "Grade 2 Classroom", assigned: "Grade 2 Teacher", status: "Good" }
     ];
 
     // Local Storage helpers
@@ -179,7 +194,10 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50 transition";
         tr.innerHTML = `
-          <td class="p-3 font-semibold text-gray-800">${item.name}</td>
+          <td class="p-3 font-semibold text-gray-800">
+            ${item.name}
+            ${item.value ? `<span class="block text-xs font-normal text-gray-500">Val: ${item.value}</span>` : ''}
+          </td>
           <td class="p-3 text-gray-600">
             <span class="block text-xs text-gray-500">${item.category}</span>
             <span class="font-medium">Qty: ${item.qty}</span>
@@ -270,6 +288,7 @@
             name: row['Article/Item'] || row['Item Name'] || row['Article'] || 'Unnamed Item',
             category: row['Category'] || row['Instruction'] || 'General Property',
             qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || 1, 10),
+            value: row['Unit Value'] ? `₱${row['Unit Value']}` : '',
             location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
             assigned: row['Assigned To'] || row['Person Responsible'] || 'School Admin',
             status: row['Status'] || row['Condition'] || 'Good'
@@ -281,9 +300,9 @@
       });
     }
 
-    // Reset Data
+    // Reset Data back to Spreadsheet Default
     function clearData() {
-      if (confirm("Reset inventory data back to original defaults?")) {
+      if (confirm("Reset inventory data back to the default spreadsheet list?")) {
         localStorage.removeItem('mamon_inventory_portal');
         filterItems();
       }
