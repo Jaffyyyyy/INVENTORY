@@ -3,653 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAM-ON ES PORTAL | AI-Native Enterprise Dashboard</title>
+    <title>MAM-ON ES PORTAL | Dashboard</title>
     <!-- Tailwind CSS v3 via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for High-End Dynamic Visualizations -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Tailwind Custom Configuration -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            400: '#60a5fa',
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
                             500: '#3b82f6',
                             600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
                             900: '#1e3a8a',
-                        },
-                        accent: {
-                            purple: '#a855f7',
-                            emerald: '#10b981',
-                            amber: '#f59e0b',
-                            rose: '#f43f5e'
-                        },
-                        dark: {
-                            bg: '#0B0F17',
-                            surface: '#111827',
-                            card: '#1F2937',
-                            border: 'rgba(255, 255, 255, 0.08)',
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'glow-pulse': 'glowPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        glowPulse: {
-                            '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))' },
-                            '50%': { opacity: 0.7, filter: 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))' },
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
                         }
                     }
                 }
             }
         }
     </script>
-    <style>
-        /* Glassmorphism & Visual Effects */
-        .glass-panel {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .glass-card {
-            background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 8px 20px -6px rgba(0,0,0,0.5);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card:hover {
-            border-color: rgba(96, 165, 250, 0.4);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px -10px rgba(59, 130, 246, 0.2);
-        }
-
-        /* Infographic Radial Gauge */
-        .radial-gauge {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: conic-gradient(#10b981 88%, #1F2937 0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .radial-gauge::before {
-            content: "";
-            position: absolute;
-            width: 46px;
-            height: 46px;
-            background: #111827;
-            border-radius: 50%;
-        }
-        .gauge-value {
-            position: relative;
-            z-index: 1;
-            font-weight: 800;
-            font-size: 0.85rem;
-            color: #fff;
-        }
-
-        /* Sleek Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4B5563; }
-    </style>
 </head>
-<body class="bg-[#0B0F17] text-slate-100 font-sans antialiased h-screen overflow-hidden flex selection:bg-brand-500/30">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased h-screen overflow-hidden flex">
 
-    <!-- LEFT SIDEBAR (REARRANGED WITH DROPDOWN) -->
-    <aside class="w-[280px] glass-panel border-r border-dark-border flex flex-col h-full z-30 shadow-[4px_0_24px_rgba(0,0,0,0.4)]">
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-full z-20 shadow-sm">
         
         <!-- Header & Logo -->
-        <div class="p-6 border-b border-dark-border">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-purple flex items-center justify-center font-black text-white shadow-lg shadow-brand-500/30 animate-float">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-9 w-9 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-white text-lg shadow-md shadow-brand-500/20">
                     M
                 </div>
                 <div>
-                    <h1 class="font-bold text-[13px] text-white tracking-widest uppercase">Mam-On ES</h1>
-                    <p class="text-[10px] text-brand-400 font-mono mt-0.5">SY 2025-2026 ACTIVE</p>
+                    <h1 class="font-bold text-sm text-slate-900 uppercase tracking-wide">Mam-On ES</h1>
+                    <p class="text-xs text-brand-600 font-medium">SY 2025-2026</p>
                 </div>
             </div>
 
-            <!-- THE DROPDOWN LIST (MOVED TO LEFT) -->
-            <div class="bg-dark-bg/80 p-1.5 rounded-xl border border-dark-border/50 relative group">
-                <label class="absolute -top-2 left-3 bg-[#0B0F17] px-1 text-[9px] font-bold text-accent-purple uppercase tracking-wider">Switch Role</label>
-                <div class="flex items-center gap-2 px-2 py-1">
-                    <i data-lucide="shield" class="w-4 h-4 text-brand-400"></i>
-                    <select id="leftSidebarSwitch" onchange="handleViewModeSwitch(this)" class="w-full bg-transparent text-xs font-bold text-white outline-none cursor-pointer appearance-none truncate pr-4">
-                        <option value="admin" class="bg-dark-surface">Jasper Campado (Admin)</option>
-                        <option value="principal" class="bg-dark-surface">Eric Palingcod (Principal)</option>
-                        <option value="teacher" class="bg-dark-surface">Jenny Orillaneda (Teacher)</option>
-                        <option value="guest" class="bg-dark-surface">Visitor Portal</option>
+            <!-- SWITCH ROLE DROPDOWN -->
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 relative">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Switch Role</label>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user-check" class="w-4 h-4 text-brand-600"></i>
+                    <select id="roleSwitch" onchange="handleViewModeSwitch(this)" class="w-full bg-transparent text-xs font-semibold text-slate-800 outline-none cursor-pointer appearance-none pr-4">
+                        <option value="admin">Jasper Campado (Admin)</option>
+                        <option value="principal">Eric Palingcod (Principal)</option>
+                        <option value="teacher">Jenny Orillaneda (Teacher)</option>
+                        <option value="guest">Visitor Portal</option>
                     </select>
-                    <i data-lucide="chevron-down" class="w-3 h-3 text-slate-500 absolute right-3 pointer-events-none"></i>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400 absolute right-3 top-6 pointer-events-none"></i>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Links -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Analytics Core</p>
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Main Menu</p>
             
-            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold">
+            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-brand-50 transition-colors text-xs font-medium">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Primary Dashboard
             </a>
             
-            <a href="#" onclick="setActiveNav(this)" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-brand-600/20 to-transparent text-brand-400 border-l-2 border-brand-500 text-xs font-bold">
-                <i data-lucide="pie-chart" class="w-4 h-4"></i> 
-                <span class="flex-1">Exam Analytics</span>
-                <span class="w-2 h-2 rounded-full bg-brand-400 animate-glow-pulse"></span>
+            <a href="#" onclick="setActiveNav(this)" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-brand-600"></i> Exam Analytics
             </a>
 
-            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold">
-                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Report Trackers
+            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-brand-50 transition-colors text-xs font-medium">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Reports & Trackers
             </a>
 
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mt-6 mb-2">Management</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mt-6 mb-2">Management</p>
 
-            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold">
-                <i data-lucide="users" class="w-4 h-4"></i> Personnel & PDB
+            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-brand-50 transition-colors text-xs font-medium">
+                <i data-lucide="users" class="w-4 h-4"></i> Personnel Directory
             </a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold">
-                <i data-lucide="monitor-play" class="w-4 h-4"></i> Creator Hub
+            <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-brand-50 transition-colors text-xs font-medium">
+                <i data-lucide="folder" class="w-4 h-4"></i> Documents
             </a>
         </nav>
 
         <!-- User Profile Block -->
-        <div class="p-5 border-t border-dark-border bg-gradient-to-b from-transparent to-black/20 flex items-center gap-3">
-            <div id="userAvatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-accent-emerald flex items-center justify-center text-white font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] border-2 border-[#0B0F17]">
+        <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center gap-3">
+            <div id="userAvatar" class="w-9 h-9 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 JC
             </div>
             <div class="overflow-hidden flex-1">
-                <h4 id="sidebarUserName" class="text-xs font-bold text-white truncate">Jasper S. Campado</h4>
-                <p id="sidebarUserRole" class="text-[10px] text-accent-emerald truncate font-mono">Creator / Admin</p>
+                <h4 id="sidebarUserName" class="text-xs font-bold text-slate-800 truncate">Jasper S. Campado</h4>
+                <p id="sidebarUserRole" class="text-[11px] text-slate-500 truncate">Administrator</p>
             </div>
-            <button class="text-slate-500 hover:text-white transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+            <button class="text-slate-400 hover:text-slate-600 transition-colors" title="Logout">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
         </div>
     </aside>
 
-    <!-- MAIN VIEWPORT (RIGHT CONTENT) -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+    <!-- MAIN VIEWPORT -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
         
-        <!-- TOP APP BAR -->
-        <header class="h-20 z-20 px-8 flex items-center justify-between">
+        <!-- TOP HEADER -->
+        <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shadow-sm z-10">
             <div>
-                <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Performance Analytics</h2>
-                <p class="text-xs text-slate-500 font-mono mt-1">Real-time data synchronization active • 60fps Rendering</p>
+                <h2 class="text-lg font-bold text-slate-900">Performance Dashboard</h2>
+                <p class="text-xs text-slate-500">School Year 2025-2026 Summary</p>
             </div>
 
-            <!-- Global CMD+K Search & Actions -->
-            <div class="flex items-center gap-4">
-                <button onclick="toggleCmdPalette()" class="flex items-center gap-3 bg-dark-card border border-dark-border hover:border-brand-500/50 text-slate-400 text-xs px-4 py-2.5 rounded-xl transition-all duration-300 w-72 justify-between group shadow-lg">
-                    <span class="flex items-center gap-2">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-500 group-hover:text-brand-400 transition-colors"></i>
-                        <span>Search metrics, insights...</span>
-                    </span>
-                    <kbd class="bg-dark-bg text-[10px] text-slate-400 font-mono px-1.5 py-0.5 rounded border border-dark-border">⌘K</kbd>
-                </button>
-
-                <button onclick="toggleCopilot()" class="relative p-2.5 rounded-xl bg-brand-600/10 hover:bg-brand-600/30 border border-brand-500/30 transition-all group overflow-hidden">
-                    <div class="absolute inset-0 bg-brand-500/20 blur-md group-hover:opacity-100 opacity-0 transition-opacity"></div>
-                    <i data-lucide="bot" class="w-5 h-5 text-brand-400 relative z-10"></i>
-                    <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-accent-purple rounded-full border-2 border-[#0B0F17] animate-pulse"></span>
-                </button>
+            <!-- Search Bar -->
+            <div class="w-72">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    <input type="text" placeholder="Search records, subjects..." class="w-full bg-slate-50 border border-slate-200 focus:border-brand-500 focus:bg-white rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-800 outline-none transition-all">
+                </div>
             </div>
         </header>
 
-        <!-- DASHBOARD SCROLLABLE CONTENT -->
-        <div class="flex-1 overflow-y-auto px-8 pb-8 space-y-6">
+        <!-- DASHBOARD CONTENT -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
             
-            <!-- INFOGRAPHIC METRICS GRID -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- SIMPLE STATS CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 
-                <!-- Metric 1: Total Enrollees (Radial Gauge) -->
-                <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-accent-emerald/10 blur-3xl rounded-full group-hover:bg-accent-emerald/20 transition-all"></div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Enrollees</p>
-                            <h3 class="text-3xl font-black text-white">648</h3>
-                            <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-accent-emerald/10 border border-accent-emerald/20 text-accent-emerald text-[10px] font-bold">
-                                <i data-lucide="arrow-up-right" class="w-3 h-3"></i> 4.2% Growth
-                            </div>
-                        </div>
-                        <div class="radial-gauge shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                            <span class="gauge-value">88%</span>
-                        </div>
+                <!-- Card 1 -->
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Enrollees</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1">648</h3>
+                        <p class="text-xs text-emerald-600 font-medium mt-1">↑ 4.2% vs last year</p>
+                    </div>
+                    <div class="p-3 bg-brand-50 text-brand-600 rounded-lg">
+                        <i data-lucide="users" class="w-6 h-6"></i>
                     </div>
                 </div>
 
-                <!-- Metric 2: MPS Proficiency (Sparkline) -->
-                <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-500/10 blur-3xl rounded-full group-hover:bg-brand-500/20 transition-all"></div>
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Average MPS</p>
-                            <h3 class="text-3xl font-black text-white">84.2<span class="text-lg text-slate-500">%</span></h3>
-                        </div>
-                        <div class="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                            <i data-lucide="target" class="w-5 h-5"></i>
-                        </div>
+                <!-- Card 2 -->
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Average MPS</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1">84.2%</h3>
+                        <p class="text-xs text-brand-600 font-medium mt-1">Target Achieved</p>
                     </div>
-                    <!-- SVG Sparkline Infographic -->
-                    <div class="w-full h-10 mt-2 flex items-end">
-                        <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 20">
-                            <path d="M0,20 L10,15 L20,18 L30,10 L40,12 L50,5 L60,8 L70,2 L80,6 L90,1 L100,0" fill="none" stroke="#3b82f6" stroke-width="2" class="drop-shadow-[0_4px_4px_rgba(59,130,246,0.5)]"/>
-                            <path d="M0,20 L10,15 L20,18 L30,10 L40,12 L50,5 L60,8 L70,2 L80,6 L90,1 L100,0 L100,20 L0,20 Z" fill="url(#gradBlue)" stroke="none" opacity="0.3"/>
-                            <defs>
-                                <linearGradient id="gradBlue" x1="0" x2="0" y1="0" y2="1">
-                                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
-                                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
+                    <div class="p-3 bg-brand-50 text-brand-600 rounded-lg">
+                        <i data-lucide="award" class="w-6 h-6"></i>
                     </div>
                 </div>
 
-                <!-- Metric 3: Plantilla Filled -->
-                <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-accent-purple/10 blur-3xl rounded-full group-hover:bg-accent-purple/20 transition-all"></div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Teaching Staff</p>
-                            <h3 class="text-3xl font-black text-white">24<span class="text-lg text-slate-500">/24</span></h3>
-                            <p class="text-xs text-accent-purple mt-2 font-semibold">100% Filled Capacity</p>
-                        </div>
-                        <div class="p-2 rounded-xl bg-accent-purple/10 text-accent-purple border border-accent-purple/20">
-                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                        </div>
+                <!-- Card 3 -->
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Teaching Staff</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1">24 / 24</h3>
+                        <p class="text-xs text-slate-500 mt-1">100% Filled</p>
                     </div>
-                    <!-- Dots Progress -->
-                    <div class="flex gap-1 mt-5">
-                        <script>
-                            for(let i=0; i<12; i++) document.write('<div class="h-1.5 flex-1 rounded-full bg-accent-purple shadow-[0_0_5px_rgba(168,85,247,0.5)]"></div>');
-                        </script>
+                    <div class="p-3 bg-brand-50 text-brand-600 rounded-lg">
+                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
                     </div>
                 </div>
 
-                <!-- Metric 4: AI Insights Generated -->
-                <div class="glass-card rounded-2xl p-5 relative overflow-hidden border border-brand-500/30">
-                    <div class="absolute inset-0 bg-gradient-to-br from-brand-600/10 to-transparent pointer-events-none"></div>
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <p class="text-[10px] font-bold text-brand-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                <i data-lucide="sparkles" class="w-3 h-3"></i> AI Engine Active
-                            </p>
-                            <h3 class="text-xl font-bold text-white leading-tight mt-2">New Remediation<br>Plans Ready</h3>
-                        </div>
+                <!-- Card 4 -->
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Classes</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1">18</h3>
+                        <p class="text-xs text-slate-500 mt-1">Grades 1 through 6</p>
                     </div>
-                    <button class="w-full mt-2 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)]">
-                        Review Insights →
-                    </button>
+                    <div class="p-3 bg-brand-50 text-brand-600 rounded-lg">
+                        <i data-lucide="book-open" class="w-6 h-6"></i>
+                    </div>
                 </div>
             </div>
 
-            <!-- MAIN ANALYTICS SECTION (CHARTS) -->
+            <!-- ANALYTICS SECTION -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Main Area Chart: Exam Performance -->
-                <div class="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col">
-                    <div class="flex items-center justify-between mb-6 border-b border-dark-border pb-4">
+                <!-- Main Line Chart -->
+                <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-lg font-black text-white">Grade Level MPS Trends</h3>
-                            <p class="text-xs text-slate-400 mt-1">Comparison between Mathematics and English</p>
+                            <h3 class="text-base font-bold text-slate-900">Grade Level Performance</h3>
+                            <p class="text-xs text-slate-500">Subject performance breakdown across grade levels</p>
                         </div>
-                        <div class="flex bg-dark-bg p-1 rounded-lg border border-dark-border">
-                            <button class="px-4 py-1.5 rounded-md bg-dark-surface text-white text-xs font-bold shadow-sm">Q1 Exam</button>
-                            <button class="px-4 py-1.5 rounded-md text-slate-400 hover:text-white text-xs font-bold transition-colors">Q2 AI Projection</button>
-                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-brand-50 text-brand-700 rounded-md border border-brand-100">
+                            Quarter 1 Data
+                        </span>
                     </div>
-                    <div class="flex-1 min-h-[280px] w-full relative">
+                    <div class="h-64 w-full">
                         <canvas id="examChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Doughnut Chart: Demographics -->
-                <div class="glass-card rounded-2xl p-6 flex flex-col items-center">
-                    <div class="w-full flex items-center justify-between mb-2">
-                        <h3 class="text-sm font-bold text-white">Learner Demographics</h3>
-                        <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
-                    </div>
-                    <div class="relative w-[200px] h-[200px] mt-4">
-                        <!-- Center glowing text -->
-                        <div class="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none">
-                            <span class="text-2xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">648</span>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase">Total</span>
+                <!-- Simple Distribution Doughnut -->
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 mb-1">Student Gender Distribution</h3>
+                        <p class="text-xs text-slate-500 mb-4">Total enrolled learners breakdown</p>
+                        <div class="h-44 relative flex items-center justify-center">
+                            <canvas id="demographicsChart"></canvas>
                         </div>
-                        <canvas id="demographicsChart" class="relative z-10"></canvas>
                     </div>
-                    
-                    <!-- Beautiful Legend -->
-                    <div class="w-full mt-6 space-y-3">
-                        <div class="flex items-center justify-between bg-dark-bg/50 p-2.5 rounded-xl border border-dark-border">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
-                                <span class="text-xs font-semibold text-slate-300">Male</span>
-                            </div>
-                            <span class="text-sm font-black text-white">332 <span class="text-[10px] text-slate-500 font-normal">51.2%</span></span>
+                    <div class="grid grid-cols-2 gap-2 pt-4 border-t border-slate-100 text-center">
+                        <div class="p-2 bg-slate-50 rounded-lg">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">Male</span>
+                            <span class="text-sm font-bold text-slate-800">332 (51%)</span>
                         </div>
-                        <div class="flex items-center justify-between bg-dark-bg/50 p-2.5 rounded-xl border border-dark-border">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-accent-purple shadow-[0_0_8px_rgba(168,85,247,0.8)]"></div>
-                                <span class="text-xs font-semibold text-slate-300">Female</span>
-                            </div>
-                            <span class="text-sm font-black text-white">316 <span class="text-[10px] text-slate-500 font-normal">48.8%</span></span>
+                        <div class="p-2 bg-slate-50 rounded-lg">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">Female</span>
+                            <span class="text-sm font-bold text-slate-800">316 (49%)</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIRTUALIZED DATA TABLE -->
-            <div class="glass-card rounded-2xl overflow-hidden">
-                <div class="p-5 border-b border-dark-border flex items-center justify-between bg-white/[0.02]">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="database" class="w-4 h-4 text-brand-400"></i>
-                        Recent Assessment Logs
-                    </h3>
-                    <button class="text-xs text-brand-400 font-semibold hover:text-white transition-colors">View All Logs →</button>
+            <!-- CLEAN DATA TABLE -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-slate-900">Class Performance Records</h3>
+                    <button class="text-xs font-semibold text-brand-600 hover:text-brand-800">Export Report</button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-dark-border bg-dark-bg/50">
-                                <th class="py-3 px-6 font-bold">Grade / Section</th>
-                                <th class="py-3 px-6 font-bold">Adviser</th>
-                                <th class="py-3 px-6 font-bold">Subject Focus</th>
-                                <th class="py-3 px-6 font-bold">MPS Result</th>
-                                <th class="py-3 px-6 font-bold">AI Status</th>
+                            <tr class="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50 border-b border-slate-100">
+                                <th class="py-3 px-6">Grade & Section</th>
+                                <th class="py-3 px-6">Adviser</th>
+                                <th class="py-3 px-6">Subject</th>
+                                <th class="py-3 px-6">MPS Result</th>
+                                <th class="py-3 px-6">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="text-sm divide-y divide-dark-border/50 text-slate-300 font-medium">
-                            <tr class="hover:bg-brand-900/10 transition-colors group cursor-pointer">
-                                <td class="py-3 px-6 text-white">Grade 6 - Mabini</td>
-                                <td class="py-3 px-6">J. Orillaneda</td>
-                                <td class="py-3 px-6 text-slate-400">Mathematics</td>
-                                <td class="py-3 px-6 text-accent-emerald font-black">88.5%</td>
-                                <td class="py-3 px-6">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-emerald/10 text-accent-emerald text-[10px] font-bold border border-accent-emerald/20 shadow-[0_0_10px_rgba(16,185,129,0.1)] group-hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse"></div> Verified
-                                    </span>
+                        <tbody class="text-xs divide-y divide-slate-100 text-slate-700">
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="py-3.5 px-6 font-semibold text-slate-900">Grade 6 - Mabini</td>
+                                <td class="py-3.5 px-6">J. Orillaneda</td>
+                                <td class="py-3.5 px-6">Mathematics</td>
+                                <td class="py-3.5 px-6 font-bold text-emerald-600">88.5%</td>
+                                <td class="py-3.5 px-6">
+                                    <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[10px]">Passed</span>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-brand-900/10 transition-colors group cursor-pointer">
-                                <td class="py-3 px-6 text-white">Grade 5 - Rizal</td>
-                                <td class="py-3 px-6">E. Palingcod</td>
-                                <td class="py-3 px-6 text-slate-400">Science</td>
-                                <td class="py-3 px-6 text-brand-400 font-black">82.1%</td>
-                                <td class="py-3 px-6">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-400 text-[10px] font-bold border border-brand-500/20 shadow-[0_0_10px_rgba(59,130,246,0.1)] group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-400"></div> Synced
-                                    </span>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="py-3.5 px-6 font-semibold text-slate-900">Grade 5 - Rizal</td>
+                                <td class="py-3.5 px-6">E. Palingcod</td>
+                                <td class="py-3.5 px-6">Science</td>
+                                <td class="py-3.5 px-6 font-bold text-brand-600">82.1%</td>
+                                <td class="py-3.5 px-6">
+                                    <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[10px]">Passed</span>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-brand-900/10 transition-colors group cursor-pointer">
-                                <td class="py-3 px-6 text-white">Grade 4 - Bonifacio</td>
-                                <td class="py-3 px-6">J. Campado</td>
-                                <td class="py-3 px-6 text-slate-400">English</td>
-                                <td class="py-3 px-6 text-accent-amber font-black">76.4%</td>
-                                <td class="py-3 px-6">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-amber/10 text-accent-amber text-[10px] font-bold border border-accent-amber/20 shadow-[0_0_10px_rgba(245,158,11,0.1)] group-hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
-                                        <i data-lucide="alert-circle" class="w-3 h-3"></i> Remediation Alert
-                                    </span>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="py-3.5 px-6 font-semibold text-slate-900">Grade 4 - Bonifacio</td>
+                                <td class="py-3.5 px-6">J. Campado</td>
+                                <td class="py-3.5 px-6">English</td>
+                                <td class="py-3.5 px-6 font-bold text-amber-600">76.4%</td>
+                                <td class="py-3.5 px-6">
+                                    <span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-semibold text-[10px]">Review Needed</span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            
-            <!-- Bottom spacing -->
-            <div class="h-8"></div>
+
         </div>
     </main>
 
-    <!-- AI COPILOT SLIDE-OVER DRAWER -->
-    <div id="aiCopilotDrawer" class="fixed inset-y-0 right-0 w-[400px] glass-panel border-l border-brand-500/30 z-50 transform translate-x-full transition-transform duration-500 ease-in-out shadow-[-10px_0_30px_rgba(0,0,0,0.5)] flex flex-col bg-dark-bg/95">
-        <div class="p-5 border-b border-dark-border flex items-center justify-between bg-brand-900/10">
-            <div class="flex items-center gap-3 text-brand-400 font-black text-sm uppercase tracking-wider">
-                <div class="p-1.5 bg-brand-500/20 rounded-lg"><i data-lucide="bot" class="w-5 h-5"></i></div>
-                AI Educational Copilot
-            </div>
-            <button onclick="toggleCopilot()" class="p-1.5 rounded-lg bg-dark-surface text-slate-400 hover:text-white border border-dark-border hover:border-slate-500 transition-colors">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-        </div>
-        <div class="flex-1 p-5 overflow-y-auto space-y-5 text-xs text-slate-300">
-            <div class="flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-500 to-accent-purple flex-shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.5)] flex items-center justify-center"><i data-lucide="sparkles" class="w-4 h-4 text-white"></i></div>
-                <div class="bg-dark-card border border-dark-border p-3 rounded-2xl rounded-tl-none shadow-lg">
-                    <p class="font-bold text-white mb-1">Hello, Jasper! 👋</p>
-                    <p class="leading-relaxed">I've analyzed the Q1 Examination metrics. Grade 4 English requires attention (MPS 76.4%). Would you like me to generate a personalized remediation worksheet based on the curriculum guide?</p>
-                </div>
-            </div>
-            <div class="flex justify-end gap-3">
-                <div class="bg-brand-600 text-white p-3 rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(59,130,246,0.4)]">
-                    <p class="font-medium">Yes, please generate the worksheets for Grade 4 English.</p>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-dark-surface border border-brand-500/50 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white">JC</div>
-            </div>
-        </div>
-        <div class="p-5 border-t border-dark-border bg-dark-surface/50">
-            <div class="relative">
-                <input type="text" placeholder="Type a prompt for AI..." class="w-full bg-dark-bg border border-dark-border focus:border-brand-500 rounded-xl pl-4 pr-12 py-3 text-sm text-white outline-none shadow-inner transition-colors">
-                <button class="absolute right-2 top-2 p-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition-colors shadow-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- COMMAND PALETTE (CMD+K) -->
-    <div id="cmdPalette" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-start justify-center pt-32 transition-opacity">
-        <div class="w-full max-w-2xl bg-dark-surface/90 rounded-2xl border border-dark-border p-2 shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col">
-            <div class="flex items-center gap-3 px-4 py-3 border-b border-dark-border">
-                <i data-lucide="search" class="w-5 h-5 text-brand-400 animate-pulse"></i>
-                <input type="text" placeholder="Search students, metrics, or type a command..." class="w-full bg-transparent text-base font-medium text-white outline-none placeholder:text-slate-500">
-                <button onclick="toggleCmdPalette()" class="px-2 py-1 bg-dark-bg border border-dark-border rounded text-[10px] text-slate-400 font-mono">ESC</button>
-            </div>
-            <div class="p-2 space-y-1 text-sm overflow-y-auto max-h-64">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-2">Suggested Actions</p>
-                <div class="px-3 py-2.5 rounded-xl hover:bg-brand-600/20 text-slate-300 hover:text-white cursor-pointer flex items-center justify-between group transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div class="p-1.5 rounded-lg bg-brand-500/10 text-brand-400"><i data-lucide="line-chart" class="w-4 h-4"></i></div>
-                        <span class="font-semibold">Generate Final Exam Analytics Report</span>
-                    </div>
-                    <i data-lucide="arrow-right" class="w-4 h-4 text-slate-500 group-hover:text-brand-400 opacity-0 group-hover:opacity-100 transition-all"></i>
-                </div>
-                <div class="px-3 py-2.5 rounded-xl hover:bg-brand-600/20 text-slate-300 hover:text-white cursor-pointer flex items-center justify-between group transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div class="p-1.5 rounded-lg bg-accent-emerald/10 text-accent-emerald"><i data-lucide="file-down" class="w-4 h-4"></i></div>
-                        <span class="font-semibold">Export BEIS Form 1 to Excel</span>
-                    </div>
-                    <i data-lucide="arrow-right" class="w-4 h-4 text-slate-500 group-hover:text-accent-emerald opacity-0 group-hover:opacity-100 transition-all"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 1. Initialize Icons
+        // Initialize Icons
         lucide.createIcons();
 
-        // 2. Navigation Active State Handling
+        // Sidebar Navigation
         function setActiveNav(element) {
             document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active', 'bg-gradient-to-r', 'from-brand-600/20', 'to-transparent', 'text-brand-400', 'border-l-2', 'border-brand-500', 'font-bold');
-                el.classList.add('text-slate-400', 'font-semibold');
-                const badge = el.querySelector('.animate-glow-pulse');
-                if(badge) badge.remove();
+                el.classList.remove('active', 'bg-brand-50', 'text-brand-700', 'font-semibold');
+                el.classList.add('text-slate-600', 'font-medium');
             });
-            
-            element.classList.add('active', 'bg-gradient-to-r', 'from-brand-600/20', 'to-transparent', 'text-brand-400', 'border-l-2', 'border-brand-500', 'font-bold');
-            element.classList.remove('text-slate-400');
-            
-            if(!element.querySelector('.animate-glow-pulse')) {
-                const badge = document.createElement('span');
-                badge.className = 'w-2 h-2 rounded-full bg-brand-400 animate-glow-pulse ml-auto';
-                element.appendChild(badge);
-            }
+            element.classList.add('active', 'bg-brand-50', 'text-brand-700', 'font-semibold');
+            element.classList.remove('text-slate-600');
         }
 
-        // 3. Dropdown View Switcher (Now in the Left Sidebar)
+        // Dropdown Switcher
         function handleViewModeSwitch(select) {
             const userName = document.getElementById('sidebarUserName');
             const userRole = document.getElementById('sidebarUserRole');
             const avatar = document.getElementById('userAvatar');
 
-            // Reset avatar colors
-            avatar.className = "w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-[#0B0F17] shadow-lg transition-all";
-
             switch(select.value) {
                 case 'admin':
                     userName.innerText = 'Jasper S. Campado';
-                    userRole.innerText = 'Creator / Admin';
-                    userRole.className = "text-[10px] text-accent-emerald truncate font-mono";
+                    userRole.innerText = 'Administrator';
                     avatar.innerText = 'JC';
-                    avatar.classList.add('bg-gradient-to-tr', 'from-brand-600', 'to-accent-emerald', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
                     break;
                 case 'principal':
                     userName.innerText = 'Eric P. Palingcod';
                     userRole.innerText = 'Principal I';
-                    userRole.className = "text-[10px] text-accent-purple truncate font-mono";
                     avatar.innerText = 'EP';
-                    avatar.classList.add('bg-gradient-to-tr', 'from-brand-600', 'to-accent-purple', 'shadow-[0_0_15px_rgba(168,85,247,0.3)]');
                     break;
                 case 'teacher':
                     userName.innerText = 'Jenny Q. Orillaneda';
                     userRole.innerText = 'Teacher I';
-                    userRole.className = "text-[10px] text-brand-400 truncate font-mono";
                     avatar.innerText = 'JO';
-                    avatar.classList.add('bg-gradient-to-tr', 'from-brand-500', 'to-cyan-400', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
                     break;
                 case 'guest':
                     userName.innerText = 'Portal Guest';
-                    userRole.innerText = 'Visitor Mode';
-                    userRole.className = "text-[10px] text-slate-400 truncate font-mono";
+                    userRole.innerText = 'Visitor';
                     avatar.innerText = 'PG';
-                    avatar.classList.add('bg-slate-700');
                     break;
             }
         }
 
-        // 4. Drawer & Modal Toggles
-        function toggleCopilot() {
-            const drawer = document.getElementById('aiCopilotDrawer');
-            drawer.classList.toggle('translate-x-full');
-        }
-
-        function toggleCmdPalette() {
-            const palette = document.getElementById('cmdPalette');
-            palette.classList.toggle('hidden');
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                toggleCmdPalette();
-            }
-            if (e.key === 'Escape' && !document.getElementById('cmdPalette').classList.contains('hidden')) {
-                toggleCmdPalette();
-            }
-        });
-
-        // 5. Initialize Chart.js with Infographic Gradients
+        // Initialize Charts
         window.addEventListener('DOMContentLoaded', () => {
             
-            // --- Chart 1: Beautiful Area Chart (Exam Trends) ---
+            // Line Chart
             const ctxExam = document.getElementById('examChart').getContext('2d');
-            
-            // Create Gradients
-            const gradMath = ctxExam.createLinearGradient(0, 0, 0, 400);
-            gradMath.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); // Emerald
-            gradMath.addColorStop(1, 'rgba(16, 185, 129, 0)');
-
-            const gradEng = ctxExam.createLinearGradient(0, 0, 0, 400);
-            gradEng.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // Blue
-            gradEng.addColorStop(1, 'rgba(59, 130, 246, 0)');
-
-            Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
-            Chart.defaults.color = '#64748b';
-
             new Chart(ctxExam, {
                 type: 'line',
                 data: {
                     labels: ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6'],
                     datasets: [
                         {
-                            label: 'Mathematics MPS',
+                            label: 'Mathematics',
                             data: [88, 85, 82, 79, 86, 89],
-                            borderColor: '#10b981',
-                            backgroundColor: gradMath,
-                            fill: true,
-                            tension: 0.4,
-                            borderWidth: 3,
-                            pointBackgroundColor: '#0B0F17',
-                            pointBorderColor: '#10b981',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
+                            borderColor: '#2563eb',
+                            backgroundColor: '#2563eb',
+                            borderWidth: 2,
+                            tension: 0.3
                         },
                         {
-                            label: 'English MPS',
+                            label: 'English',
                             data: [82, 84, 80, 76, 83, 87],
-                            borderColor: '#3b82f6',
-                            backgroundColor: gradEng,
-                            fill: true,
-                            tension: 0.4,
-                            borderWidth: 3,
-                            pointBackgroundColor: '#0B0F17',
-                            pointBorderColor: '#3b82f6',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
+                            borderColor: '#64748b',
+                            backgroundColor: '#64748b',
+                            borderWidth: 2,
+                            tension: 0.3
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255,255,255,0.1)',
-                            borderWidth: 1,
-                            padding: 12,
-                            boxPadding: 6,
-                            usePointStyle: true
-                        }
+                        legend: { position: 'top' }
                     },
                     scales: {
-                        x: { grid: { color: 'rgba(255, 255, 255, 0.03)', drawBorder: false } },
-                        y: { 
-                            grid: { color: 'rgba(255, 255, 255, 0.03)', drawBorder: false },
-                            min: 60, max: 100,
-                            ticks: { callback: function(value) { return value + '%' } }
-                        }
+                        y: { min: 60, max: 100 }
                     }
                 }
             });
 
-            // --- Chart 2: Neon Doughnut Chart (Demographics) ---
+            // Doughnut Chart
             const ctxDemo = document.getElementById('demographicsChart').getContext('2d');
             new Chart(ctxDemo, {
                 type: 'doughnut',
@@ -657,24 +366,15 @@
                     labels: ['Male', 'Female'],
                     datasets: [{
                         data: [332, 316],
-                        backgroundColor: ['#3b82f6', '#a855f7'],
-                        borderWidth: 0,
-                        hoverOffset: 4
+                        backgroundColor: ['#2563eb', '#93c5fd'],
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '80%',
                     plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                            bodyColor: '#fff',
-                            padding: 10,
-                            displayColors: true,
-                            usePointStyle: true
-                        }
+                        legend: { display: false }
                     }
                 }
             });
