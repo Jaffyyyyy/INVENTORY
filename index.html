@@ -1,104 +1,419 @@
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Required for responsive display on mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAM-ON ES INVENTORY - Admin</title>
 
-  :root {
-    --theme-color: #4f46e5;
-  }
+  <!-- Google Fonts & FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-  }
+  <style>
+    :root {
+      --theme-color: #4f46e5;
+    }
 
-  html, body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    background-color: #f1f5f9;
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
-    overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile */
-  }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
 
-  button, a, input, select {
-    touch-action: manipulation; /* Removes 300ms click delay on mobile */
-  }
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      overscroll-behavior-y: none;
+    }
 
-  /* Theme Utility Classes */
-  .theme-bg {
-    background-color: var(--theme-color) !important;
-    color: white !important;
-  }
+    button, a, input, select {
+      touch-action: manipulation;
+      font-family: inherit;
+    }
 
-  .theme-bg-hover:hover {
-    filter: brightness(0.9);
-  }
+    /* Layout Structure */
+    .app-header {
+      background-color: #1e40af;
+      color: white;
+      padding: max(1rem, env(safe-area-inset-top)) 1.5rem 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
 
-  .theme-text {
-    color: var(--theme-color) !important;
-  }
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-  .theme-border {
-    border-color: var(--theme-color) !important;
-  }
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e40af;
+      font-weight: bold;
+    }
 
-  .theme-ring:focus {
-    box-shadow: 0 0 0 2px var(--theme-color) !important;
-  }
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-  /* Layout Helpers */
-  .ios-scroll {
-    -webkit-overflow-scrolling: touch;
-  }
+    .badge-admin {
+      background: #22c55e;
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
 
-  header {
-    padding-top: max(1rem, env(safe-area-inset-top));
-  }
+    .brand-subtitle {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
 
-  footer, .ios-bottom-pad {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-  #reader {
-    width: 100% !important;
-    border-radius: 1rem;
-    overflow: hidden;
-  }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
 
-  #reader video {
-    object-fit: cover !important;
-    border-radius: 1rem;
-  }
+    .btn-light {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
 
-  .admin-only {
-    display: none;
-  }
+    .btn-light:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
 
-  body.has-bg::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: rgba(241, 245, 249, 0.85);
-    backdrop-filter: blur(5px);
-    z-index: -1;
-  }
+    .btn-white {
+      background: white;
+      color: #1e40af;
+      font-weight: 600;
+    }
 
-  /* Icon Transparency & Hover Transitions */
-  .icon-container, i, svg {
-    opacity: 0.75; /* 75% opacity by default */
-    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-  }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
 
-  .icon-container:hover, i:hover, svg:hover {
-    opacity: 1; /* 100% visible on hover */
-    transform: translateY(-1px);
-  }
+    /* Dashboard Metric Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
 
-  /* Frosted Glass Icon Badge */
-  .icon-badge {
-    background: rgba(255, 255, 255, 0.2);
-    -webkit-backdrop-filter: blur(8px); /* Safari support */
-    backdrop-filter: blur(8px);
-    border-radius: 8px;
-    padding: 8px;
-  }
-</style>
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .card-header-icon {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .card-danger .card-value {
+      color: #ef4444;
+    }
+
+    /* Secondary Cards */
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Tabs Container */
+    .tabs-bar {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn.active {
+      background: #1e40af;
+      color: white;
+    }
+
+    /* Filter & Search Bar */
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #1e40af;
+    }
+
+    .select-input {
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    /* Table Container */
+    .table-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background: #f8fafc;
+      padding: 0.85rem 1rem;
+      color: #64748b;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #94a3b8;
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* Icon Transparency & Hover Transitions */
+    .icon-container, i, svg {
+      opacity: 0.75;
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    .icon-container:hover, i:hover, svg:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    /* Frosted Glass Icon Badge */
+    .icon-badge {
+      background: rgba(255, 255, 255, 0.2);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
+      <div>
+        <div class="brand-title">
+          MAM-ON ES INVENTORY 
+          <span class="badge-admin">Admin</span>
+        </div>
+        <div class="brand-subtitle">DepEd QR System</div>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn btn-light"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      <button class="btn btn-light"><i class="fa-solid fa-gear"></i></button>
+      <button class="btn btn-light"><i class="fa-solid fa-file-import"></i></button>
+      <button class="btn btn-light"><i class="fa-solid fa-file-export"></i></button>
+      <button class="btn btn-white"><i class="fa-solid fa-camera"></i> Scan</button>
+      <button class="btn btn-white"><i class="fa-solid fa-plus"></i> Add</button>
+    </div>
+  </header>
+
+  <!-- Main Content Dashboard -->
+  <main class="container">
+    
+    <!-- Top Metric Cards -->
+    <div class="metrics-grid">
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-boxes-stacked"></i> Total Assets</div>
+        <div class="card-value">0</div>
+      </div>
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-couch"></i> Properties</div>
+        <div class="card-value">0</div>
+      </div>
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-book"></i> Books</div>
+        <div class="card-value">0</div>
+      </div>
+      <div class="card card-danger">
+        <div class="card-header-icon"><i class="fa-solid fa-triangle-exclamation"></i> Attention</div>
+        <div class="card-value">0</div>
+      </div>
+    </div>
+
+    <!-- Category Sections -->
+    <div class="secondary-grid">
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-chart-pie"></i> Categories</div>
+      </div>
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-user-check"></i> Assigned</div>
+      </div>
+    </div>
+
+    <!-- Tabs Selection -->
+    <div class="tabs-bar">
+      <button class="tab-btn active"><i class="fa-solid fa-couch"></i> Properties</button>
+      <button class="tab-btn"><i class="fa-solid fa-book"></i> Books</button>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="filter-bar">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" class="search-input" placeholder="Search item, room, ID or teacher...">
+      </div>
+      <select class="select-input">
+        <option>(All Conditions)</option>
+        <option>Good</option>
+        <option>Needs Repair</option>
+        <option>Unserviceable</option>
+      </select>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ITEM DETAILS</th>
+            <th>CATEGORY & QTY</th>
+            <th>LOCATION</th>
+            <th>ASSIGNED TO</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>No records found.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+</body>
+</html>
