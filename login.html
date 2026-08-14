@@ -3,146 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Login</title>
+    <title>MAM-ON ES — Portal Sign In</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #d1d5db;
-            --radius: 8px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+            --primary: #2563eb;
+            --bg: #0f172a;
+            --surface: #ffffff;
+            --dashboard-bg: #f8fafc; /* Standard dashboard background */
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --danger: #ef4444;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: radial-gradient(circle at top left, #1e3a8a, #0f172a 70%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
+            padding: 2rem;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .login-card {
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+        /* Decorative Background Elements */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .shape-1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
+        .shape-2 { width: 400px; height: 400px; background: #f59e0b; bottom: -100px; right: -50px; }
+
+        /* Main Wrapper - Split Layout */
+        .portal-wrapper {
+            position: relative;
+            z-index: 10;
+            display: flex;
             width: 100%;
-            max-width: 400px;
+            max-width: 1100px;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .login-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
+        /* --- Left Side: Dashboard Stats (Mimicking the real app) --- */
+        .dashboard-panel {
+            flex: 1;
+            padding: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--dashboard-bg);
+            border-right: 1px solid var(--border);
+        }
+
+        .dashboard-header { margin-bottom: 2.5rem; }
+        .dashboard-header h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
             margin-bottom: 0.5rem;
+            color: var(--text-dark);
         }
-
-        .login-header p {
+        .dashboard-header p {
+            font-size: 1rem;
             color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
             font-weight: 500;
-            margin-bottom: 0.5rem;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
         }
 
-        .form-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        /* Styling to look like exact dashboard cards */
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.accent .stat-icon { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+        .stat-card.success .stat-icon { background: rgba(16, 185, 129, 0.1); color: #059669; }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card.full-width { grid-column: span 2; display: flex; align-items: center; justify-content: space-between; }
+        .stat-card.full-width .stat-icon { margin-bottom: 0; margin-right: 1.5rem; }
+        .full-width-content { display: flex; align-items: center; }
+
+        /* --- Right Side: Login Form --- */
+        .login-panel {
+            width: 440px;
+            background: var(--surface);
+            padding: 3.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-header { text-align: center; margin-bottom: 2.25rem; }
+        .brand-logo {
+            width: 64px; height: 64px;
+            background: var(--primary-gradient);
+            color: white; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 1.25rem;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+        }
+        .brand-header h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+        .brand-header p { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block; font-size: 0.825rem; font-weight: 700;
+            color: #334155; margin-bottom: 0.45rem; text-transform: uppercase; letter-spacing: 0.03em;
+        }
+
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-icon { position: absolute; left: 1rem; color: var(--text-muted); font-size: 1rem; pointer-events: none; transition: color 0.2s; }
+        
+        .input-wrapper input {
+            width: 100%; padding: 0.85rem 1rem 0.85rem 2.75rem;
+            font-size: 0.95rem; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+            outline: none; background: #f8fafc; color: var(--text-dark); transition: all 0.2s ease;
+        }
+        .input-wrapper input:focus {
+            background: #ffffff; border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+        .input-wrapper input:focus ~ .input-icon { color: var(--primary); }
+
+        .toggle-password {
+            position: absolute; right: 1rem; cursor: pointer;
+            color: var(--text-muted); font-size: 0.95rem; pointer-events: all; transition: color 0.2s;
+        }
+        .toggle-password:hover { color: var(--text-dark); }
 
         .btn-submit {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-            background-color: var(--primary);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            margin-top: 0.5rem;
+            width: 100%; padding: 0.9rem; font-size: 0.95rem; font-weight: 700;
+            color: #ffffff; background: var(--primary-gradient);
+            border: none; border-radius: var(--radius-md); cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 1.5rem;
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); }
+
+        .error-message {
+            background: #fef2f2; color: var(--danger); border: 1px solid #fecaca;
+            padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 500;
+            margin-bottom: 1.25rem; display: none; align-items: center; gap: 0.5rem;
         }
 
-        .btn-submit:hover {
-            background-color: var(--primary-hover);
+        .portal-footer {
+            margin-top: 2rem; text-align: center; border-top: 1px solid var(--border); padding-top: 1.25rem;
+        }
+        .portal-footer p { font-size: 0.775rem; color: var(--text-muted); line-height: 1.4; }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .portal-wrapper { flex-direction: column; max-width: 500px; }
+            .dashboard-panel { padding: 2.5rem; order: 2; border-right: none; border-top: 1px solid var(--border); }
+            .login-panel { width: 100%; padding: 2.5rem; order: 1; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-card.full-width { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-        <div class="login-header">
-            <h1>Portal Login</h1>
-            <p>Please enter your credentials to continue</p>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <div class="portal-wrapper">
+        
+        <!-- Left Panel: School Statistics Dashboard (Light Theme) -->
+        <div class="dashboard-panel">
+            <div class="dashboard-header">
+                <h2>School Overview</h2>
+                <p>MAM-ON Elementary Data Dashboard</p>
+            </div>
+
+            <div class="stats-grid">
+                <!-- Enrolled Students -->
+                <div class="stat-card full-width">
+                    <div class="full-width-content">
+                        <div class="stat-icon"><i class="fa-solid fa-children"></i></div>
+                        <div>
+                            <div class="stat-value" id="count-students">452</div>
+                            <div class="stat-label">Total Enrolled Students</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teaching Personnel -->
+                <div class="stat-card accent">
+                    <div class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+                    <div class="stat-value" id="count-teachers">18</div>
+                    <div class="stat-label">Teaching Staff</div>
+                </div>
+
+                <!-- Active Classrooms -->
+                <div class="stat-card success">
+                    <div class="stat-icon"><i class="fa-solid fa-door-open"></i></div>
+                    <div class="stat-value" id="count-rooms">14</div>
+                    <div class="stat-label">Active Classrooms</div>
+                </div>
+            </div>
         </div>
 
-        <form id="loginForm">
-            <!-- Username Input -->
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    placeholder="Enter your username" 
-                    required 
-                    autocomplete="username"
-                />
+        <!-- Right Panel: Secure Login Form -->
+        <div class="login-panel">
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-school-flag"></i>
+                </div>
+                <h1>Portal Sign In</h1>
+                <p>Secure Access for Personnel</p>
             </div>
 
-            <!-- Password Input -->
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    placeholder="Enter your password" 
-                    required 
-                    autocomplete="current-password"
-                />
+            <div class="error-message" id="errorBanner">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="errorMessageText">Invalid username or password.</span>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn-submit">Log In</button>
-        </form>
+            <form id="loginForm">
+                <!-- Username Input -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username" />
+                        <i class="fa-solid fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" />
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <span>Access Portal</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="portal-footer">
+                <p>&copy; 2026 MAM-ON ES — DepEd Surigao del Sur<br>Strictly for authorized personnel only.</p>
+            </div>
+        </div>
     </div>
 
+    <script>
+        // --- 1. Password Visibility Toggle ---
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // --- 2. Login Handler & Session Storage ---
+        const loginForm = document.getElementById('loginForm');
+        const errorBanner = document.getElementById('errorBanner');
+        const errorMessageText = document.getElementById('errorMessageText');
+
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            let userSession = null;
+
+            // Authentication Roles
+            if (username === 'admin' && password === 'admin123') {
+                userSession = { role: 'admin', email: 'admin.mamon@deped.gov.ph', empId: 'ADMIN-001' };
+            } else if (username === 'jenny' && password === 'teacher123') {
+                userSession = { role: 'teacher', email: 'jennyqueen.orillaneda@deped.gov.ph', empId: '6459395' };
+            } else if (username === 'parent' && password === 'parent123') {
+                userSession = { role: 'parent', email: 'parent.guest@deped.gov.ph', empId: 'N/A' };
+            } else if (username !== '' && password !== '') {
+                // Generic Login fallback (Defaults to Teacher view)
+                userSession = { role: 'teacher', email: `${username}@deped.gov.ph`, empId: '6459395' };
+            }
+
+            if (userSession) {
+                localStorage.setItem('mamon_user_session', JSON.stringify(userSession));
+                window.location.href = 'index.html';
+            } else {
+                errorMessageText.innerText = 'Please check your credentials and try again.';
+                errorBanner.style.display = 'flex';
+            }
+        });
+
+        // --- 3. Number Animation for Dashboard Preview ---
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            var range = end - start;
+            var current = start;
+            var increment = end > start ? 1 : -1;
+            var stepTime = Math.abs(Math.floor(duration / range));
+            var obj = document.getElementById(id);
+            var timer = setInterval(function() {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        // Trigger animations on load
+        window.onload = function() {
+            animateValue("count-students", 0, 452, 1500);
+            animateValue("count-teachers", 0, 18, 1000);
+            animateValue("count-rooms", 0, 14, 1000);
+        };
+    </script>
 </body>
 </html>
