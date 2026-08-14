@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAM-ON ES — Principal Analytics</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Pro-Level Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e3a8a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-color: #f1f5f9;
+            --surface: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 280px; background: #1e293b; color: white; padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .sidebar-brand { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2.5rem; color: #fff; }
+        .nav-item { padding: 1rem; border-radius: var(--radius-md); color: #94a3b8; display: flex; align-items: center; gap: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: var(--primary); color: #fff; }
+
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .header { background: var(--surface); padding: 1.5rem 2.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+        .header-title h2 { font-size: 1.5rem; font-weight: 800; }
+        .header-title p { font-size: 0.9rem; color: var(--text-muted); }
+        .user-profile { display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        .dashboard-container { padding: 2.5rem; display: flex; flex-direction: column; gap: 2rem; }
+
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+        .kpi-card { background: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1.5rem; border: 1px solid var(--border); }
+        .kpi-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .icon-blue { background: #eff6ff; color: var(--primary); }
+        .icon-green { background: #ecfdf5; color: var(--success); }
+        .icon-orange { background: #fffbeb; color: var(--warning); }
+        .icon-red { background: #fef2f2; color: var(--danger); }
+        
+        .kpi-info h4 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+        .kpi-info h2 { font-size: 1.8rem; font-weight: 800; color: var(--text-dark); }
+        .kpi-trend { font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem; }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        /* Charts Section */
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        .chart-card { background: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .chart-title { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+
+        /* Data Table */
+        .table-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); overflow: hidden; }
+        .table-header-box { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 1rem 1.5rem; text-align: left; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; font-weight: 500; color: var(--text-dark); }
+        tr:last-child td { border-bottom: none; }
+        .badge { padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+        .badge-success { background: #ecfdf5; color: var(--success); }
+        .badge-warning { background: #fffbeb; color: var(--warning); }
+        .badge-danger { background: #fef2f2; color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-school-flag"></i> MAM-ON ES
+        </div>
+        <div class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Principal Overview</div>
+        <div class="nav-item"><i class="fa-solid fa-chalkboard-user"></i> Teacher Submissions</div>
+        <div class="nav-item"><i class="fa-solid fa-file-contract"></i> E-Class Records</div>
+        <div class="nav-item"><i class="fa-solid fa-bullhorn"></i> School Announcements</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <h2>Command Center</h2>
+                <p>Real-time consolidated analytics for Q1 Academic Performance</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">P</div>
+                <div>
+                    <div style="font-size: 0.9rem;">Principal's Office</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Admin Privileges</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-blue"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="kpi-info">
+                        <h4>School-Wide MPS</h4>
+                        <h2 id="overallMps">--%</h2>
+                        <div class="kpi-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4% from last quarter</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-green"><i class="fa-solid fa-file-circle-check"></i></div>
+                    <div class="kpi-info">
+                        <h4>Reports Submitted</h4>
+                        <h2 id="reportsSubmitted">--/--</h2>
+                        <div class="kpi-trend">92% Compliance Rate</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-orange"><i class="fa-solid fa-star"></i></div>
+                    <div class="kpi-info">
+                        <h4>Top Subject</h4>
+                        <h2 id="topSubject">--</h2>
+                        <div class="kpi-trend" id="topSubjectMps">--% MPS Average</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="kpi-info">
+                        <h4>Critical Attention</h4>
+                        <h2 id="criticalSubject">--</h2>
+                        <div class="kpi-trend trend-down" id="criticalSubjectMps">Requires Intervention</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <!-- Bar Chart: MPS by Grade Level -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">MPS Performance by Grade Level (Q1)</div>
+                        <button style="border:none; background:none; color:var(--text-muted); cursor:pointer;"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="gradeLevelChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Doughnut Chart: Overall Subject Health -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Subject Health Distribution</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="subjectHealthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Submissions Table -->
+            <div class="table-card">
+                <div class="table-header-box">
+                    <div class="chart-title">Recent Teacher Submissions</div>
+                    <button style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-weight: 600;">Export Report <i class="fa-solid fa-file-export"></i></button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Teacher Name</th>
+                            <th>Grade & Section</th>
+                            <th>Subject</th>
+                            <th>MPS Score</th>
+                            <th>Status / Health</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissionTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- DepEd Data Logic & Dashboard Initialization Engine -->
+    <script>
+        // ==========================================
+        // 1. MOCK DATABASE (Simulating aggregated teacher submissions)
+        // ==========================================
+        const rawSubmissions = [
+            { teacher: "Jenny Orillaneda", grade: "Grade 1", section: "Mabini", subject: "Mother Tongue", mps: 82.5 },
+            { teacher: "Mark Santos", grade: "Grade 1", section: "Mabini", subject: "Math", mps: 76.2 },
+            { teacher: "Liza Soberano", grade: "Grade 2", section: "Rizal", subject: "English", mps: 85.0 },
+            { teacher: "John Doe", grade: "Grade 3", section: "Bonifacio", subject: "Science", mps: 71.4 },
+            { teacher: "Maria Clara", grade: "Grade 4", section: "Aguinaldo", subject: "Math", mps: 74.8 },
+            { teacher: "Pedro Penduko", grade: "Grade 5", section: "Luna", subject: "Filipino", mps: 88.3 },
+            { teacher: "Juan Dela Cruz", grade: "Grade 6", section: "Del Pilar", subject: "AP", mps: 79.1 },
+            { teacher: "Ana Makabayan", grade: "Grade 6", section: "Del Pilar", subject: "Math", mps: 81.0 },
+            { teacher: "Sarah Geronimo", grade: "Grade 4", section: "Aguinaldo", subject: "English", mps: 89.5 }
+        ];
+
+        // Total expected reports (e.g., total sections * subjects taught)
+        const totalExpectedReports = 24;
+
+        // ==========================================
+        // 2. DATA PROCESSING ENGINE (The "Brain")
+        // ==========================================
+        function processDashboardData(data) {
+            let totalMps = 0;
+            let subjectAverages = {};
+            let gradeLevelAverages = {};
+
+            data.forEach(sub => {
+                totalMps += sub.mps;
+
+                // Process Subject Averages
+                if (!subjectAverages[sub.subject]) subjectAverages[sub.subject] = { total: 0, count: 0 };
+                subjectAverages[sub.subject].total += sub.mps;
+                subjectAverages[sub.subject].count += 1;
+
+                // Process Grade Level Averages
+                if (!gradeLevelAverages[sub.grade]) gradeLevelAverages[sub.grade] = { total: 0, count: 0 };
+                gradeLevelAverages[sub.grade].total += sub.mps;
+                gradeLevelAverages[sub.grade].count += 1;
+            });
+
+            const overallMps = (totalMps / data.length).toFixed(2);
+            
+            // Find Top & Critical Subjects
+            let highestSub = { name: "-", mps: 0 };
+            let lowestSub = { name: "-", mps: 100 };
+
+            for (const [subj, stats] of Object.entries(subjectAverages)) {
+                let avg = stats.total / stats.count;
+                if (avg > highestSub.mps) { highestSub.name = subj; highestSub.mps = avg; }
+                if (avg < lowestSub.mps) { lowestSub.name = subj; lowestSub.mps = avg; }
+            }
+
+            return { overallMps, highestSub, lowestSub, gradeLevelAverages, subjectAverages };
+        }
+
+        // ==========================================
+        // 3. UI RENDER ENGINE
+        // ==========================================
+        function initDashboard() {
+            const analytics = processDashboardData(rawSubmissions);
+
+            // Update KPI Cards
+            document.getElementById('overallMps').innerText = analytics.overallMps + '%';
+            document.getElementById('reportsSubmitted').innerText = `${rawSubmissions.length} / ${totalExpectedReports}`;
+            
+            document.getElementById('topSubject').innerText = analytics.highestSub.name;
+            document.getElementById('topSubjectMps').innerText = `${analytics.highestSub.mps.toFixed(1)}% MPS Average`;
+            
+            document.getElementById('criticalSubject').innerText = analytics.lowestSub.name;
+            document.getElementById('criticalSubjectMps').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${analytics.lowestSub.mps.toFixed(1)}% MPS (Needs Action)`;
+
+            // Populate Table
+            const tbody = document.getElementById('submissionTableBody');
+            rawSubmissions.sort((a,b) => b.mps - a.mps).forEach(sub => {
+                let badgeClass = sub.mps >= 80 ? 'badge-success' : (sub.mps >= 75 ? 'badge-warning' : 'badge-danger');
+                let statusText = sub.mps >= 80 ? 'Excellent' : (sub.mps >= 75 ? 'Passing' : 'Critical');
+                
+                let row = `<tr>
+                    <td><div style="display:flex; align-items:center; gap:0.75rem;"><div class="avatar" style="width:30px; height:30px; font-size:0.8rem;">${sub.teacher.charAt(0)}</div>${sub.teacher}</div></td>
+                    <td>${sub.grade} - ${sub.section}</td>
+                    <td>${sub.subject}</td>
+                    <td style="font-weight:700;">${sub.mps.toFixed(2)}%</td>
+                    <td><span class="badge ${badgeClass}">${statusText}</span></td>
+                </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Initialize Charts
+            renderCharts(analytics);
+        }
+
+        function renderCharts(analytics) {
+            // Setup Grade Level Bar Chart Data
+            const grades = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6'];
+            const gradeData = grades.map(g => analytics.gradeLevelAverages[g] ? (analytics.gradeLevelAverages[g].total / analytics.gradeLevelAverages[g].count).toFixed(2) : 0);
+
+            const ctxBar = document.getElementById('gradeLevelChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: grades,
+                    datasets: [{
+                        label: 'Average MPS (%)',
+                        data: gradeData,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, grid: { borderDash: [4, 4] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Setup Subject Health Doughnut Chart Data
+            let excellent = 0, passing = 0, critical = 0;
+            rawSubmissions.forEach(sub => {
+                if(sub.mps >= 80) excellent++;
+                else if(sub.mps >= 75) passing++;
+                else critical++;
+            });
+
+            const ctxDoughnut = document.getElementById('subjectHealthChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Excellent (80%+)', 'Passing (75-79%)', 'Critical (<75%)'],
+                    datasets: [{
+                        data: [excellent, passing, critical],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        // Run Engine on Load
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
