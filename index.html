@@ -7,7 +7,7 @@
   <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- PapaParse for CSV Support -->
+  <!-- PapaParse for Google Sheets CSV Parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
@@ -19,26 +19,27 @@
         <i class="fa-solid fa-boxes-stacked text-2xl text-blue-300"></i>
         <div>
           <h1 class="text-xl font-bold tracking-wide">MAM-ON ES INVENTORY PORTAL</h1>
-          <p class="text-xs text-blue-200">School ID: 132649 | Inventory Count Form 2026</p>
+          <p class="text-xs text-blue-200">School ID: 132649 | Live Google Sheet Sync</p>
         </div>
       </div>
       
       <div class="flex items-center gap-2">
-        <!-- Import CSV Button -->
-        <label for="csvFileInput" class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
-          <i class="fa-solid fa-file-import"></i> Import CSV
+        <!-- Sync Status Indicator -->
+        <div id="syncStatus" class="flex items-center gap-2 bg-blue-950 px-3 py-1.5 rounded text-xs text-blue-200 border border-blue-700">
+          <i class="fa-solid fa-rotate text-blue-400" id="syncSpinner"></i>
+          <span id="syncText">Syncing...</span>
+        </div>
+
+        <!-- Refresh Button -->
+        <button onclick="fetchGoogleSheetData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh Sheet
+        </button>
+
+        <!-- Import Local CSV Option -->
+        <label for="csvFileInput" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-file-import"></i> Upload CSV
         </label>
-        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importCSV(event)" />
-
-        <!-- Add Item Button -->
-        <button onclick="toggleModal(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
-          <i class="fa-solid fa-plus"></i> Add Item
-        </button>
-
-        <!-- Reset Portal -->
-        <button onclick="clearData()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
-          <i class="fa-solid fa-rotate-left"></i> Reset to Default
-        </button>
+        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importLocalCSV(event)" />
       </div>
     </div>
   </header>
@@ -77,97 +78,78 @@
             <th class="p-3">LOCATION</th>
             <th class="p-3">ASSIGNED TO</th>
             <th class="p-3">STATUS</th>
-            <th class="p-3 text-center">ACTION</th>
           </tr>
         </thead>
         <tbody id="inventoryTableBody" class="divide-y divide-gray-200">
-          <!-- Rows render here dynamically -->
+          <!-- Dynamic Live Rows Render Here -->
         </tbody>
       </table>
     </div>
 
   </main>
 
-  <!-- Add Item Modal -->
-  <div id="itemModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="text-lg font-bold text-gray-800">Add New Inventory Item</h3>
-        <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-      </div>
-      <form id="addForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name / Article</label>
-          <input type="text" id="itemName" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
-            <input type="text" id="itemCat" placeholder="e.g. ICT Equipment" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
-            <input type="number" id="itemQty" value="1" min="1" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Location / Room</label>
-          <input type="text" id="itemLoc" placeholder="e.g. Computer Room" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Assigned To</label>
-          <input type="text" id="itemAssign" placeholder="e.g. School Property Custodian" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
-          <select id="itemStatus" class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
-            <option value="Good">Good / Serviceable</option>
-            <option value="Needs Repair">Needs Repair</option>
-            <option value="Unserviceable">Unserviceable</option>
-          </select>
-        </div>
-        <div class="pt-3 flex justify-end gap-2">
-          <button type="button" onclick="toggleModal(false)" class="px-4 py-2 border rounded text-xs text-gray-600 hover:bg-gray-100">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">Save Item</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
-    // Embedded initial database directly from INVENTORY COUNT FORM 2026.xlsx
-    const initialDatabase = [
-      // ICF-CONSO: ICT Equipment
+    // ⚠️ REPLACE THIS LINK WITH YOUR PUBLISHED CSV URL
+    // (In Google Sheets: File > Share > Publish to web > Select CSV > Copy Link)
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_EXAMPLE_URL_HERE/pub?output=csv";
+
+    // Initial fallback data from INVENTORY COUNT FORM 2026.xlsx
+    const fallbackDatabase = [
       { id: 1, name: "Desktop Package (COBY, CAAG038120111)", category: "ICT Equipment", qty: 1, value: "₱35,639.34", location: "Computer Room", assigned: "Property Custodian", status: "Good" },
       { id: 2, name: "Interactive Projector (PIXPRO iSHOW ACTIVA X1600)", category: "ICT Equipment", qty: 1, value: "₱38,426.17", location: "Computer Room", assigned: "Grade 1 Teacher", status: "Unserviceable" },
       { id: 3, name: "Epson Printer L3210 3-in-1", category: "ICT Equipment", qty: 1, value: "₱9,000.00", location: "Computer Room", assigned: "Office Clerk", status: "Good" },
       { id: 4, name: "TCL LED TV 32\" (S/N: 2203ALY176378B00503)", category: "ICT Equipment", qty: 1, value: "₱11,988.00", location: "Computer Room", assigned: "Property Custodian", status: "Good" },
       { id: 5, name: "DEVANT UHD TV 55\" (S/N: 55UHW201L112301699)", category: "ICT Equipment", qty: 1, value: "₱21,100.00", location: "Grade 2 Classroom", assigned: "Grade 2 Adviser", status: "Good" },
       { id: 6, name: "SAMSUNG Smart TV 55\" (S/N: 08F43NMX800262V)", category: "ICT Equipment", qty: 1, value: "₱24,990.00", location: "Grade 3 Classroom", assigned: "Grade 3 Adviser", status: "Good" },
-
-      // ICF-CONSO: Office Equipment
       { id: 7, name: "Stand Fan (Standard 16\")", category: "Office Equipment", qty: 1, value: "₱1,500.00", location: "Kindergarten Room", assigned: "Kinder Adviser", status: "Good" },
-      { id: 8, name: "Wall Fan (Asahi 16\")", category: "Office Equipment", qty: 2, value: "₱3,200.00", location: "Office / Staff Room", assigned: "School Admin", status: "Good" },
-
-      // ICF-CONSO (2): Buildings & Facilities
-      { id: 9, name: "Building 1 (Office, Kinder, G1, Computer Lab)", category: "Buildings & Facilities", qty: 1, value: "N/A", location: "Mam-on ES Main Campus", assigned: "School Head", status: "Good" },
-      { id: 10, name: "Building 2 (Grade 2 & Grade 3 Classrooms)", category: "Buildings & Facilities", qty: 1, value: "N/A", location: "Mam-on ES Main Campus", assigned: "School Head", status: "Good" },
-
-      // ICF-CONSO (2): Books & Learning Materials
-      { id: 11, name: "Pagpahanas sa Pagpangadam (Kinder LRM)", category: "Books & Learning Materials", qty: 52, value: "N/A", location: "Kindergarten Room", assigned: "Kinder Teacher", status: "Good" },
-      { id: 12, name: "Mother Tongue - Grade 1 Learner's Material", category: "Books & Learning Materials", qty: 45, value: "N/A", location: "Grade 1 Classroom", assigned: "Grade 1 Teacher", status: "Good" },
-      { id: 13, name: "Mathematics Grade 2 Learner's Material", category: "Books & Learning Materials", qty: 38, value: "N/A", location: "Grade 2 Classroom", assigned: "Grade 2 Teacher", status: "Good" }
+      { id: 8, name: "Building 1 (Office, Kinder, G1, Computer Lab)", category: "Buildings & Facilities", qty: 1, value: "N/A", location: "Mam-on ES Main Campus", assigned: "School Head", status: "Good" },
+      { id: 9, name: "Pagpahanas sa Pagpangadam (Kinder LRM)", category: "Books & Learning Materials", qty: 52, value: "N/A", location: "Kindergarten Room", assigned: "Kinder Teacher", status: "Good" }
     ];
 
-    // Local Storage helpers
-    function getStoredData() {
-      const stored = localStorage.getItem('mamon_inventory_portal');
-      return stored ? JSON.parse(stored) : initialDatabase;
-    }
+    let liveDatabase = [...fallbackDatabase];
 
-    function setStoredData(data) {
-      localStorage.setItem('mamon_inventory_portal', JSON.stringify(data));
-      filterItems();
+    // Fetch Google Sheet live data directly via PapaParse
+    function fetchGoogleSheetData() {
+      const syncText = document.getElementById('syncText');
+      const syncSpinner = document.getElementById('syncSpinner');
+
+      syncText.innerText = "Syncing Sheet...";
+      syncSpinner.classList.add('animate-spin');
+
+      if (!GOOGLE_SHEET_CSV_URL.includes("docs.google.com")) {
+        syncText.innerText = "Fallback Mode (Set Published URL)";
+        syncSpinner.classList.remove('animate-spin');
+        filterItems();
+        return;
+      }
+
+      Papa.parse(GOOGLE_SHEET_CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          liveDatabase = results.data.map((row, idx) => ({
+            id: idx + 1,
+            name: row['Article/Item'] || row['Item Name'] || row['Article'] || row['Description'] || 'Unnamed Item',
+            category: row['Category'] || row['Instruction'] || 'General Property',
+            qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || row['Quantity per Property Card'] || 1, 10),
+            value: row['Unit Value'] ? `₱${row['Unit Value']}` : '',
+            location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
+            assigned: row['Assigned To'] || row['Person Responsible'] || 'School Admin',
+            status: row['Status'] || row['Condition'] || 'Good'
+          }));
+
+          syncText.innerText = "Live Sheet Active";
+          syncSpinner.classList.remove('animate-spin');
+          filterItems();
+        },
+        error: function(err) {
+          syncText.innerText = "Sync Failed (Using Fallback)";
+          syncSpinner.classList.remove('animate-spin');
+          console.error("Sheet Sync Failed: ", err);
+          filterItems();
+        }
+      });
     }
 
     // Render Table Rows
@@ -178,9 +160,9 @@
       if (!items || items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="p-8 text-center text-gray-400">
+            <td colspan="5" class="p-8 text-center text-gray-400">
               <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
-              <p>No records found.</p>
+              <p>No inventory records found.</p>
             </td>
           </tr>`;
         return;
@@ -188,8 +170,8 @@
 
       items.forEach(item => {
         let statusBadge = "bg-emerald-100 text-emerald-800 border-emerald-300";
-        if (item.status === "Needs Repair") statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
-        if (item.status === "Unserviceable") statusBadge = "bg-rose-100 text-rose-800 border-rose-300";
+        if (item.status?.toLowerCase().includes('repair')) statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
+        if (item.status?.toLowerCase().includes('unserviceable')) statusBadge = "bg-rose-100 text-rose-800 border-rose-300";
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50 transition";
@@ -209,11 +191,6 @@
               ${item.status}
             </span>
           </td>
-          <td class="p-3 text-center">
-            <button onclick="deleteItem(${item.id})" class="text-rose-500 hover:text-rose-700 p-1 rounded" title="Delete">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -223,16 +200,15 @@
     function filterItems() {
       const search = document.getElementById('searchInput').value.toLowerCase();
       const statusFilter = document.getElementById('statusFilter').value;
-      const data = getStoredData();
 
-      const filtered = data.filter(item => {
+      const filtered = liveDatabase.filter(item => {
         const matchesSearch = 
           item.name.toLowerCase().includes(search) ||
           item.location.toLowerCase().includes(search) ||
           item.assigned.toLowerCase().includes(search) ||
           item.category.toLowerCase().includes(search);
 
-        const matchesStatus = statusFilter === "ALL" || item.status === statusFilter;
+        const matchesStatus = statusFilter === "ALL" || item.status.toLowerCase().includes(statusFilter.toLowerCase());
 
         return matchesSearch && matchesStatus;
       });
@@ -240,42 +216,8 @@
       renderTable(filtered);
     }
 
-    // Add New Item
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      const data = getStoredData();
-      const newItem = {
-        id: Date.now(),
-        name: document.getElementById('itemName').value,
-        category: document.getElementById('itemCat').value,
-        qty: parseInt(document.getElementById('itemQty').value, 10),
-        location: document.getElementById('itemLoc').value,
-        assigned: document.getElementById('itemAssign').value,
-        status: document.getElementById('itemStatus').value
-      };
-
-      data.unshift(newItem);
-      setStoredData(data);
-      toggleModal(false);
-      document.getElementById('addForm').reset();
-    }
-
-    // Delete Item
-    function deleteItem(id) {
-      if (confirm('Are you sure you want to delete this entry?')) {
-        const data = getStoredData().filter(item => item.id !== id);
-        setStoredData(data);
-      }
-    }
-
-    // Modal Control
-    function toggleModal(show) {
-      const modal = document.getElementById('itemModal');
-      modal.style.display = show ? 'flex' : 'none';
-    }
-
-    // CSV Import Logic
-    function importCSV(event) {
+    // Import Local CSV Manual Fallback
+    function importLocalCSV(event) {
       const file = event.target.files[0];
       if (!file) return;
 
@@ -283,8 +225,8 @@
         header: true,
         skipEmptyLines: true,
         complete: function(results) {
-          const parsedData = results.data.map((row, idx) => ({
-            id: Date.now() + idx,
+          liveDatabase = results.data.map((row, idx) => ({
+            id: idx + 1,
             name: row['Article/Item'] || row['Item Name'] || row['Article'] || 'Unnamed Item',
             category: row['Category'] || row['Instruction'] || 'General Property',
             qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || 1, 10),
@@ -294,23 +236,16 @@
             status: row['Status'] || row['Condition'] || 'Good'
           }));
 
-          setStoredData(parsedData);
-          alert('CSV inventory data imported successfully!');
+          document.getElementById('syncText').innerText = "Loaded Local CSV";
+          filterItems();
         }
       });
     }
 
-    // Reset Data back to Spreadsheet Default
-    function clearData() {
-      if (confirm("Reset inventory data back to the default spreadsheet list?")) {
-        localStorage.removeItem('mamon_inventory_portal');
-        filterItems();
-      }
-    }
-
-    // Initialize Page
+    // Initialize Page & Auto Sync every 60 seconds
     document.addEventListener('DOMContentLoaded', () => {
-      filterItems();
+      fetchGoogleSheetData();
+      setInterval(fetchGoogleSheetData, 60000);
     });
   </script>
 </body>
