@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAM-ON ES - Personnel & Inventory Portal</title>
+    <title>MAM-ON ES - Secure Portal</title>
     <!-- Google Fonts & FontAwesome -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Session Authentication Guard -->
+    <!-- Pre-load Auth Check to prevent flickering -->
     <script>
-        const activeSession = JSON.parse(localStorage.getItem('mamon_user_session')) || { role: 'teacher', email: 'jennyqueen.orillaneda@deped.gov.ph', empId: '6459395' };
+        const activeSession = JSON.parse(localStorage.getItem('mamon_user_session'));
+        if (!activeSession) {
+            window.location.href = 'login.html'; // Redirect if not logged in
+        }
     </script>
 
     <style>
@@ -19,17 +22,18 @@
             --primary: #2563eb;
             --primary-dark: #1e3a8a;
             --primary-light: #eff6ff;
-            --accent: #f59e0b;
             --bg: #f8fafc;
             --surface: #ffffff;
-            --text: #0f172a;
+            --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --radius: 14px;
+            --radius-lg: 16px;
+            --radius-md: 10px;
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
-            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
             --danger: #ef4444;
+            --success: #10b981;
         }
 
         * {
@@ -41,177 +45,178 @@
 
         body {
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
+        /* --- Header --- */
         header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: var(--shadow-md);
+            background: var(--surface);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow-sm);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .brand-container {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-        }
-
-        .brand-logo {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            backdrop-filter: blur(5px);
-        }
-
-        .brand-text h1 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-
-        .brand-text p {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            font-weight: 500;
-        }
-
-        .user-nav {
+        .brand {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
-        .user-badge {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
         }
 
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .brand-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: right;
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .user-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: capitalize;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* --- Main Layout --- */
         .container {
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 1.5rem;
             width: 100%;
             flex: 1;
+            animation: fadeIn 0.4s ease;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Tabs --- */
         .tabs {
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
             margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
         }
 
         .tab-btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.85rem 1.5rem;
             border: none;
-            background: transparent;
+            background: var(--surface);
             color: var(--text-muted);
             font-weight: 600;
             font-size: 0.95rem;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
         }
 
         .tab-btn.active {
-            background: var(--primary-light);
-            color: var(--primary);
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        .tab-view {
-            display: none;
-        }
+        .tab-view { display: none; }
+        .tab-view.active-view { display: block; animation: fadeIn 0.3s ease; }
 
-        .tab-view.active-view {
-            display: block;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            padding: 1.25rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            background: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        .stat-info h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .stat-info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
+        /* --- Cards & Tables --- */
         .card {
             background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
             border: 1px solid var(--border);
             overflow: hidden;
+            margin-bottom: 2rem;
         }
 
         .card-header {
-            padding: 1.25rem 1.5rem;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            background: #fafafa;
         }
 
-        .search-box {
+        .search-wrapper {
             position: relative;
-            min-width: 300px;
+            min-width: 350px;
         }
 
-        .search-box i {
+        .search-wrapper i {
             position: absolute;
             left: 1rem;
             top: 50%;
@@ -219,27 +224,36 @@
             color: var(--text-muted);
         }
 
-        .search-box input {
+        .search-wrapper input {
             width: 100%;
-            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            outline: none;
+            border-radius: var(--radius-md);
             font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background: white;
         }
 
-        .search-box input:focus {
+        .search-wrapper input:focus {
+            outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        .actions {
+        .action-group {
             display: flex;
             gap: 0.75rem;
         }
 
+        /* ADMIN ONLY CLASS - Hidden by default in JS if not admin */
+        .admin-only {
+            display: none !important; 
+        }
+
+        /* --- Buttons --- */
         .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
             font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
@@ -251,45 +265,52 @@
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: var(--primary-gradient);
             color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
         }
 
         .btn-outline {
             background: transparent;
             border: 1px solid var(--border);
-            color: var(--text);
+            color: var(--text-main);
+            background: white;
         }
 
         .btn-outline:hover {
             background: var(--bg);
+            border-color: #cbd5e1;
         }
 
         .btn-danger {
-            background: #fee2e2;
+            background: #fef2f2;
             color: var(--danger);
+            border: 1px solid #fecaca;
         }
 
         .btn-danger:hover {
-            background: #fca5a5;
+            background: #fee2e2;
         }
 
         .btn-icon {
-            padding: 0.4rem 0.6rem;
-            font-size: 0.8rem;
-            border-radius: 6px;
-            background: #f1f5f9;
-            color: #334155;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            color: var(--text-muted);
+            background: transparent;
         }
 
         .btn-icon:hover {
-            background: #e2e8f0;
+            background: var(--primary-light);
+            color: var(--primary);
         }
 
+        /* --- Table Styling --- */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -299,64 +320,55 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.875rem;
         }
 
         th {
-            background: #f8fafc;
-            padding: 1rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
+            background: white;
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border);
             white-space: nowrap;
         }
 
         td {
-            padding: 1rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border);
-            color: var(--text);
+            font-size: 0.9rem;
             vertical-align: middle;
         }
 
-        tr:hover {
-            background: #f8fafc;
-        }
+        tr { transition: background 0.2s ease; }
+        tr:hover { background: #f8fafc; }
 
-        .badge-role {
-            padding: 0.25rem 0.6rem;
-            border-radius: 12px;
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
+            display: inline-block;
         }
 
-        .badge-principal { background: #fef3c7; color: #d97706; }
-        .badge-teacher { background: #dbeafe; color: #2563eb; }
-        .badge-ao { background: #e0e7ff; color: #4338ca; }
+        .badge-teacher { background: #dbeafe; color: #1e40af; }
+        .badge-admin { background: #fef3c7; color: #b45309; }
+        .badge-me { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 
-        .pagination {
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border);
-        }
-
-        /* Modal styling */
+        /* --- Modals --- */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .modal-overlay.active {
@@ -366,90 +378,105 @@
 
         .modal {
             background: var(--surface);
-            border-radius: var(--radius);
+            border-radius: var(--radius-lg);
             width: 100%;
-            max-width: 650px;
-            padding: 1.75rem;
+            max-width: 700px;
+            padding: 2.5rem;
             box-shadow: var(--shadow-lg);
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 90vh;
             overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.25rem;
+            margin-bottom: 2rem;
         }
 
-        .modal-body {
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0.5rem;
         }
 
-        .form-group.full-width {
-            grid-column: span 2;
-        }
+        .form-group.full { grid-column: span 2; }
 
         .form-group label {
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--text-muted);
         }
 
         .form-group input, .form-group select {
-            padding: 0.6rem;
+            padding: 0.75rem 1rem;
             border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.875rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .form-group input:read-only, .form-group select:disabled {
             background-color: #f1f5f9;
+            color: #94a3b8;
             cursor: not-allowed;
         }
 
         .modal-footer {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             display: flex;
             justify-content: flex-end;
-            gap: 0.75rem;
-        }
-
-        footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            gap: 1rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border);
-            margin-top: auto;
         }
     </style>
 </head>
 <body>
 
+    <!-- Header -->
     <header>
-        <div class="brand-container">
-            <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
+        <div class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-school"></i></div>
             <div class="brand-text">
-                <h1>MAM-ON ELEMENTARY SCHOOL</h1>
-                <p>Personnel Management & Personal Database System</p>
+                <h1>MAM-ON ES PORTAL</h1>
+                <p>Digital Database System</p>
             </div>
         </div>
         <div class="user-nav">
-            <div class="user-badge">
-                <i class="fa-solid fa-circle-user"></i>
-                <span id="session-user-role">Guest</span>
+            <div class="user-profile">
+                <div class="user-info">
+                    <h4 id="display-email">User</h4>
+                    <p id="display-role">Role</p>
+                </div>
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
             </div>
-            <button class="btn btn-outline" id="logout-btn" style="color: white; border-color: rgba(255,255,255,0.3);">
-                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            <button class="btn btn-outline btn-danger" id="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
             </button>
         </div>
     </header>
@@ -461,48 +488,18 @@
             <button class="tab-btn" id="tab-pdb"><i class="fa-solid fa-address-card"></i> Personal Database (PDB)</button>
         </div>
 
-        <!-- View 1: Personnel Directory -->
+        <!-- View 1: Directory -->
         <div id="view-directory" class="tab-view active-view">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                    <div class="stat-info">
-                        <h3 id="total-count">0</h3>
-                        <p>Total Staff</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-user-tie"></i></div>
-                    <div class="stat-info">
-                        <h3 id="principal-count">0</h3>
-                        <p>School Heads</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
-                    <div class="stat-info">
-                        <h3 id="teacher-count">0</h3>
-                        <p>Teaching Staff</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-clipboard-user"></i></div>
-                    <div class="stat-info">
-                        <h3 id="non-teaching-count">0</h3>
-                        <p>Non-Teaching</p>
-                    </div>
-                </div>
-            </div>
-
             <div class="card">
                 <div class="card-header">
-                    <div class="search-box">
+                    <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="search-input" placeholder="Search by name, position, email...">
                     </div>
-                    <div class="actions">
-                        <button class="btn btn-outline" id="export-btn"><i class="fa-solid fa-file-export"></i> Export CSV</button>
-                        <button class="btn btn-primary" id="open-add-modal-btn"><i class="fa-solid fa-plus"></i> Add Personnel</button>
+                    <div class="action-group">
+                        <!-- THESE BUTTONS HAVE 'admin-only' CLASS -->
+                        <button class="btn btn-outline admin-action admin-only" id="export-btn"><i class="fa-solid fa-file-export"></i> Export CSV</button>
+                        <button class="btn btn-primary admin-action admin-only" id="open-add-modal-btn"><i class="fa-solid fa-plus"></i> Add Personnel</button>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -511,40 +508,32 @@
                             <tr>
                                 <th>Emp ID</th>
                                 <th>Full Name</th>
-                                <th>Position</th>
+                                <th>Position / Role</th>
                                 <th>Department</th>
-                                <th>Educational Attainment</th>
-                                <th>Date Hired</th>
                                 <th>Contact Information</th>
-                                <th class="admin-action-col">Actions</th>
+                                <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="personnel-table-body">
-                            <!-- Populated via JS -->
+                            <!-- Injected via JS -->
                         </tbody>
                     </table>
-                </div>
-                <div class="pagination">
-                    <span id="pagination-info" style="font-size: 0.85rem; color: var(--text-muted);">Showing 0 entries</span>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-outline" id="prev-btn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
-                        <button class="btn btn-outline" id="next-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- View 2: Personal Database (PDB) -->
+        <!-- View 2: PDB -->
         <div id="view-pdb" class="tab-view">
             <div class="card">
                 <div class="card-header">
-                    <div class="search-box">
+                    <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="pdb-search-input" placeholder="Search PDB records...">
+                        <input type="text" id="pdb-search-input" placeholder="Search government IDs, names...">
                     </div>
-                    <div class="actions">
-                        <button class="btn btn-outline" id="pdb-export-btn"><i class="fa-solid fa-file-export"></i> Export PDB</button>
-                        <button class="btn btn-primary" id="open-pdb-modal-btn"><i class="fa-solid fa-plus"></i> New Record</button>
+                    <div class="action-group">
+                        <!-- THESE BUTTONS HAVE 'admin-only' CLASS -->
+                        <button class="btn btn-outline admin-action admin-only" id="pdb-export-btn"><i class="fa-solid fa-file-export"></i> Export PDB</button>
+                        <button class="btn btn-primary admin-action admin-only" id="open-pdb-modal-btn"><i class="fa-solid fa-plus"></i> New PDB Record</button>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -556,14 +545,12 @@
                                 <th>GSIS BP NO.</th>
                                 <th>PAG-IBIG MID</th>
                                 <th>PhilHealth NO.</th>
-                                <th>Civil Status</th>
-                                <th>Contact No.</th>
-                                <th>Residential Address</th>
-                                <th class="admin-action-col">Actions</th>
+                                <th>Contact & Civil Status</th>
+                                <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="pdb-table-body">
-                            <!-- Populated via JS -->
+                            <!-- Injected via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -571,16 +558,17 @@
         </div>
     </div>
 
-    <!-- Modal: Personnel Entry / Edit -->
+    <!-- Modals (Hidden by default) -->
+    <!-- Personnel Modal -->
     <div class="modal-overlay" id="personnel-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 id="modal-title">Add Personnel Record</h3>
-                <button class="btn btn-icon" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+                <h3 id="modal-title">Personnel Record</h3>
+                <button class="btn btn-icon" id="close-modal-btn"><i class="fa-solid fa-xmark fa-lg"></i></button>
             </div>
             <form id="personnel-form">
                 <input type="hidden" id="edit-index" value="-1">
-                <div class="modal-body">
+                <div class="form-grid">
                     <div class="form-group">
                         <label>Employee ID</label>
                         <input type="text" id="emp-id" required>
@@ -594,16 +582,8 @@
                         <input type="text" id="emp-position" required>
                     </div>
                     <div class="form-group">
-                        <label>Department / Station</label>
+                        <label>Department</label>
                         <input type="text" id="emp-dept" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Degree / Qualification</label>
-                        <input type="text" id="emp-degree" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Date Hired</label>
-                        <input type="text" id="emp-hired" placeholder="MM/DD/YYYY" required>
                     </div>
                     <div class="form-group">
                         <label>DepEd Email</label>
@@ -613,12 +593,11 @@
                         <label>Contact Number</label>
                         <input type="text" id="emp-contact" required>
                     </div>
-                    <div class="form-group full-width">
+                    <div class="form-group full">
                         <label>System Role Category</label>
                         <select id="role-type">
                             <option value="teacher">Teaching Personnel</option>
-                            <option value="principal">School Head / Principal</option>
-                            <option value="ao">Administrative / Non-Teaching</option>
+                            <option value="admin">Administrator / Principal</option>
                         </select>
                     </div>
                 </div>
@@ -630,17 +609,17 @@
         </div>
     </div>
 
-    <!-- Modal: PDB Record Entry / Edit -->
+    <!-- PDB Modal -->
     <div class="modal-overlay" id="pdb-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 id="pdb-modal-title">Edit Personal Database Record</h3>
-                <button class="btn btn-icon" id="close-pdb-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+                <h3 id="pdb-modal-title">Personal Database Record</h3>
+                <button class="btn btn-icon" id="close-pdb-modal-btn"><i class="fa-solid fa-xmark fa-lg"></i></button>
             </div>
             <form id="pdb-form">
                 <input type="hidden" id="pdb-edit-index" value="-1">
-                <div class="modal-body">
-                    <div class="form-group full-width">
+                <div class="form-grid">
+                    <div class="form-group full">
                         <label>Full Name</label>
                         <input type="text" id="pdb-name" required>
                     </div>
@@ -668,10 +647,6 @@
                         <label>Contact No.</label>
                         <input type="text" id="pdb-phone">
                     </div>
-                    <div class="form-group full-width">
-                        <label>Residential Address</label>
-                        <input type="text" id="pdb-address">
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" id="cancel-pdb-modal-btn">Cancel</button>
@@ -681,42 +656,138 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 MAM-ON Elementary School, Division of Surigao del Sur. All Rights Reserved.</p>
-    </footer>
-
     <script>
-        // ----------------------------------------------------
-        // User Authentication & Active Session Retrieval
-        // ----------------------------------------------------
-        const activeSession = JSON.parse(localStorage.getItem('mamon_user_session')) || { 
-            role: 'teacher', 
-            email: 'jennyqueen.orillaneda@deped.gov.ph', 
-            empId: '6459395' 
-        };
-        const userRole = activeSession.role ? activeSession.role.toLowerCase() : 'teacher';
-        const currentUserEmail = activeSession.email ? activeSession.email.toLowerCase() : '';
-        const currentEmpId = activeSession.empId || '';
+        // --- 1. Session & Permission Enforcement ---
+        const userRole = activeSession.role || 'teacher';
+        const userEmail = activeSession.email || '';
+        
+        // Update Header UI
+        document.getElementById('display-email').innerText = userEmail.split('@')[0] || 'User';
+        document.getElementById('display-role').innerText = userRole === 'admin' ? 'System Administrator' : 'Portal Guest / Teacher';
 
-        document.getElementById('session-user-role').innerText = userRole.toUpperCase();
-
-        const openModalBtn = document.getElementById('open-add-modal-btn');
-        const openPdbModalBtn = document.getElementById('open-pdb-modal-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const pdbExportBtn = document.getElementById('pdb-export-btn');
-
-        // Hide administrative creation buttons from non-admins
-        if (userRole !== 'admin') {
-            if (openModalBtn) openModalBtn.style.display = 'none';
-            if (openPdbModalBtn) openPdbModalBtn.style.display = 'none';
+        // STRICT SECURITY RULE: Make Admin Action buttons visible ONLY if admin
+        if (userRole === 'admin') {
+            document.querySelectorAll('.admin-only').forEach(btn => {
+                btn.style.setProperty('display', 'inline-flex', 'important');
+            });
         }
 
-        // Parent View Restrictions
-        if (userRole === 'parent') {
-            if (exportBtn) exportBtn.style.display = 'none';
-            if (pdbExportBtn) pdbExportBtn.style.display = 'none';
-            document.querySelectorAll('.admin-action-col').forEach(el => el.style.display = 'none');
+        // --- 2. Datasets (Mock Database) ---
+        let personnelData = JSON.parse(localStorage.getItem('mamon_personnel')) || [
+            { id: "ADMIN-001", name: "System Administrator", position: "Principal", department: "Admin", email: "admin.mamon@deped.gov.ph", contact: "09000000000", roleType: "admin" },
+            { id: "6459395", name: "Jenny Queen L. Orillaneda", position: "Teacher I", department: "Elementary", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
+            { id: "6450528", name: "Jasper S. Campado", position: "Admin Officer II", department: "Elementary", email: "jasper.campado@deped.gov.ph", contact: "09241132506", roleType: "teacher" }
+        ];
+
+        let pdbData = JSON.parse(localStorage.getItem('mamon_pdb')) || [
+            { name: "Jenny Queen L. Orillaneda", tin: "3826478650000", gsis: "2006724079", pagibig: "182012173335", philhealth: "0795079220", civil: "Single", phone: "09704809343" },
+            { name: "Jasper S. Campado", tin: "605690915000", gsis: "2006426639", pagibig: "182511543852", philhealth: "0795-0692-83", civil: "Single", phone: "09241132506" }
+        ];
+
+        function saveData() {
+            localStorage.setItem('mamon_personnel', JSON.stringify(personnelData));
+            localStorage.setItem('mamon_pdb', JSON.stringify(pdbData));
         }
+
+        // --- 3. Table Renderers ---
+        function isOwnRecord(item) {
+            return (item.email && item.email.toLowerCase() === userEmail.toLowerCase()) || 
+                   (item.id && item.id === activeSession.empId);
+        }
+
+        function renderDirectory() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const tbody = document.getElementById('personnel-table-body');
+            
+            tbody.innerHTML = personnelData.filter(p => p.name.toLowerCase().includes(query) || p.email.toLowerCase().includes(query)).map((p, index) => {
+                const ownsRecord = isOwnRecord(p);
+                const roleBadge = p.roleType === 'admin' ? 'badge-admin' : 'badge-teacher';
+                const meBadge = ownsRecord ? `<span class="badge badge-me" style="margin-left: 8px;">YOU</span>` : '';
+                
+                // Allow edit if Admin OR if it's the user's own profile. Delete strictly Admin.
+                const canEdit = userRole === 'admin' || ownsRecord;
+                const canDelete = userRole === 'admin';
+
+                return `
+                    <tr>
+                        <td><strong>${p.id}</strong></td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-main);">${p.name} ${meBadge}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500;">${p.position}</div>
+                            <span class="badge ${roleBadge}" style="margin-top: 4px;">${p.roleType.toUpperCase()}</span>
+                        </td>
+                        <td>${p.department}</td>
+                        <td>
+                            <div style="font-size: 0.85rem;"><i class="fa-regular fa-envelope" style="color: var(--text-muted); margin-right: 4px;"></i> ${p.email}</div>
+                            <div style="font-size: 0.85rem; margin-top: 4px;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${p.contact}</div>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                                ${canEdit ? `<button class="btn btn-icon" onclick="openEdit(${index})" title="Edit"><i class="fa-solid fa-pen"></i></button>` : `<span style="font-size:0.8rem; color: #cbd5e1;">Read-only</span>`}
+                                ${canDelete ? `<button class="btn btn-icon" style="color: var(--danger);" onclick="deleteRecord(${index})" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPDB() {
+            const query = document.getElementById('pdb-search-input').value.toLowerCase();
+            const tbody = document.getElementById('pdb-table-body');
+            
+            tbody.innerHTML = pdbData.filter(p => p.name.toLowerCase().includes(query) || p.tin.includes(query)).map((p, index) => {
+                
+                const matchingPersonnel = personnelData.find(x => x.name.toLowerCase() === p.name.toLowerCase());
+                const ownsRecord = matchingPersonnel ? isOwnRecord(matchingPersonnel) : false;
+                const canEdit = userRole === 'admin' || ownsRecord;
+                const canDelete = userRole === 'admin';
+
+                return `
+                    <tr>
+                        <td style="font-weight: 600;">${p.name}</td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.tin || 'N/A'}</code></td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.gsis || 'N/A'}</code></td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.pagibig || 'N/A'}</code></td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.philhealth || 'N/A'}</code></td>
+                        <td>
+                            <div style="font-size: 0.85rem;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${p.phone}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Status: ${p.civil}</div>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                                ${canEdit ? `<button class="btn btn-icon" onclick="openPdbEdit(${index})" title="Edit Data"><i class="fa-solid fa-pen"></i></button>` : `<span style="font-size:0.8rem; color: #cbd5e1;">Read-only</span>`}
+                                ${canDelete ? `<button class="btn btn-icon" style="color: var(--danger);" onclick="deletePdb(${index})" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // --- 4. Interactivity & Modals ---
+        // Tab Switching
+        document.getElementById('tab-directory').addEventListener('click', (e) => {
+            e.target.classList.add('active');
+            document.getElementById('tab-pdb').classList.remove('active');
+            document.getElementById('view-directory').classList.add('active-view');
+            document.getElementById('view-pdb').classList.remove('active-view');
+            renderDirectory();
+        });
+
+        document.getElementById('tab-pdb').addEventListener('click', (e) => {
+            e.target.classList.add('active');
+            document.getElementById('tab-directory').classList.remove('active');
+            document.getElementById('view-pdb').classList.add('active-view');
+            document.getElementById('view-directory').classList.remove('active-view');
+            renderPDB();
+        });
+
+        // Search Listeners
+        document.getElementById('search-input').addEventListener('input', renderDirectory);
+        document.getElementById('pdb-search-input').addEventListener('input', renderPDB);
 
         // Sign Out
         document.getElementById('logout-btn').addEventListener('click', () => {
@@ -724,211 +795,21 @@
             window.location.href = 'login.html';
         });
 
-        // Navigation Tabs
-        const tabDirectory = document.getElementById('tab-directory');
-        const tabPdb = document.getElementById('tab-pdb');
-        const viewDirectory = document.getElementById('view-directory');
-        const viewPdb = document.getElementById('view-pdb');
-
-        tabDirectory.addEventListener('click', (e) => {
-            e.preventDefault();
-            tabDirectory.classList.add('active');
-            tabPdb.classList.remove('active');
-            viewDirectory.classList.add('active-view');
-            viewPdb.classList.remove('active-view');
-        });
-
-        tabPdb.addEventListener('click', (e) => {
-            e.preventDefault();
-            tabPdb.classList.add('active');
-            tabDirectory.classList.remove('active');
-            viewPdb.classList.add('active-view');
-            viewDirectory.classList.remove('active-view');
-            renderPdbTable();
-        });
-
-        // ----------------------------------------------------
-        // Datasets
-        // ----------------------------------------------------
-        const initialPersonnel = [
-            { id: "6450528", name: "Jasper Singcol Campado", position: "Administrative Officer-II", department: "Elementary", degree: "BSBA (FM)", dateHired: "1/11/2024", email: "jasper.campado@deped.gov.ph", contact: "09241132506", roleType: "ao" },
-            { id: "6459395", name: "Jenny Queen Lingaya Orillaneda", position: "Teacher I", department: "ELEMENTARY", degree: "BEED (General Education)", dateHired: "6/24/2025", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
-            { id: "0", name: "Jessa Mae Ronquillo Flores", position: "Teacher I", department: "ELEMENTARY", degree: "BEED (General)", dateHired: "10/1/2025", email: "jessamaef81@gmail.com", contact: "09302808944", roleType: "teacher" },
-            { id: "6444470", name: "Shienna Myville Desamparado Curada", position: "Teacher I", department: "CAGWAIT DISTRICT", degree: "BEED (General Education)", dateHired: "2/23/2023", email: "shiennamyville.curada@deped.gov.ph", contact: "09129016816", roleType: "teacher" },
-            { id: "6459393", name: "Lendon Balmis Abonales", position: "Teacher I", department: "Elementary", degree: "BSED (Social Science)", dateHired: "6/18/2025", email: "lendon.abonales@deped.gov.ph", contact: "09106111138", roleType: "teacher" },
-            { id: "6459638", name: "Mark Zoilo Cancio Tajonera", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "10/1/2025", email: "markzoilo.tajonera@deped.gov.ph", contact: "09549956756", roleType: "teacher" },
-            { id: "6290011", name: "Alma Cañola Nayre", position: "Teacher II", department: "Elementary", degree: "BEED (Generalist)", dateHired: "3/22/2019", email: "alma.nayre@deped.gov.ph", contact: "09516366801", roleType: "teacher" },
-            { id: "6453809", name: "Maria Fatima Rivas Peñanueva", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "12/10/2024", email: "mariafatima.penanueva@deped.gov.ph", contact: "09503907420", roleType: "teacher" },
-            { id: "N/A", name: "Jimmy Pontillo Sarmiento", position: "Teacher I", department: "ELEMENTARY", degree: "BSED (Mathematics)", dateHired: "6/18/2026", email: "jimsarmiento2020@gmail.com", contact: "09460098105", roleType: "teacher" }
-        ];
-
-        const initialPdb = [
-            { name: "Jasper Singcol Campado", tin: "605690915000", gsis: "2006426639", pagibig: "182511543852", philhealth: "0795-0692-83", civil: "Single", phone: "09241132506", address: "Pangi, Tandag City" },
-            { name: "Jenny Queen Lingaya Orillaneda", tin: "3826478650000", gsis: "2006724079", pagibig: "182012173335", philhealth: "0795079220", civil: "Single", phone: "09704809343", address: "Purok Miramar 2, Poblacion Marihatag, SDS" },
-            { name: "Jessa Mae Ronquillo Flores", tin: "689-752-078-00000", gsis: "2006775380", pagibig: "18-000064354-6", philhealth: "4748-4407-9061-6806", civil: "Single", phone: "09302808944", address: "PUROK 1-A HORNASAN SAN AGUSTIN, SDS" },
-            { name: "Shienna Myville Desamparado Curada", tin: "726-049-348-000", gsis: "2006053129", pagibig: "18-251033262-9", philhealth: "0795 0668 10", civil: "Married", phone: "09129016816", address: "POBLACION, LIANGA, SDS" },
-            { name: "Lendon Balmis Abonales", tin: "766-553-847-000", gsis: "2006724080", pagibig: "18-025247338-4", philhealth: "0795 0792 11", civil: "Married", phone: "09106111138", address: "Purok Narra, Mabua, Tandag City, SDS" },
-            { name: "Mark Zoilo Cancio Tajonera", tin: "660953281", gsis: "2006563157", pagibig: "18-025320997-4", philhealth: "0795075712", civil: "Single", phone: "09549956756", address: "Purok Talisay-B, Aras-asan, Cagwait, SDS" },
-            { name: "Alma Cañola Nayre", tin: "468-581-989", gsis: "2005579341", pagibig: "18-200948793-0", philhealth: "0795067914", civil: "Married", phone: "09516366801", address: "P-1, Ban-as, Lianga, SDS" },
-            { name: "Maria Fatima Rivas Peñanueva", tin: "75220009300000", gsis: "2006607999", pagibig: "180253007565", philhealth: "0795077863", civil: "Single", phone: "09503907420", address: "Purok 1, Luna St., Poblacion, Lianga, SDS" },
-            { name: "Jimmy Pontillo Sarmiento", tin: "290571074", gsis: "N/A", pagibig: "18-0500750721", philhealth: "N/A", civil: "Single", phone: "09460098105", address: "PUROK LANGUYON, BRGY POBLACION, MARIHATAG SDS" }
-        ];
-
-        let personnelData = JSON.parse(localStorage.getItem('mamon_personnel')) || initialPersonnel;
-        let pdbData = JSON.parse(localStorage.getItem('mamon_pdb')) || initialPdb;
-
-        let currentPage = 1;
-        const pageSize = 10;
-
-        function saveState() {
-            localStorage.setItem('mamon_personnel', JSON.stringify(personnelData));
-            localStorage.setItem('mamon_pdb', JSON.stringify(pdbData));
-        }
-
-        // Helper: Check if logged-in user owns the record
-        function isOwnRecord(item) {
-            if (userRole === 'admin') return true;
-            if (!currentUserEmail && !currentEmpId) return false;
-            return (item.email && item.email.toLowerCase() === currentUserEmail) || 
-                   (item.id && item.id === currentEmpId);
-        }
-
-        // ----------------------------------------------------
-        // Table Renderers
-        // ----------------------------------------------------
-        function renderTable() {
-            const tableBody = document.getElementById('personnel-table-body');
-            const searchInput = document.getElementById('search-input').value.toLowerCase();
-
-            const filtered = personnelData.filter(item => 
-                item.name.toLowerCase().includes(searchInput) ||
-                item.position.toLowerCase().includes(searchInput) ||
-                item.degree.toLowerCase().includes(searchInput) ||
-                item.email.toLowerCase().includes(searchInput)
-            );
-
-            const totalPages = Math.ceil(filtered.length / pageSize) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            const startIndex = (currentPage - 1) * pageSize;
-            const paginatedItems = filtered.slice(startIndex, startIndex + pageSize);
-
-            tableBody.innerHTML = paginatedItems.map((item) => {
-                const originalIndex = personnelData.indexOf(item);
-                let badgeClass = 'badge-teacher';
-                if (item.roleType === 'principal') badgeClass = 'badge-principal';
-                if (item.roleType === 'ao') badgeClass = 'badge-ao';
-
-                const canEdit = userRole === 'admin' || isOwnRecord(item);
-                const canDelete = userRole === 'admin';
-
-                let actionsCell = '';
-                if (userRole !== 'parent') {
-                    actionsCell = `
-                        <td>
-                            <div style="display: flex; gap: 0.35rem;">
-                                ${canEdit ? `<button class="btn btn-icon" onclick="editPersonnel(${originalIndex})" title="Edit Record"><i class="fa-solid fa-pen-to-square"></i> Edit</button>` : `<span style="font-size: 0.75rem; color: #94a3b8;">Read Only</span>`}
-                                ${canDelete ? `<button class="btn btn-icon btn-danger" onclick="deletePersonnel(${originalIndex})" title="Delete Record"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </td>
-                    `;
-                }
-
-                return `
-                    <tr>
-                        <td><strong>${item.id}</strong></td>
-                        <td><strong>${item.name} ${isOwnRecord(item) && userRole !== 'admin' ? '<span class="badge-role badge-ao" style="font-size:0.65rem;">(You)</span>' : ''}</strong></td>
-                        <td><span class="badge-role ${badgeClass}">${item.position}</span></td>
-                        <td>${item.department}</td>
-                        <td>${item.degree}</td>
-                        <td>${item.dateHired}</td>
-                        <td>
-                            <div><i class="fa-regular fa-envelope"></i> ${item.email}</div>
-                            <small style="color: var(--text-muted);"><i class="fa-solid fa-phone"></i> ${item.contact}</small>
-                        </td>
-                        ${actionsCell}
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('total-count').innerText = personnelData.length;
-            document.getElementById('principal-count').innerText = personnelData.filter(p => p.roleType === 'principal').length;
-            document.getElementById('teacher-count').innerText = personnelData.filter(p => p.roleType === 'teacher').length;
-            document.getElementById('non-teaching-count').innerText = personnelData.filter(p => p.roleType === 'ao').length;
-            document.getElementById('pagination-info').innerText = `Showing ${paginatedItems.length} of ${filtered.length} entries`;
-
-            document.getElementById('prev-btn').disabled = currentPage === 1;
-            document.getElementById('next-btn').disabled = currentPage === totalPages;
-        }
-
-        function renderPdbTable() {
-            const tableBody = document.getElementById('pdb-table-body');
-            const searchInput = document.getElementById('pdb-search-input').value.toLowerCase();
-
-            const filtered = pdbData.filter(item => 
-                item.name.toLowerCase().includes(searchInput) ||
-                item.tin.toLowerCase().includes(searchInput) ||
-                item.gsis.toLowerCase().includes(searchInput) ||
-                item.address.toLowerCase().includes(searchInput)
-            );
-
-            tableBody.innerHTML = filtered.map((item) => {
-                const idx = pdbData.indexOf(item);
-                
-                const matchingPersonnel = personnelData.find(p => p.name.toLowerCase() === item.name.toLowerCase());
-                const canEdit = userRole === 'admin' || (matchingPersonnel && isOwnRecord(matchingPersonnel));
-                const canDelete = userRole === 'admin';
-
-                let actionsCell = '';
-                if (userRole !== 'parent') {
-                    actionsCell = `
-                        <td>
-                            <div style="display: flex; gap: 0.35rem;">
-                                ${canEdit ? `<button class="btn btn-icon" onclick="editPdbRecord(${idx})" title="Edit Personal Data"><i class="fa-solid fa-pen-to-square"></i> Edit</button>` : `<span style="font-size: 0.75rem; color: #94a3b8;">Read Only</span>`}
-                                ${canDelete ? `<button class="btn btn-icon btn-danger" onclick="deletePdbRecord(${idx})" title="Delete Record"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </td>
-                    `;
-                }
-
-                return `
-                    <tr>
-                        <td><strong>${item.name}</strong></td>
-                        <td><code>${item.tin}</code></td>
-                        <td><code>${item.gsis}</code></td>
-                        <td><code>${item.pagibig}</code></td>
-                        <td><code>${item.philhealth}</code></td>
-                        <td><span class="badge-role badge-teacher">${item.civil}</span></td>
-                        <td><small><i class="fa-solid fa-phone"></i> ${item.phone}</small></td>
-                        <td>${item.address}</td>
-                        ${actionsCell}
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // ----------------------------------------------------
-        // Edit & Delete Actions
-        // ----------------------------------------------------
-        window.editPersonnel = function(index) {
-            const item = personnelData[index];
-            if (userRole !== 'admin' && !isOwnRecord(item)) {
-                alert("Permission denied: You can only edit your own personal record.");
-                return;
-            }
-            
+        // Add/Edit Functions (Global Window Binding)
+        window.openEdit = function(index) {
+            const p = personnelData[index];
             document.getElementById('edit-index').value = index;
-            document.getElementById('modal-title').innerText = isOwnRecord(item) && userRole !== 'admin' ? 'Edit Your Profile Data' : 'Edit Personnel Record';
-            document.getElementById('emp-id').value = item.id;
-            document.getElementById('emp-name').value = item.name;
-            document.getElementById('emp-position').value = item.position;
-            document.getElementById('emp-dept').value = item.department;
-            document.getElementById('emp-degree').value = item.degree;
-            document.getElementById('emp-hired').value = item.dateHired;
-            document.getElementById('emp-email').value = item.email;
-            document.getElementById('emp-contact').value = item.contact;
-            document.getElementById('role-type').value = item.roleType;
+            document.getElementById('modal-title').innerText = "Edit Personnel Profile";
+            
+            document.getElementById('emp-id').value = p.id;
+            document.getElementById('emp-name').value = p.name;
+            document.getElementById('emp-position').value = p.position;
+            document.getElementById('emp-dept').value = p.department;
+            document.getElementById('emp-email').value = p.email;
+            document.getElementById('emp-contact').value = p.contact;
+            document.getElementById('role-type').value = p.roleType;
 
+            // Lock sensitive fields if not admin
             if (userRole !== 'admin') {
                 document.getElementById('emp-id').readOnly = true;
                 document.getElementById('role-type').disabled = true;
@@ -936,91 +817,66 @@
                 document.getElementById('emp-id').readOnly = false;
                 document.getElementById('role-type').disabled = false;
             }
-
+            
             document.getElementById('personnel-modal').classList.add('active');
         };
 
-        window.deletePersonnel = function(index) {
-            if (userRole !== 'admin') {
-                alert("Permission denied: Only system administrators can delete records.");
-                return;
-            }
-            if (confirm("Are you sure you want to delete this record?")) {
+        window.deleteRecord = function(index) {
+            if(confirm("Are you sure you want to completely remove this personnel record?")) {
                 personnelData.splice(index, 1);
-                saveState();
-                renderTable();
+                saveData(); renderDirectory();
             }
         };
 
-        window.editPdbRecord = function(index) {
-            const item = pdbData[index];
-            const matchingPersonnel = personnelData.find(p => p.name.toLowerCase() === item.name.toLowerCase());
-            
-            if (userRole !== 'admin' && (!matchingPersonnel || !isOwnRecord(matchingPersonnel))) {
-                alert("Permission denied: You can only edit your own government IDs and address.");
-                return;
-            }
-
+        window.openPdbEdit = function(index) {
+            const p = pdbData[index];
             document.getElementById('pdb-edit-index').value = index;
-            document.getElementById('pdb-modal-title').innerText = 'Edit Personal Database Record';
-            document.getElementById('pdb-name').value = item.name;
-            document.getElementById('pdb-tin').value = item.tin;
-            document.getElementById('pdb-gsis').value = item.gsis;
-            document.getElementById('pdb-pagibig').value = item.pagibig;
-            document.getElementById('pdb-philhealth').value = item.philhealth;
-            document.getElementById('pdb-civil').value = item.civil;
-            document.getElementById('pdb-phone').value = item.phone;
-            document.getElementById('pdb-address').value = item.address;
-
+            document.getElementById('pdb-modal-title').innerText = "Edit Secure ID Records";
+            
+            document.getElementById('pdb-name').value = p.name;
+            document.getElementById('pdb-tin').value = p.tin;
+            document.getElementById('pdb-gsis').value = p.gsis;
+            document.getElementById('pdb-pagibig').value = p.pagibig;
+            document.getElementById('pdb-philhealth').value = p.philhealth;
+            document.getElementById('pdb-civil').value = p.civil;
+            document.getElementById('pdb-phone').value = p.phone;
+            
+            // Lock name if not admin to prevent assigning IDs to someone else
+            document.getElementById('pdb-name').readOnly = (userRole !== 'admin');
+            
             document.getElementById('pdb-modal').classList.add('active');
         };
 
-        window.deletePdbRecord = function(index) {
-            if (userRole !== 'admin') {
-                alert("Permission denied: Only system administrators can delete PDB records.");
-                return;
-            }
-            if (confirm("Are you sure you want to delete this PDB entry?")) {
+        window.deletePdb = function(index) {
+            if(confirm("Delete these secure ID records permanently?")) {
                 pdbData.splice(index, 1);
-                saveState();
-                renderPdbTable();
+                saveData(); renderPDB();
             }
         };
 
-        // ----------------------------------------------------
-        // Forms & Modal Submissions
-        // ----------------------------------------------------
+        // Form Submissions
         document.getElementById('personnel-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const editIndex = parseInt(document.getElementById('edit-index').value);
-
+            const idx = document.getElementById('edit-index').value;
             const record = {
                 id: document.getElementById('emp-id').value,
                 name: document.getElementById('emp-name').value,
                 position: document.getElementById('emp-position').value,
                 department: document.getElementById('emp-dept').value,
-                degree: document.getElementById('emp-degree').value,
-                dateHired: document.getElementById('emp-hired').value,
                 email: document.getElementById('emp-email').value,
                 contact: document.getElementById('emp-contact').value,
                 roleType: document.getElementById('role-type').value
             };
-
-            if (editIndex >= 0) {
-                personnelData[editIndex] = record;
-            } else {
-                personnelData.unshift(record);
-            }
-
-            saveState();
-            renderTable();
+            if(idx > -1) personnelData[idx] = record;
+            else personnelData.unshift(record);
+            
+            saveData(); renderDirectory();
             document.getElementById('personnel-modal').classList.remove('active');
         });
 
         document.getElementById('pdb-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const editIndex = parseInt(document.getElementById('pdb-edit-index').value);
-
+            const idx = document.getElementById('pdb-edit-index').value;
             const record = {
                 name: document.getElementById('pdb-name').value,
                 tin: document.getElementById('pdb-tin').value,
@@ -1028,77 +884,47 @@
                 pagibig: document.getElementById('pdb-pagibig').value,
                 philhealth: document.getElementById('pdb-philhealth').value,
                 civil: document.getElementById('pdb-civil').value,
-                phone: document.getElementById('pdb-phone').value,
-                address: document.getElementById('pdb-address').value
+                phone: document.getElementById('pdb-phone').value
             };
-
-            if (editIndex >= 0) {
-                pdbData[editIndex] = record;
-            } else {
-                pdbData.unshift(record);
-            }
-
-            saveState();
-            renderPdbTable();
+            if(idx > -1) pdbData[idx] = record;
+            else pdbData.unshift(record);
+            
+            saveData(); renderPDB();
             document.getElementById('pdb-modal').classList.remove('active');
         });
 
-        // Search listeners
-        document.getElementById('search-input').addEventListener('input', () => { currentPage = 1; renderTable(); });
-        document.getElementById('pdb-search-input').addEventListener('input', () => { renderPdbTable(); });
-
-        // Modal triggers
-        if (openModalBtn) {
-            openModalBtn.addEventListener('click', () => {
+        // Open Add Modals (Only applicable to Admins since button is hidden otherwise)
+        if(document.getElementById('open-add-modal-btn')) {
+            document.getElementById('open-add-modal-btn').addEventListener('click', () => {
                 document.getElementById('personnel-form').reset();
                 document.getElementById('edit-index').value = -1;
-                document.getElementById('modal-title').innerText = 'Add Personnel Record';
+                document.getElementById('modal-title').innerText = "Add New Personnel";
                 document.getElementById('emp-id').readOnly = false;
                 document.getElementById('role-type').disabled = false;
                 document.getElementById('personnel-modal').classList.add('active');
             });
         }
-
-        document.getElementById('close-modal-btn').addEventListener('click', () => document.getElementById('personnel-modal').classList.remove('active'));
-        document.getElementById('cancel-modal-btn').addEventListener('click', () => document.getElementById('personnel-modal').classList.remove('active'));
-
-        document.getElementById('close-pdb-modal-btn').addEventListener('click', () => document.getElementById('pdb-modal').classList.remove('active'));
-        document.getElementById('cancel-pdb-modal-btn').addEventListener('click', () => document.getElementById('pdb-modal').classList.remove('active'));
-
-        // Pagination buttons
-        document.getElementById('prev-btn').addEventListener('click', () => {
-            if (currentPage > 1) { currentPage--; renderTable(); }
-        });
-        document.getElementById('next-btn').addEventListener('click', () => {
-            currentPage++; renderTable();
-        });
-
-        // CSV Exports
-        document.getElementById('export-btn').addEventListener('click', () => {
-            const csv = ['ID,Name,Position,Department,Degree,Date Hired,Email,Contact'];
-            personnelData.forEach(p => csv.push(`"${p.id}","${p.name}","${p.position}","${p.department}","${p.degree}","${p.dateHired}","${p.email}","${p.contact}"`));
-            downloadCSV(csv.join('\n'), 'Personnel_Directory.csv');
-        });
-
-        document.getElementById('pdb-export-btn').addEventListener('click', () => {
-            const csv = ['Name,TIN,GSIS,PAGIBIG,PhilHealth,Civil Status,Phone,Address'];
-            pdbData.forEach(p => csv.push(`"${p.name}","${p.tin}","${p.gsis}","${p.pagibig}","${p.philhealth}","${p.civil}","${p.phone}","${p.address}"`));
-            downloadCSV(csv.join('\n'), 'Personal_Database.csv');
-        });
-
-        function downloadCSV(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
+        
+        if(document.getElementById('open-pdb-modal-btn')) {
+            document.getElementById('open-pdb-modal-btn').addEventListener('click', () => {
+                document.getElementById('pdb-form').reset();
+                document.getElementById('pdb-edit-index').value = -1;
+                document.getElementById('pdb-modal-title').innerText = "Add Secure ID Record";
+                document.getElementById('pdb-name').readOnly = false;
+                document.getElementById('pdb-modal').classList.add('active');
+            });
         }
 
-        // Initial Load
-        saveState();
-        renderTable();
+        // Close Modals
+        document.querySelectorAll('#close-modal-btn, #cancel-modal-btn').forEach(b => 
+            b.addEventListener('click', () => document.getElementById('personnel-modal').classList.remove('active'))
+        );
+        document.querySelectorAll('#close-pdb-modal-btn, #cancel-pdb-modal-btn').forEach(b => 
+            b.addEventListener('click', () => document.getElementById('pdb-modal').classList.remove('active'))
+        );
+
+        // --- Initial Load ---
+        renderDirectory();
     </script>
 </body>
 </html>
