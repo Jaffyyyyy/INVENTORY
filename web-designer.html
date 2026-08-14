@@ -93,15 +93,6 @@
             </div>
         </header>
 
-        <!-- Access Denied State (Hidden by default) -->
-        <div id="access-denied-message" class="hidden absolute inset-0 z-20 bg-slate-50/95 backdrop-blur-sm flex-col items-center justify-center text-center p-6 mt-16">
-            <div class="bg-white border border-slate-200 p-8 rounded-2xl max-w-md w-full shadow-xl">
-                <i data-lucide="shield-alert" class="w-16 h-16 text-rose-500 mx-auto mb-4"></i>
-                <h2 class="text-xl font-bold text-slate-800 mb-2">Administrator Access Required</h2>
-                <p class="text-sm text-slate-500 mb-6">Your current role does not have permission to use the AI Web Page Adjustment tool. Please switch to an Admin account.</p>
-            </div>
-        </div>
-
         <!-- AI Designer Workspace (Dark theme for the dev tool) -->
         <div id="ai-designer-workspace" class="flex-1 flex overflow-hidden bg-slate-900 text-slate-100">
             
@@ -142,37 +133,17 @@
     <script>
         lucide.createIcons();
 
-        /* --- ROLE MANAGEMENT LOGIC --- */
+        /* --- ROLE MANAGEMENT LOGIC (Unrestricted) --- */
         const roleSelector = document.getElementById("roleSelector");
-        const designerWorkspace = document.getElementById("ai-designer-workspace");
-        const accessDeniedMessage = document.getElementById("access-denied-message");
 
         // Set initial state from localStorage if it exists, otherwise default to Admin
         const savedRole = localStorage.getItem("activeRole") || "Admin";
         roleSelector.value = savedRole;
 
-        function checkPermissions(role) {
-            if (role === "Admin") {
-                designerWorkspace.classList.remove("hidden");
-                designerWorkspace.classList.add("flex");
-                accessDeniedMessage.classList.add("hidden");
-                accessDeniedMessage.classList.remove("flex");
-            } else {
-                designerWorkspace.classList.add("hidden");
-                designerWorkspace.classList.remove("flex");
-                accessDeniedMessage.classList.remove("hidden");
-                accessDeniedMessage.classList.add("flex");
-            }
-        }
-
-        // Check on load
-        checkPermissions(savedRole);
-
-        // Listen for dropdown changes
+        // Listen for dropdown changes to save the role for other pages, but do not restrict access
         roleSelector.addEventListener("change", (e) => {
             const newRole = e.target.value;
-            localStorage.setItem("activeRole", newRole); // Save for other pages
-            checkPermissions(newRole);
+            localStorage.setItem("activeRole", newRole); 
         });
 
         /* --- AI DESIGNER LOGIC --- */
@@ -181,7 +152,7 @@
     <div class="flex items-center gap-3 mb-4">
         <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">JC</div>
         <div>
-            <h2 class="text-lg font-bold">Admin Component</h2>
+            <h2 class="text-lg font-bold">Portal Component</h2>
             <p class="text-xs text-slate-500">MAM-ON ES System</p>
         </div>
     </div>
@@ -216,7 +187,7 @@
     <div class="flex items-center gap-3 mb-4">
         <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">JC</div>
         <div>
-            <h2 class="text-lg font-bold">Admin Component</h2>
+            <h2 class="text-lg font-bold">Portal Component</h2>
             <p class="text-xs text-slate-500">MAM-ON ES System</p>
         </div>
     </div>
