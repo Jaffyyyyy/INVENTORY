@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAM-ON ES INVENTORY - Admin</title>
+  <title>MAM-ON ES INVENTORY - Unified Portal</title>
 
   <!-- Google Fonts & FontAwesome Icons CDN -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- HTML5 QR Code Camera Scanner & QRCode Generator Libraries -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     :root {
@@ -27,7 +31,6 @@
       background-color: #f1f5f9;
       color: #1e293b;
       min-height: 100vh;
-      overscroll-behavior-y: none;
     }
 
     button, input, select {
@@ -54,9 +57,18 @@
       gap: 0.75rem;
     }
 
-    .brand-logo {
-      width: 40px;
-      height: 40px;
+    .brand-logo-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: white;
+      border: 2px solid white;
+    }
+
+    .brand-logo-icon {
+      width: 42px;
+      height: 42px;
       background: white;
       border-radius: 50%;
       display: flex;
@@ -75,15 +87,15 @@
       gap: 0.5rem;
     }
 
-    .badge-admin {
-      background: #22c55e;
-      color: white;
+    .badge-status-mode {
       font-size: 0.7rem;
       padding: 2px 6px;
       border-radius: 4px;
       text-transform: uppercase;
       font-weight: 600;
     }
+    .mode-public { background: #64748b; color: white; }
+    .mode-admin { background: #22c55e; color: white; }
 
     .brand-subtitle {
       font-size: 0.75rem;
@@ -147,7 +159,7 @@
     /* Metric Cards Grid */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
@@ -157,8 +169,6 @@
       border-radius: 12px;
       padding: 1.25rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
     }
 
     .card-header-icon {
@@ -219,7 +229,7 @@
 
     .search-wrapper {
       position: relative;
-      flex: 1;
+      flex: 2;
       min-width: 250px;
     }
 
@@ -240,11 +250,9 @@
       outline: none;
     }
 
-    .search-input:focus {
-      border-color: var(--theme-color);
-    }
-
     .select-input {
+      flex: 1;
+      min-width: 160px;
       padding: 0.6rem 1rem;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
@@ -283,6 +291,15 @@
       border-bottom: 1px solid #f1f5f9;
     }
 
+    .item-thumbnail {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+    }
+
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
@@ -305,7 +322,20 @@
     .status-repair { background: #fef9c3; color: #a16207; }
     .status-unserviceable { background: #fee2e2; color: #b91c1c; }
 
-    /* Modal Form Styling */
+    /* Fast Scan Feed Badge */
+    .scan-feed-badge {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 0.5rem;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -328,6 +358,8 @@
       max-width: 500px;
       padding: 1.5rem;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .modal-header {
@@ -372,36 +404,46 @@
       flex: 1;
     }
 
-    /* Icon Hover Micro-Interactions */
-    .icon-container, i, svg {
-      opacity: 0.85;
-      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    .admin-only {
+      display: none !important;
     }
 
-    .icon-container:hover, i:hover, svg:hover {
-      opacity: 1;
-      transform: translateY(-1px);
+    body.admin-mode .admin-only {
+      display: inline-flex !important;
+    }
+
+    body.admin-mode td.admin-only {
+      display: table-cell !important;
     }
   </style>
 </head>
 <body>
 
-  <!-- App Header -->
+  <!-- Header -->
   <header class="app-header">
     <div class="brand-section">
-      <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
+      <div id="brand-logo-container">
+        <div class="brand-logo-icon"><i class="fa-solid fa-school"></i></div>
+      </div>
       <div>
         <div class="brand-title">
-          MAM-ON ES INVENTORY 
-          <span class="badge-admin">Admin</span>
+          <span id="site-title-text">MAM-ON ES INVENTORY</span>
+          <span class="badge-status-mode mode-public" id="mode-badge">Public</span>
         </div>
-        <div class="brand-subtitle">DepEd QR System</div>
+        <div class="brand-subtitle" id="site-subtitle-text">DepEd QR System</div>
       </div>
     </div>
     
     <div class="header-actions">
-      <button class="btn btn-white" id="open-add-modal"><i class="fa-solid fa-plus"></i> Add Item</button>
-      <button class="btn btn-light" id="clear-all-btn"><i class="fa-solid fa-trash"></i> Reset Data</button>
+      <button class="btn btn-white" id="open-scan-modal"><i class="fa-solid fa-bolt"></i> Fast QR Scan</button>
+      
+      <!-- Admin Controls -->
+      <button class="btn btn-white admin-only" id="open-add-modal"><i class="fa-solid fa-plus"></i> Add Item</button>
+      <button class="btn btn-light admin-only" id="open-design-modal"><i class="fa-solid fa-paint-roller"></i> Design & Logo</button>
+      <button class="btn btn-light admin-only" id="clear-all-btn"><i class="fa-solid fa-trash"></i> Reset Data</button>
+      
+      <!-- Login / Logout Toggle -->
+      <button class="btn btn-white" id="admin-login-toggle"><i class="fa-solid fa-lock"></i> Admin Portal</button>
     </div>
   </header>
 
@@ -438,10 +480,26 @@
     <div class="filter-bar">
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="search-input" class="search-input" placeholder="Search by name, tag, location, or teacher...">
+        <input type="text" id="search-input" class="search-input" placeholder="Search by name, tag, room, or teacher...">
       </div>
+      <select id="teacher-filter" class="select-input">
+        <option value="All">All Teachers / Custodians</option>
+        <option value="Juan Dela Cruz">Juan Dela Cruz (Grade 1)</option>
+        <option value="Maria Santos">Maria Santos (Grade 2)</option>
+        <option value="Pedro Penduko">Pedro Penduko (Computer Lab)</option>
+        <option value="Ana Reyes">Ana Reyes (Library)</option>
+        <option value="Unassigned">Unassigned / Storage</option>
+      </select>
+      <select id="room-filter" class="select-input">
+        <option value="All">All Rooms / Locations</option>
+        <option value="Computer Lab 1">Computer Lab 1</option>
+        <option value="Library">Library</option>
+        <option value="Room 101">Room 101</option>
+        <option value="Room 102">Room 102</option>
+        <option value="General Storage">General Storage</option>
+      </select>
       <select id="condition-filter" class="select-input">
-        <option value="All">(All Conditions)</option>
+        <option value="All">All Conditions</option>
         <option value="Good">Good</option>
         <option value="Needs Repair">Needs Repair</option>
         <option value="Unserviceable">Unserviceable</option>
@@ -453,21 +511,69 @@
       <table>
         <thead>
           <tr>
+            <th>PHOTO</th>
             <th>ITEM DETAILS</th>
             <th>CATEGORY & QTY</th>
-            <th>LOCATION</th>
-            <th>ASSIGNED TO</th>
+            <th>ROOM / LOCATION</th>
+            <th>ASSIGNED TEACHER</th>
             <th>STATUS</th>
             <th>ACTIONS</th>
           </tr>
         </thead>
         <tbody id="inventory-table-body">
-          <!-- Rows render here via JS -->
+          <!-- Table Rows Rendered via JavaScript -->
         </tbody>
       </table>
     </div>
 
   </main>
+
+  <!-- Login Modal Window -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-user-shield"></i> Admin Login</h3>
+        <button class="btn btn-light" style="color: #64748b;" id="close-login-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label>Admin PIN Code (Default: 1234)</label>
+          <input type="password" class="form-control" id="login-pin" placeholder="Enter PIN code..." required>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="submit" class="btn btn-white" style="background: var(--theme-color); color: white;">Login as Admin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customize Design & Logo Modal Window -->
+  <div class="modal-overlay" id="design-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-palette"></i> Customize Page & Logo</h3>
+        <button class="btn btn-light" style="color: #64748b;" id="close-design-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="design-form">
+        <div class="form-group">
+          <label>School / Portal Title</label>
+          <input type="text" class="form-control" id="input-site-title" placeholder="e.g. MAM-ON ES INVENTORY">
+        </div>
+        <div class="form-group">
+          <label>Subtitle / System Tag</label>
+          <input type="text" class="form-control" id="input-site-subtitle" placeholder="e.g. DepEd QR System">
+        </div>
+        <div class="form-group">
+          <label>Upload School Logo Image</label>
+          <input type="file" class="form-control" id="input-logo-file" accept="image/*">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-danger" id="reset-logo-btn">Reset Logo</button>
+          <button type="submit" class="btn btn-white" style="background: var(--theme-color); color: white;">Save Page Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Add Item Modal Window -->
   <div class="modal-overlay" id="add-modal">
@@ -500,7 +606,7 @@
             <input type="number" class="form-control" id="item-qty" value="1" min="1" required>
           </div>
           <div class="form-group">
-            <label>Condition</label>
+            <label>Condition Status</label>
             <select class="form-control" id="item-condition">
               <option value="Good">Good</option>
               <option value="Needs Repair">Needs Repair</option>
@@ -509,12 +615,28 @@
           </div>
         </div>
         <div class="form-group">
-          <label>Location / Room</label>
-          <input type="text" class="form-control" id="item-location" placeholder="e.g. Grade 6 Classroom" required>
+          <label>Room / Location</label>
+          <select class="form-control" id="item-location">
+            <option value="Computer Lab 1">Computer Lab 1</option>
+            <option value="Library">Library</option>
+            <option value="Room 101">Room 101</option>
+            <option value="Room 102">Room 102</option>
+            <option value="General Storage">General Storage</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Assigned Person (Teacher)</label>
-          <input type="text" class="form-control" id="item-assigned" placeholder="e.g. Juan Dela Cruz" required>
+          <label>Assigned Teacher / Custodian</label>
+          <select class="form-control" id="item-assigned">
+            <option value="Juan Dela Cruz">Juan Dela Cruz (Grade 1)</option>
+            <option value="Maria Santos">Maria Santos (Grade 2)</option>
+            <option value="Pedro Penduko">Pedro Penduko (Computer Lab)</option>
+            <option value="Ana Reyes">Ana Reyes (Library)</option>
+            <option value="Unassigned">Unassigned / General Storage</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Attach Optional Item Picture</label>
+          <input type="file" class="form-control" id="item-image" accept="image/*">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
           <button type="button" class="btn btn-light" style="color:#334155" id="cancel-modal">Cancel</button>
@@ -524,27 +646,72 @@
     </div>
   </div>
 
-  <!-- JavaScript Application Engine -->
+  <!-- Image Preview Modal -->
+  <div class="modal-overlay" id="image-modal">
+    <div class="modal" style="text-align: center; max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Item Picture</h3>
+        <button class="btn btn-light" style="color: #64748b;" id="close-image-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <img id="preview-image-src" src="" style="max-width: 100%; height: auto; border-radius: 8px;">
+    </div>
+  </div>
+
+  <!-- Fast Multi-Scan Camera QR Scanner Modal -->
+  <div class="modal-overlay" id="scan-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-bolt"></i> Fast Continuous QR Scanner</h3>
+        <button class="btn btn-light" style="color: #64748b;" id="close-scan-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="qr-reader" style="width: 100%;"></div>
+      <div class="scan-feed-badge" id="scan-feedback">Scanned Tag: <span id="last-scanned-tag"></span></div>
+      <p style="font-size: 0.8rem; color: #64748b; text-align: center; margin-top: 8px;">Continuous mode enabled. Keep scanning multiple tags continuously!</p>
+    </div>
+  </div>
+
+  <!-- JavaScript Engine -->
   <script>
     let inventory = JSON.parse(localStorage.getItem('deped_inventory')) || [
-      { id: 1, name: "Dell Latitude Laptop", tag: "DEPED-2026-001", category: "Property", qty: 1, location: "Computer Lab 1", assigned: "Juan Dela Cruz", condition: "Good" },
-      { id: 2, name: "Grade 5 Math Textbook", tag: "DEPED-BK-002", category: "Book", qty: 35, location: "Room 102", assigned: "Maria Santos", condition: "Needs Repair" }
+      { id: 1, name: "Dell Latitude Laptop", tag: "DEPED-2026-001", category: "Property", qty: 1, location: "Computer Lab 1", assigned: "Juan Dela Cruz", condition: "Good", image: null },
+      { id: 2, name: "Grade 5 Math Textbook", tag: "DEPED-BK-002", category: "Book", qty: 35, location: "Room 102", assigned: "Maria Santos", condition: "Needs Repair", image: null }
     ];
 
+    let siteConfig = JSON.parse(localStorage.getItem('deped_config')) || {
+      title: "MAM-ON ES INVENTORY",
+      subtitle: "DepEd QR System",
+      logo: null
+    };
+
+    let isAdmin = false;
     let currentTab = 'Property';
+    let html5QrCode = null;
+    let lastScannedCode = null;
+    let scanThrottleTimeout = null;
 
     const tableBody = document.getElementById('inventory-table-body');
     const searchInput = document.getElementById('search-input');
+    const teacherFilter = document.getElementById('teacher-filter');
+    const roomFilter = document.getElementById('room-filter');
     const conditionFilter = document.getElementById('condition-filter');
-    const modal = document.getElementById('add-modal');
 
-    function saveItems() {
-      localStorage.setItem('deped_inventory', JSON.stringify(inventory));
-      render();
+    // Load Design & Config Settings
+    function applyDesignConfig() {
+      document.getElementById('site-title-text').innerText = siteConfig.title;
+      document.getElementById('site-subtitle-text').innerText = siteConfig.subtitle;
+      
+      const logoContainer = document.getElementById('brand-logo-container');
+      if (siteConfig.logo) {
+        logoContainer.innerHTML = `<img src="${siteConfig.logo}" class="brand-logo-img">`;
+      } else {
+        logoContainer.innerHTML = `<div class="brand-logo-icon"><i class="fa-solid fa-school"></i></div>`;
+      }
     }
 
     function render() {
       const searchTerm = searchInput.value.toLowerCase();
+      const filterTeacher = teacherFilter.value;
+      const filterRoom = roomFilter.value;
       const filterCond = conditionFilter.value;
 
       const filtered = inventory.filter(item => {
@@ -553,17 +720,20 @@
                               item.tag.toLowerCase().includes(searchTerm) ||
                               item.location.toLowerCase().includes(searchTerm) ||
                               item.assigned.toLowerCase().includes(searchTerm);
+        const matchesTeacher = filterTeacher === 'All' || item.assigned === filterTeacher;
+        const matchesRoom = filterRoom === 'All' || item.location === filterRoom;
         const matchesCondition = filterCond === 'All' || item.condition === filterCond;
-        return matchesTab && matchesSearch && matchesCondition;
+
+        return matchesTab && matchesSearch && matchesTeacher && matchesRoom && matchesCondition;
       });
 
       if (filtered.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="6">
+            <td colspan="7">
               <div class="empty-state">
                 <i class="fa-regular fa-folder-open"></i>
-                <p>No records found.</p>
+                <p>No records found matching your current filters.</p>
               </div>
             </td>
           </tr>`;
@@ -571,21 +741,28 @@
         tableBody.innerHTML = filtered.map(item => `
           <tr>
             <td>
+              ${item.image ? `<img src="${item.image}" class="item-thumbnail" onclick="viewImage('${item.image}')">` : `<div style="width:48px;height:48px;background:#e2e8f0;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#94a3b8;"><i class="fa-regular fa-image"></i></div>`}
+            </td>
+            <td>
               <strong>${item.name}</strong><br>
               <small style="color: #64748b;">Tag: ${item.tag}</small>
             </td>
             <td>${item.category} (Qty: ${item.qty})</td>
-            <td>${item.location}</td>
-            <td>${item.assigned}</td>
+            <td><i class="fa-solid fa-door-open" style="color: #64748b;"></i> ${item.location}</td>
+            <td><i class="fa-solid fa-user-check" style="color: #64748b;"></i> ${item.assigned}</td>
             <td>
               <span class="badge-status ${item.condition === 'Good' ? 'status-good' : item.condition === 'Needs Repair' ? 'status-repair' : 'status-unserviceable'}">
                 ${item.condition}
               </span>
             </td>
-            <td>
-              <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="deleteItem(${item.id})">
-                <i class="fa-solid fa-trash"></i> Delete
+            <td style="display: flex; gap: 0.4rem;">
+              <button class="btn btn-white" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border: 1px solid #cbd5e1;" onclick="generateSticker('${item.tag}', '${item.name}', '${item.assigned}')">
+                <i class="fa-solid fa-qrcode"></i> Print QR
               </button>
+              ${isAdmin ? `
+              <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="deleteItem(${item.id})">
+                <i class="fa-solid fa-trash"></i>
+              </button>` : ''}
             </td>
           </tr>
         `).join('');
@@ -597,39 +774,221 @@
       document.getElementById('metric-attention').innerText = inventory.filter(i => i.condition !== 'Good').length;
     }
 
+    // View Image Preview
+    window.viewImage = function(src) {
+      document.getElementById('preview-image-src').src = src;
+      document.getElementById('image-modal').classList.add('active');
+    };
+
+    document.getElementById('close-image-modal').addEventListener('click', () => {
+      document.getElementById('image-modal').classList.remove('active');
+    });
+
+    // Admin Login Logic
+    document.getElementById('admin-login-toggle').addEventListener('click', () => {
+      if (isAdmin) {
+        isAdmin = false;
+        document.body.classList.remove('admin-mode');
+        document.getElementById('mode-badge').innerText = 'Public';
+        document.getElementById('mode-badge').className = 'badge-status-mode mode-public';
+        document.getElementById('admin-login-toggle').innerHTML = `<i class="fa-solid fa-lock"></i> Admin Portal`;
+        render();
+      } else {
+        document.getElementById('login-modal').classList.add('active');
+      }
+    });
+
+    document.getElementById('close-login-modal').addEventListener('click', () => {
+      document.getElementById('login-modal').classList.remove('active');
+    });
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pin = document.getElementById('login-pin').value;
+      if (pin === '1234') {
+        isAdmin = true;
+        document.body.classList.add('admin-mode');
+        document.getElementById('mode-badge').innerText = 'Admin Active';
+        document.getElementById('mode-badge').className = 'badge-status-mode mode-admin';
+        document.getElementById('admin-login-toggle').innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> Logout Admin`;
+        document.getElementById('login-modal').classList.remove('active');
+        document.getElementById('login-pin').value = '';
+        render();
+      } else {
+        alert('Incorrect PIN code. Default is 1234.');
+      }
+    });
+
+    // Customizer Modal Logic
+    document.getElementById('open-design-modal').addEventListener('click', () => {
+      document.getElementById('input-site-title').value = siteConfig.title;
+      document.getElementById('input-site-subtitle').value = siteConfig.subtitle;
+      document.getElementById('design-modal').classList.add('active');
+    });
+
+    document.getElementById('close-design-modal').addEventListener('click', () => {
+      document.getElementById('design-modal').classList.remove('active');
+    });
+
+    document.getElementById('design-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      siteConfig.title = document.getElementById('input-site-title').value || "MAM-ON ES INVENTORY";
+      siteConfig.subtitle = document.getElementById('input-site-subtitle').value || "DepEd QR System";
+
+      const fileInput = document.getElementById('input-logo-file');
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          siteConfig.logo = e.target.result;
+          localStorage.setItem('deped_config', JSON.stringify(siteConfig));
+          applyDesignConfig();
+          document.getElementById('design-modal').classList.remove('active');
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        localStorage.setItem('deped_config', JSON.stringify(siteConfig));
+        applyDesignConfig();
+        document.getElementById('design-modal').classList.remove('active');
+      }
+    });
+
+    document.getElementById('reset-logo-btn').addEventListener('click', () => {
+      siteConfig.logo = null;
+      localStorage.setItem('deped_config', JSON.stringify(siteConfig));
+      applyDesignConfig();
+      document.getElementById('design-modal').classList.remove('active');
+    });
+
+    // Printable QR Tag Sticker
+    window.generateSticker = function(tagNo, itemName, teacherName) {
+      const printWindow = window.open('', '', 'width=600,height=600');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Property Tag - ${tagNo}</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+              .sticker-card { border: 2px solid #000; padding: 15px; width: 280px; margin: auto; border-radius: 8px; }
+              .header { font-size: 11px; font-weight: bold; margin-bottom: 2px; }
+              .title { font-size: 13px; font-weight: bold; color: #1e40af; margin-bottom: 8px; }
+              #qrcode { display: flex; justify-content: center; margin: 10px 0; }
+              .details { font-size: 11px; text-align: left; margin-top: 8px; border-top: 1px dashed #ccc; padding-top: 6px; }
+            </style>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+          </head>
+          <body>
+            <div class="sticker-card">
+              <div class="header">DEPARTMENT OF EDUCATION</div>
+              <div class="title">${siteConfig.title}</div>
+              <div id="qrcode"></div>
+              <div class="details">
+                <strong>Tag No:</strong> ${tagNo}<br>
+                <strong>Item:</strong> ${itemName}<br>
+                <strong>Custodian:</strong> ${teacherName}
+              </div>
+            </div>
+            <script>
+              new QRCode(document.getElementById("qrcode"), { text: "${tagNo}", width: 110, height: 110 });
+              setTimeout(() => { window.print(); }, 500);
+            <\/script>
+          </body>
+        </html>
+      `);
+    };
+
     window.deleteItem = function(id) {
       if (confirm('Are you sure you want to delete this inventory record?')) {
         inventory = inventory.filter(i => i.id !== id);
-        saveItems();
+        localStorage.setItem('deped_inventory', JSON.stringify(inventory));
+        render();
       }
     };
 
-    document.getElementById('open-add-modal').addEventListener('click', () => modal.classList.add('active'));
-    document.getElementById('close-modal').addEventListener('click', () => modal.classList.remove('active'));
-    document.getElementById('cancel-modal').addEventListener('click', () => modal.classList.remove('active'));
+    // Fast Continuous Camera QR Scanner Functions
+    document.getElementById('open-scan-modal').addEventListener('click', () => {
+      document.getElementById('scan-modal').classList.add('active');
+      html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 15, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          if (decodedText !== lastScannedCode) {
+            lastScannedCode = decodedText;
+            searchInput.value = decodedText;
+            render();
+
+            // Provide visual feedback inside fast scanner modal
+            const feedbackBadge = document.getElementById('scan-feedback');
+            document.getElementById('last-scanned-tag').innerText = decodedText;
+            feedbackBadge.style.display = 'block';
+
+            if (navigator.vibrate) navigator.vibrate(100);
+
+            clearTimeout(scanThrottleTimeout);
+            scanThrottleTimeout = setTimeout(() => {
+              lastScannedCode = null;
+            }, 2500);
+          }
+        }
+      ).catch(err => console.error("Camera access error: ", err));
+    });
+
+    function stopScanner() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          document.getElementById('scan-modal').classList.remove('active');
+          document.getElementById('scan-feedback').style.display = 'none';
+        }).catch(err => console.error(err));
+      } else {
+        document.getElementById('scan-modal').classList.remove('active');
+      }
+    }
+
+    document.getElementById('close-scan-modal').addEventListener('click', stopScanner);
+
+    document.getElementById('open-add-modal').addEventListener('click', () => document.getElementById('add-modal').classList.add('active'));
+    document.getElementById('close-modal').addEventListener('click', () => document.getElementById('add-modal').classList.remove('active'));
+    document.getElementById('cancel-modal').addEventListener('click', () => document.getElementById('add-modal').classList.remove('active'));
 
     document.getElementById('item-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const newItem = {
-        id: Date.now(),
-        name: document.getElementById('item-name').value,
-        tag: document.getElementById('item-tag').value,
-        category: document.getElementById('item-category').value,
-        qty: parseInt(document.getElementById('item-qty').value),
-        condition: document.getElementById('item-condition').value,
-        location: document.getElementById('item-location').value,
-        assigned: document.getElementById('item-assigned').value
+      
+      const fileInput = document.getElementById('item-image');
+      const saveItemData = (imageData) => {
+        const newItem = {
+          id: Date.now(),
+          name: document.getElementById('item-name').value,
+          tag: document.getElementById('item-tag').value,
+          category: document.getElementById('item-category').value,
+          qty: parseInt(document.getElementById('item-qty').value),
+          condition: document.getElementById('item-condition').value,
+          location: document.getElementById('item-location').value,
+          assigned: document.getElementById('item-assigned').value,
+          image: imageData || null
+        };
+
+        inventory.push(newItem);
+        localStorage.setItem('deped_inventory', JSON.stringify(inventory));
+        render();
+        
+        document.getElementById('item-form').reset();
+        document.getElementById('add-modal').classList.remove('active');
       };
 
-      inventory.push(newItem);
-      saveItems();
-      
-      document.getElementById('item-form').reset();
-      modal.classList.remove('active');
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          saveItemData(evt.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        saveItemData(null);
+      }
     });
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentTab = btn.getAttribute('data-tab');
@@ -645,8 +1004,12 @@
     });
 
     searchInput.addEventListener('input', render);
+    teacherFilter.addEventListener('change', render);
+    roomFilter.addEventListener('change', render);
     conditionFilter.addEventListener('change', render);
 
+    // Initial Setup
+    applyDesignConfig();
     render();
   </script>
 </body>
