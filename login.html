@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAM-ON ES - Portal Login</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 440px;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.left-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--surface);
+        }
+
+        .form-select {
+            padding-left: 2.5rem;
+            cursor: pointer;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .toggle-password:hover {
+            color: var(--text);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.825rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .forgot-pass {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .forgot-pass:hover {
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: var(--danger);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.825rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="brand-header">
+            <div class="brand-icon"><i class="fa-solid fa-school"></i></div>
+            <h1 class="brand-title">MAM-ON ELEMENTARY SCHOOL</h1>
+            <p class="brand-subtitle">Personnel & Information Web Portal</p>
+        </div>
+
+        <div class="alert-error" id="error-msg">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="error-text">Invalid credentials. Please try again.</span>
+        </div>
+
+        <form id="login-form">
+            <!-- Portal Role Selection -->
+            <div class="form-group">
+                <label for="user-role">Portal Role</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user-shield left-icon"></i>
+                    <select id="user-role" class="form-select" required>
+                        <option value="admin">Administrator / Principal</option>
+                        <option value="teacher">Faculty / Teacher</option>
+                        <option value="parent">Parent / Learner Portal</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Email / User ID -->
+            <div class="form-group">
+                <label for="username">Email or User ID</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope left-icon"></i>
+                    <input type="text" id="username" class="form-input" placeholder="e.g. admin@deped.gov.ph" required>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock left-icon"></i>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                    <button type="button" class="toggle-password" id="toggle-pwd">
+                        <i class="fa-regular fa-eye" id="pwd-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember"> Remember session
+                </label>
+                <a href="#" class="forgot-pass" onclick="alert('Please contact your Administrative Officer (AO) to reset your portal password.')">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <span>Sign In to Portal</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="footer-note">
+            DepEd Division of Surigao del Sur &copy; 2026
+        </div>
+    </div>
+
+    <script>
+        const pwdInput = document.getElementById('password');
+        const togglePwdBtn = document.getElementById('toggle-pwd');
+        const pwdIcon = document.getElementById('pwd-icon');
+        const loginForm = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+        const errorText = document.getElementById('error-text');
+
+        // Toggle Password Visibility
+        togglePwdBtn.addEventListener('click', () => {
+            const isPassword = pwdInput.type === 'password';
+            pwdInput.type = isPassword ? 'text' : 'password';
+            pwdIcon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+        });
+
+        // Form Submit Handler
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const role = document.getElementById('user-role').value;
+            const username = document.getElementById('username').value.trim();
+            const password = pwdInput.value;
+
+            // Basic validation
+            if (password.length < 4) {
+                errorText.innerText = "Password must be at least 4 characters long.";
+                errorMsg.style.display = 'flex';
+                return;
+            }
+
+            // Store active session
+            const userSession = {
+                username: username,
+                role: role,
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('mamon_user_session', JSON.stringify(userSession));
+
+            // Redirect to main portal dashboard
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
