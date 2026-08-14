@@ -272,6 +272,17 @@
             font-weight: 700;
         }
 
+        /* View Section Toggles */
+        .view-section {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .view-section.active-view {
+            display: flex;
+        }
+
         /* Metrics Grid */
         .metrics-grid {
             display: grid;
@@ -498,7 +509,7 @@
             color: var(--text-muted);
         }
 
-        /* 4. Footer - Blue Gradient */
+        /* Footer - Blue Gradient */
         .footer {
             background: var(--primary-gradient);
             color: white;
@@ -560,9 +571,11 @@
             background: var(--surface);
             border-radius: var(--radius);
             width: 100%;
-            max-width: 550px;
+            max-width: 650px;
             padding: 1.75rem;
             box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -631,7 +644,7 @@
                 <div>
                     <div class="brand-title">
                         MAM-ON ELEMENTARY SCHOOL 
-                        <span class="badge-mode">Interactive Mode</span>
+                        <span class="badge-mode">Interactive Portal</span>
                     </div>
                     <div class="sys-admin-banner">
                         <i class="fa-solid fa-shield-halved"></i>
@@ -657,7 +670,8 @@
     <!-- 2. Navigation Tab Bar -->
     <nav class="tab-bar">
         <div class="tab-container">
-            <a href="#" class="tab-item active"><i class="fa-solid fa-users"></i> Personnel Directory</a>
+            <a href="#" class="tab-item active" id="tab-directory"><i class="fa-solid fa-users"></i> Personnel Directory</a>
+            <a href="#" class="tab-item" id="tab-pdb"><i class="fa-solid fa-id-card"></i> Personal Database</a>
             <a href="inventory.html" class="tab-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory Management</a>
         </div>
     </nav>
@@ -674,84 +688,116 @@
             <span class="admin-tag">DepEd Mam-on ES</span>
         </div>
 
-        <!-- Metrics Grid -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span>Total Personnel</span>
-                    <i class="fa-solid fa-users"></i>
+        <!-- VIEW 1: Personnel Directory -->
+        <div class="view-section active-view" id="view-directory">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Total Personnel</span>
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="metric-value" id="total-count">0</div>
                 </div>
-                <div class="metric-value" id="total-count">0</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span>School Head</span>
-                    <i class="fa-solid fa-user-tie"></i>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>School Head</span>
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="metric-value" id="principal-count">0</div>
                 </div>
-                <div class="metric-value" id="principal-count">0</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span>Teaching Staff</span>
-                    <i class="fa-solid fa-chalkboard-user"></i>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Teaching Staff</span>
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div class="metric-value" id="teacher-count">0</div>
                 </div>
-                <div class="metric-value" id="teacher-count">0</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span>Non-Teaching</span>
-                    <i class="fa-solid fa-user-gear"></i>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Non-Teaching</span>
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <div class="metric-value" id="non-teaching-count">0</div>
                 </div>
-                <div class="metric-value" id="non-teaching-count">0</div>
-            </div>
-        </div>
-
-        <!-- Controls Toolbar -->
-        <div class="controls-card">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" class="form-input" placeholder="Search by name, position, degree, or email...">
-            </div>
-            <div class="action-group">
-                <button class="btn" id="export-btn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
-                <button class="btn btn-primary" id="open-add-modal-btn"><i class="fa-solid fa-plus"></i> Add Personnel</button>
-            </div>
-        </div>
-
-        <!-- Data Table Card -->
-        <div class="table-card">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Emp ID</th>
-                            <th>Full Name</th>
-                            <th>Position / Title</th>
-                            <th>Department</th>
-                            <th>Degree & Major</th>
-                            <th>Date Hired</th>
-                            <th>Contact / Email</th>
-                            <th id="actions-header">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="personnel-table-body">
-                        <!-- Rendered dynamically -->
-                    </tbody>
-                </table>
             </div>
 
-            <!-- Table Footer Pagination -->
-            <div class="table-footer">
-                <span id="pagination-info">Showing 0 entries</span>
+            <div class="controls-card">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" class="form-input" placeholder="Search by name, position, degree, or email...">
+                </div>
                 <div class="action-group">
-                    <button class="btn" id="prev-btn" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
-                    <button class="btn" id="next-btn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="btn" id="export-btn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                    <button class="btn btn-primary" id="open-add-modal-btn"><i class="fa-solid fa-plus"></i> Add Personnel</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Emp ID</th>
+                                <th>Full Name</th>
+                                <th>Position / Title</th>
+                                <th>Department</th>
+                                <th>Degree & Major</th>
+                                <th>Date Hired</th>
+                                <th>Contact / Email</th>
+                                <th class="admin-action-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="personnel-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <span id="pagination-info">Showing 0 entries</span>
+                    <div class="action-group">
+                        <button class="btn" id="prev-btn" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                        <button class="btn" id="next-btn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- VIEW 2: Personal Database (PDB) -->
+        <div class="view-section" id="view-pdb">
+            <div class="controls-card">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="pdb-search-input" class="form-input" placeholder="Search personal database by TIN, GSIS, name, or address...">
+                </div>
+                <div class="action-group">
+                    <button class="btn" id="pdb-export-btn"><i class="fa-solid fa-file-csv"></i> Export PDB Data</button>
+                    <button class="btn btn-primary" id="open-pdb-modal-btn"><i class="fa-solid fa-id-card-clip"></i> Add Personal Record</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>TIN Number</th>
+                                <th>GSIS BP No.</th>
+                                <th>PAG-IBIG ID</th>
+                                <th>PHILHEALTH</th>
+                                <th>Civil Status</th>
+                                <th>Emergency Contact</th>
+                                <th>Residential Address</th>
+                                <th class="admin-action-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pdb-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <!-- 4. Footer - Blue Gradient -->
+    <!-- Footer - Blue Gradient -->
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-left">
@@ -826,7 +872,63 @@
         </div>
     </div>
 
-    <!-- Modal 2: Admin Customize Branding (Logo & Wallpaper) -->
+    <!-- Modal 2: Personal Database Record Form -->
+    <div class="modal-overlay" id="pdb-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="pdb-modal-title">Add Personal Database Record</div>
+                <button class="modal-close" id="close-pdb-modal-btn">&times;</button>
+            </div>
+            <form id="pdb-form">
+                <input type="hidden" id="pdb-edit-index" value="-1">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="pdb-name">Employee Full Name</label>
+                        <input type="text" id="pdb-name" class="form-input" required placeholder="Select or type full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="pdb-tin">TIN Number</label>
+                        <input type="text" id="pdb-tin" class="form-input" required placeholder="000-000-000-000">
+                    </div>
+                    <div class="form-group">
+                        <label for="pdb-gsis">GSIS BP Number</label>
+                        <input type="text" id="pdb-gsis" class="form-input" required placeholder="2000123456">
+                    </div>
+                    <div class="form-group">
+                        <label for="pdb-pagibig">PAG-IBIG ID</label>
+                        <input type="text" id="pdb-pagibig" class="form-input" required placeholder="1210-0000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label for="pdb-philhealth">PHILHEALTH No.</label>
+                        <input type="text" id="pdb-philhealth" class="form-input" required placeholder="01-000000000-0">
+                    </div>
+                    <div class="form-group">
+                        <label for="pdb-civil">Civil Status</label>
+                        <select id="pdb-civil" class="form-select" required>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Widowed">Widowed</option>
+                            <option value="Separated">Separated</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pdb-emergency">Emergency Contact</label>
+                        <input type="text" id="pdb-emergency" class="form-input" required placeholder="Name & Contact No.">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="pdb-address">Residential Address</label>
+                        <input type="text" id="pdb-address" class="form-input" required placeholder="Barangay, City/Municipality, Province">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" id="cancel-pdb-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Personal Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Admin Customization (Logo & Wallpaper) -->
     <div class="modal-overlay" id="customize-modal">
         <div class="modal">
             <div class="modal-header">
@@ -836,12 +938,10 @@
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label>Upload School Logo</label>
                 <input type="file" id="logo-file-input" class="form-input" accept="image/*">
-                <small style="color: var(--text-muted)">Recommended: Square PNG/JPG icon.</small>
             </div>
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label>Upload Background Wallpaper</label>
                 <input type="file" id="wallpaper-file-input" class="form-input" accept="image/*">
-                <small style="color: var(--text-muted)">Applies custom background image across the portal.</small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" id="reset-branding-btn">Reset Defaults</button>
@@ -851,130 +951,81 @@
     </div>
 
     <script>
-        // Check User Role Rules
+        // Session & Role Controls
         const userRole = activeSession ? activeSession.role : 'parent';
         document.getElementById('session-user-role').innerText = userRole.toUpperCase();
 
         const openModalBtn = document.getElementById('open-add-modal-btn');
+        const openPdbModalBtn = document.getElementById('open-pdb-modal-btn');
         const exportBtn = document.getElementById('export-btn');
-        const actionsHeader = document.getElementById('actions-header');
+        const pdbExportBtn = document.getElementById('pdb-export-btn');
         const customizeBtn = document.getElementById('customize-btn');
 
-        // Apply Access Control Rules
         if (userRole !== 'admin') {
             if (openModalBtn) openModalBtn.style.display = 'none';
+            if (openPdbModalBtn) openPdbModalBtn.style.display = 'none';
             if (customizeBtn) customizeBtn.style.display = 'none';
+            document.querySelectorAll('.admin-action-col').forEach(el => el.style.display = 'none');
         }
 
         if (userRole === 'parent') {
             if (exportBtn) exportBtn.style.display = 'none';
-            if (actionsHeader) actionsHeader.style.display = 'none';
+            if (pdbExportBtn) pdbExportBtn.style.display = 'none';
         }
 
-        // Logout Action
+        // Logout
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.removeItem('mamon_user_session');
             window.location.href = 'login.html';
         });
 
-        // Branding Customization Logic (Logo & Wallpaper)
-        const customizeModal = document.getElementById('customize-modal');
-        const closeCustomizeBtn = document.getElementById('close-customize-btn');
-        const logoFileInput = document.getElementById('logo-file-input');
-        const wallpaperFileInput = document.getElementById('wallpaper-file-input');
-        const saveBrandingBtn = document.getElementById('save-branding-btn');
-        const resetBrandingBtn = document.getElementById('reset-branding-btn');
-        const brandLogoWrap = document.getElementById('brand-logo-wrap');
+        // Tab Navigation Logic
+        const tabDirectory = document.getElementById('tab-directory');
+        const tabPdb = document.getElementById('tab-pdb');
+        const viewDirectory = document.getElementById('view-directory');
+        const viewPdb = document.getElementById('view-pdb');
 
-        function loadBranding() {
-            const savedLogo = localStorage.getItem('mamon_custom_logo');
-            const savedWallpaper = localStorage.getItem('mamon_custom_wallpaper');
-
-            if (savedLogo) {
-                brandLogoWrap.innerHTML = `<img src="${savedLogo}" class="brand-logo-img" alt="School Logo">`;
-            }
-
-            if (savedWallpaper) {
-                document.body.style.backgroundImage = `url('${savedWallpaper}')`;
-            }
-        }
-
-        if (customizeBtn) {
-            customizeBtn.addEventListener('click', () => customizeModal.classList.add('active'));
-        }
-        closeCustomizeBtn.addEventListener('click', () => customizeModal.classList.remove('active'));
-
-        saveBrandingBtn.addEventListener('click', () => {
-            const logoFile = logoFileInput.files[0];
-            const wallpaperFile = wallpaperFileInput.files[0];
-
-            if (logoFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    localStorage.setItem('mamon_custom_logo', e.target.result);
-                    loadBranding();
-                };
-                reader.readAsDataURL(logoFile);
-            }
-
-            if (wallpaperFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    localStorage.setItem('mamon_custom_wallpaper', e.target.result);
-                    loadBranding();
-                };
-                reader.readAsDataURL(wallpaperFile);
-            }
-
-            customizeModal.classList.remove('active');
+        tabDirectory.addEventListener('click', (e) => {
+            e.preventDefault();
+            tabDirectory.classList.add('active');
+            tabPdb.classList.remove('active');
+            viewDirectory.classList.add('active-view');
+            viewPdb.classList.remove('active-view');
         });
 
-        resetBrandingBtn.addEventListener('click', () => {
-            localStorage.removeItem('mamon_custom_logo');
-            localStorage.removeItem('mamon_custom_wallpaper');
-            brandLogoWrap.innerHTML = `<i class="fa-solid fa-school brand-icon" id="brand-default-icon"></i>`;
-            document.body.style.backgroundImage = 'none';
-            customizeModal.classList.remove('active');
+        tabPdb.addEventListener('click', (e) => {
+            e.preventDefault();
+            tabPdb.classList.add('active');
+            tabDirectory.classList.remove('active');
+            viewPdb.classList.add('active-view');
+            viewDirectory.classList.remove('active-view');
+            renderPdbTable();
         });
-
-        loadBranding();
 
         // Initial Data
         const initialPersonnel = [
             { id: "865031", name: "Eric Portillo Palingcod", position: "Principal I / Teacher III", department: "Elementary / Teaching", degree: "BEED (MATH)", dateHired: "08/01/2005", email: "eric.palingcod@deped.gov.ph", contact: "09476345204", roleType: "principal" },
             { id: "6450528", name: "Jasper Singcol Campado", position: "Administrative Officer-II", department: "Elementary", degree: "BSBA (FM)", dateHired: "01/11/2024", email: "jasper.campado@deped.gov.ph", contact: "09241132506", roleType: "ao" },
-            { id: "6459395", name: "Jenny Queen Lingaya Orillaneda", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "06/24/2025", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
-            { id: "N/A", name: "Jessa Mae Ronquillo Flores", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "10/01/2025", email: "jessamaef81@gmail.com", contact: "09302808944", roleType: "teacher" },
-            { id: "6444470", name: "Shienna Myville Desamparado Curada", position: "Teacher I", department: "Cagwait District", degree: "BEED (General Education)", dateHired: "02/23/2023", email: "shiennamyville.curada@deped.gov.ph", contact: "09129016816", roleType: "teacher" },
-            { id: "6459393", name: "Lendon Balmis Abonales", position: "Teacher I", department: "Elementary", degree: "BSED (Social Science)", dateHired: "06/18/2025", email: "lendon.abonales@deped.gov.ph", contact: "09106111138", roleType: "teacher" },
-            { id: "6459638", name: "Mark Zoilo Cancio Tajonera", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "10/01/2025", email: "markzoilo.tajonera@deped.gov.ph", contact: "09549956756", roleType: "teacher" },
-            { id: "6290011", name: "Alma Cañola Nayre", position: "Teacher II", department: "Elementary", degree: "BEED (Generalist)", dateHired: "03/22/2019", email: "alma.nayre@deped.gov.ph", contact: "09516366801", roleType: "teacher" },
-            { id: "6453809", name: "Maria Fatima Rivas Peñanueva", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "12/10/2024", email: "mariafatima.penanueva@deped.gov.ph", contact: "09503907420", roleType: "teacher" },
-            { id: "N/A", name: "Jimmy Pontillo Sarmiento", position: "Teacher I", department: "Elementary", degree: "BSED (Mathematics)", dateHired: "06/18/2026", email: "jimsarmiento2020@gmail.com", contact: "09460098105", roleType: "teacher" }
+            { id: "6459395", name: "Jenny Queen Lingaya Orillaneda", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "06/24/2025", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" }
+        ];
+
+        const initialPdb = [
+            { name: "Eric Portillo Palingcod", tin: "234-567-890-000", gsis: "2001928374", pagibig: "1210-9988-7766", philhealth: "01-025543891-3", civil: "Married", emergency: "Mary Palingcod - 09123456781", address: "MAM-ON, Cagwait, Surigao del Sur" },
+            { name: "Jasper Singcol Campado", tin: "456-789-123-000", gsis: "2008475920", pagibig: "1210-3344-5566", philhealth: "01-098877662-1", civil: "Single", emergency: "Elena Campado - 09241132500", address: "Cagwait Proper, Surigao del Sur" }
         ];
 
         let personnelData = JSON.parse(localStorage.getItem('mamon_personnel')) || initialPersonnel;
+        let pdbData = JSON.parse(localStorage.getItem('mamon_pdb')) || initialPdb;
+
         let currentPage = 1;
         const pageSize = 5;
 
-        const tableBody = document.getElementById('personnel-table-body');
-        const searchInput = document.getElementById('search-input');
-        const paginationInfo = document.getElementById('pagination-info');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-
-        const modal = document.getElementById('personnel-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelModalBtn = document.getElementById('cancel-modal-btn');
-        const form = document.getElementById('personnel-form');
-        const modalTitle = document.getElementById('modal-title');
-
-        function saveData() {
-            localStorage.setItem('mamon_personnel', JSON.stringify(personnelData));
-        }
-
+        // Render Personnel Directory Table
         function renderTable() {
+            const tableBody = document.getElementById('personnel-table-body');
+            const searchInput = document.getElementById('search-input');
             const query = searchInput.value.toLowerCase();
+            
             const filtered = personnelData.filter(item => 
                 item.name.toLowerCase().includes(query) ||
                 item.position.toLowerCase().includes(query) ||
@@ -997,11 +1048,11 @@
                 const actionsCell = (userRole === 'admin') ? `
                     <td>
                         <div style="display: flex; gap: 0.35rem;">
-                            <button class="btn btn-icon" onclick="editPersonnel(${originalIndex})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn btn-icon btn-danger" onclick="deletePersonnel(${originalIndex})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-icon" onclick="editPersonnel(${originalIndex})"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn btn-icon btn-danger" onclick="deletePersonnel(${originalIndex})"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </td>
-                ` : (userRole === 'teacher' ? `<td><small style="color:var(--text-muted)">View Only</small></td>` : '');
+                ` : '';
 
                 return `
                     <tr>
@@ -1024,99 +1075,122 @@
             document.getElementById('principal-count').innerText = personnelData.filter(p => p.roleType === 'principal').length;
             document.getElementById('teacher-count').innerText = personnelData.filter(p => p.roleType === 'teacher').length;
             document.getElementById('non-teaching-count').innerText = personnelData.filter(p => p.roleType === 'ao').length;
-
-            const startDisplay = filtered.length ? startIndex + 1 : 0;
-            const endDisplay = Math.min(startIndex + pageSize, filtered.length);
-            paginationInfo.innerText = `Showing ${startDisplay} - ${endDisplay} of ${filtered.length} entries`;
-
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage >= totalPages;
         }
 
-        prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderTable(); } });
-        nextBtn.addEventListener('click', () => { currentPage++; renderTable(); });
-        searchInput.addEventListener('input', () => { currentPage = 1; renderTable(); });
+        // Render Personal Database Table
+        function renderPdbTable() {
+            const tableBody = document.getElementById('pdb-table-body');
+            const searchInput = document.getElementById('pdb-search-input').value.toLowerCase();
 
-        function openModal(isEdit = false) {
-            modalTitle.innerText = isEdit ? "Edit Personnel Record" : "Add New Personnel";
-            modal.classList.add('active');
+            const filtered = pdbData.filter(item => 
+                item.name.toLowerCase().includes(searchInput) ||
+                item.tin.toLowerCase().includes(searchInput) ||
+                item.gsis.toLowerCase().includes(searchInput) ||
+                item.address.toLowerCase().includes(searchInput)
+            );
+
+            tableBody.innerHTML = filtered.map((item, idx) => {
+                const actionsCell = (userRole === 'admin') ? `
+                    <td>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <button class="btn btn-icon" onclick="editPdbRecord(${idx})"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn btn-icon btn-danger" onclick="deletePdbRecord(${idx})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                ` : '';
+
+                return `
+                    <tr>
+                        <td><strong>${item.name}</strong></td>
+                        <td><code>${item.tin}</code></td>
+                        <td><code>${item.gsis}</code></td>
+                        <td><code>${item.pagibig}</code></td>
+                        <td><code>${item.philhealth}</code></td>
+                        <td><span class="badge-role badge-teacher">${item.civil}</span></td>
+                        <td><small>${item.emergency}</small></td>
+                        <td>${item.address}</td>
+                        ${actionsCell}
+                    </tr>
+                `;
+            }).join('');
         }
 
-        function closeModal() {
-            modal.classList.remove('active');
-            form.reset();
-            document.getElementById('edit-index').value = "-1";
-        }
+        // Add/Edit PDB Records
+        const pdbModal = document.getElementById('pdb-modal');
+        const pdbForm = document.getElementById('pdb-form');
 
-        if (openModalBtn) openModalBtn.addEventListener('click', () => openModal(false));
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelModalBtn.addEventListener('click', closeModal);
+        if (openPdbModalBtn) openPdbModalBtn.addEventListener('click', () => {
+            document.getElementById('pdb-edit-index').value = "-1";
+            pdbForm.reset();
+            pdbModal.classList.add('active');
+        });
 
-        form.addEventListener('submit', (e) => {
+        document.getElementById('close-pdb-modal-btn').addEventListener('click', () => pdbModal.classList.remove('active'));
+        document.getElementById('cancel-pdb-modal-btn').addEventListener('click', () => pdbModal.classList.remove('active'));
+
+        pdbForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (userRole !== 'admin') return;
 
-            const editIndex = parseInt(document.getElementById('edit-index').value);
+            const editIndex = parseInt(document.getElementById('pdb-edit-index').value);
             const newRecord = {
-                id: document.getElementById('emp-id').value,
-                name: document.getElementById('emp-name').value,
-                position: document.getElementById('emp-position').value,
-                department: document.getElementById('emp-dept').value,
-                degree: document.getElementById('emp-degree').value,
-                dateHired: document.getElementById('emp-hired').value,
-                email: document.getElementById('emp-email').value,
-                contact: document.getElementById('emp-contact').value,
-                roleType: document.getElementById('role-type').value
+                name: document.getElementById('pdb-name').value,
+                tin: document.getElementById('pdb-tin').value,
+                gsis: document.getElementById('pdb-gsis').value,
+                pagibig: document.getElementById('pdb-pagibig').value,
+                philhealth: document.getElementById('pdb-philhealth').value,
+                civil: document.getElementById('pdb-civil').value,
+                emergency: document.getElementById('pdb-emergency').value,
+                address: document.getElementById('pdb-address').value
             };
 
             if (editIndex >= 0) {
-                personnelData[editIndex] = newRecord;
+                pdbData[editIndex] = newRecord;
             } else {
-                personnelData.unshift(newRecord);
+                pdbData.unshift(newRecord);
             }
 
-            saveData();
-            closeModal();
-            renderTable();
+            localStorage.setItem('mamon_pdb', JSON.stringify(pdbData));
+            pdbModal.classList.remove('active');
+            renderPdbTable();
         });
 
-        window.editPersonnel = function(index) {
-            if (userRole !== 'admin') return;
-            const item = personnelData[index];
-            document.getElementById('edit-index').value = index;
-            document.getElementById('emp-id').value = item.id;
-            document.getElementById('emp-name').value = item.name;
-            document.getElementById('emp-position').value = item.position;
-            document.getElementById('emp-dept').value = item.department;
-            document.getElementById('emp-degree').value = item.degree;
-            document.getElementById('emp-hired').value = item.dateHired;
-            document.getElementById('emp-email').value = item.email;
-            document.getElementById('emp-contact').value = item.contact;
-            document.getElementById('role-type').value = item.roleType;
-            openModal(true);
+        window.editPdbRecord = function(index) {
+            const item = pdbData[index];
+            document.getElementById('pdb-edit-index').value = index;
+            document.getElementById('pdb-name').value = item.name;
+            document.getElementById('pdb-tin').value = item.tin;
+            document.getElementById('pdb-gsis').value = item.gsis;
+            document.getElementById('pdb-pagibig').value = item.pagibig;
+            document.getElementById('pdb-philhealth').value = item.philhealth;
+            document.getElementById('pdb-civil').value = item.civil;
+            document.getElementById('pdb-emergency').value = item.emergency;
+            document.getElementById('pdb-address').value = item.address;
+            pdbModal.classList.add('active');
         };
 
-        window.deletePersonnel = function(index) {
-            if (userRole !== 'admin') return;
-            if (confirm(`Are you sure you want to remove ${personnelData[index].name}?`)) {
-                personnelData.splice(index, 1);
-                saveData();
-                renderTable();
+        window.deletePdbRecord = function(index) {
+            if (confirm("Are you sure you want to delete this personal record?")) {
+                pdbData.splice(index, 1);
+                localStorage.setItem('mamon_pdb', JSON.stringify(pdbData));
+                renderPdbTable();
             }
         };
 
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                let csv = 'Emp ID,Full Name,Position,Department,Degree,Date Hired,Email,Contact\n';
-                personnelData.forEach(row => {
-                    csv += `"${row.id}","${row.name}","${row.position}","${row.department}","${row.degree}","${row.dateHired}","${row.email}","${row.contact}"\n`;
-                });
+        document.getElementById('pdb-search-input').addEventListener('input', renderPdbTable);
 
+        // Export PDB Data CSV
+        if (pdbExportBtn) {
+            pdbExportBtn.addEventListener('click', () => {
+                let csv = 'Name,TIN,GSIS BP,PAGIBIG,PHILHEALTH,Civil Status,Emergency Contact,Address\n';
+                pdbData.forEach(row => {
+                    csv += `"${row.name}","${row.tin}","${row.gsis}","${row.pagibig}","${row.philhealth}","${row.civil}","${row.emergency}","${row.address}"\n`;
+                });
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.setAttribute('href', url);
-                a.setAttribute('download', 'MAM-ON_ES_Personnel.csv');
+                a.href = url;
+                a.download = 'MAM-ON_ES_Personal_Database.csv';
                 a.click();
             });
         }
