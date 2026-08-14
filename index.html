@@ -1,8 +1,3 @@
-// Session Auth Guard
-const activeSession = JSON.parse(localStorage.getItem('mamon_user_session'));
-if (!activeSession) {
-    window.location.href = 'login.html';
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +7,15 @@ if (!activeSession) {
     <!-- Google Fonts & FontAwesome -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Session Authentication Guard -->
+    <script>
+        const activeSession = JSON.parse(localStorage.getItem('mamon_user_session'));
+        if (!activeSession) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
     <style>
         :root {
             --primary: #2563eb;
@@ -102,16 +106,31 @@ if (!activeSession) {
         }
 
         .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 700;
+            gap: 0.5rem;
+        }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
             font-size: 0.875rem;
+            margin-left: 0.5rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .btn-logout:hover {
+            color: var(--danger);
+            background: #fef2f2;
         }
 
         /* 2. Navigation Tab Bar */
@@ -464,7 +483,13 @@ if (!activeSession) {
                 </div>
             </div>
             <div class="user-profile">
-                <div class="avatar">ADMIN</div>
+                <div class="avatar">
+                    <i class="fa-solid fa-user"></i>
+                    <span id="session-user-role">ADMIN</span>
+                    <button class="btn-logout" id="logout-btn" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -616,6 +641,17 @@ if (!activeSession) {
     </div>
 
     <script>
+        // Display Current Session Role
+        if (activeSession && activeSession.role) {
+            document.getElementById('session-user-role').innerText = activeSession.role.toUpperCase();
+        }
+
+        // Logout Handler
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('mamon_user_session');
+            window.location.href = 'login.html';
+        });
+
         // Initial Default Data
         const initialPersonnel = [
             { id: "865031", name: "Eric Portillo Palingcod", position: "Principal I / Teacher III", department: "Elementary / Teaching", degree: "BEED (MATH)", dateHired: "08/01/2005", email: "eric.palingcod@deped.gov.ph", contact: "09476345204", roleType: "principal" },
