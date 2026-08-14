@@ -7,7 +7,7 @@
   <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- PapaParse for Google Sheets CSV Parsing -->
+  <!-- PapaParse for Google Sheets Live CSV Parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
@@ -24,22 +24,16 @@
       </div>
       
       <div class="flex items-center gap-2">
-        <!-- Sync Status Indicator -->
+        <!-- Sync Indicator -->
         <div id="syncStatus" class="flex items-center gap-2 bg-blue-950 px-3 py-1.5 rounded text-xs text-blue-200 border border-blue-700">
           <i class="fa-solid fa-rotate text-blue-400" id="syncSpinner"></i>
-          <span id="syncText">Syncing...</span>
+          <span id="syncText">Syncing Google Sheet...</span>
         </div>
 
         <!-- Refresh Button -->
         <button onclick="fetchGoogleSheetData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition flex items-center gap-1.5">
-          <i class="fa-solid fa-arrows-rotate"></i> Refresh Sheet
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
         </button>
-
-        <!-- Import Local CSV Option -->
-        <label for="csvFileInput" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition flex items-center gap-1.5">
-          <i class="fa-solid fa-file-import"></i> Upload CSV
-        </label>
-        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importLocalCSV(event)" />
       </div>
     </div>
   </header>
@@ -81,7 +75,7 @@
           </tr>
         </thead>
         <tbody id="inventoryTableBody" class="divide-y divide-gray-200">
-          <!-- Dynamic Live Rows Render Here -->
+          <!-- Live dynamic rows render here -->
         </tbody>
       </table>
     </div>
@@ -89,39 +83,18 @@
   </main>
 
   <script>
-    // ⚠️ REPLACE THIS LINK WITH YOUR PUBLISHED CSV URL
-    // (In Google Sheets: File > Share > Publish to web > Select CSV > Copy Link)
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_EXAMPLE_URL_HERE/pub?output=csv";
+    // Live Published CSV Link from your Google Sheet
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWsbypcVljQu73WOcMllaBebHDNgvo2SB0fLM2d6wobh7d9CM_rYiUQMUJFC40bQ/pub?output=csv";
 
-    // Initial fallback data from INVENTORY COUNT FORM 2026.xlsx
-    const fallbackDatabase = [
-      { id: 1, name: "Desktop Package (COBY, CAAG038120111)", category: "ICT Equipment", qty: 1, value: "₱35,639.34", location: "Computer Room", assigned: "Property Custodian", status: "Good" },
-      { id: 2, name: "Interactive Projector (PIXPRO iSHOW ACTIVA X1600)", category: "ICT Equipment", qty: 1, value: "₱38,426.17", location: "Computer Room", assigned: "Grade 1 Teacher", status: "Unserviceable" },
-      { id: 3, name: "Epson Printer L3210 3-in-1", category: "ICT Equipment", qty: 1, value: "₱9,000.00", location: "Computer Room", assigned: "Office Clerk", status: "Good" },
-      { id: 4, name: "TCL LED TV 32\" (S/N: 2203ALY176378B00503)", category: "ICT Equipment", qty: 1, value: "₱11,988.00", location: "Computer Room", assigned: "Property Custodian", status: "Good" },
-      { id: 5, name: "DEVANT UHD TV 55\" (S/N: 55UHW201L112301699)", category: "ICT Equipment", qty: 1, value: "₱21,100.00", location: "Grade 2 Classroom", assigned: "Grade 2 Adviser", status: "Good" },
-      { id: 6, name: "SAMSUNG Smart TV 55\" (S/N: 08F43NMX800262V)", category: "ICT Equipment", qty: 1, value: "₱24,990.00", location: "Grade 3 Classroom", assigned: "Grade 3 Adviser", status: "Good" },
-      { id: 7, name: "Stand Fan (Standard 16\")", category: "Office Equipment", qty: 1, value: "₱1,500.00", location: "Kindergarten Room", assigned: "Kinder Adviser", status: "Good" },
-      { id: 8, name: "Building 1 (Office, Kinder, G1, Computer Lab)", category: "Buildings & Facilities", qty: 1, value: "N/A", location: "Mam-on ES Main Campus", assigned: "School Head", status: "Good" },
-      { id: 9, name: "Pagpahanas sa Pagpangadam (Kinder LRM)", category: "Books & Learning Materials", qty: 52, value: "N/A", location: "Kindergarten Room", assigned: "Kinder Teacher", status: "Good" }
-    ];
+    let liveDatabase = [];
 
-    let liveDatabase = [...fallbackDatabase];
-
-    // Fetch Google Sheet live data directly via PapaParse
+    // Fetch and parse live Google Sheet CSV
     function fetchGoogleSheetData() {
       const syncText = document.getElementById('syncText');
       const syncSpinner = document.getElementById('syncSpinner');
 
-      syncText.innerText = "Syncing Sheet...";
+      syncText.innerText = "Syncing...";
       syncSpinner.classList.add('animate-spin');
-
-      if (!GOOGLE_SHEET_CSV_URL.includes("docs.google.com")) {
-        syncText.innerText = "Fallback Mode (Set Published URL)";
-        syncSpinner.classList.remove('animate-spin');
-        filterItems();
-        return;
-      }
 
       Papa.parse(GOOGLE_SHEET_CSV_URL, {
         download: true,
@@ -139,15 +112,14 @@
             status: row['Status'] || row['Condition'] || 'Good'
           }));
 
-          syncText.innerText = "Live Sheet Active";
+          syncText.innerText = "Live Sheet Sync Active";
           syncSpinner.classList.remove('animate-spin');
           filterItems();
         },
         error: function(err) {
-          syncText.innerText = "Sync Failed (Using Fallback)";
+          syncText.innerText = "Sync Error";
           syncSpinner.classList.remove('animate-spin');
           console.error("Sheet Sync Failed: ", err);
-          filterItems();
         }
       });
     }
@@ -170,8 +142,12 @@
 
       items.forEach(item => {
         let statusBadge = "bg-emerald-100 text-emerald-800 border-emerald-300";
-        if (item.status?.toLowerCase().includes('repair')) statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
-        if (item.status?.toLowerCase().includes('unserviceable')) statusBadge = "bg-rose-100 text-rose-800 border-rose-300";
+        if (item.status && item.status.toLowerCase().includes('repair')) {
+          statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
+        }
+        if (item.status && item.status.toLowerCase().includes('unserviceable')) {
+          statusBadge = "bg-rose-100 text-rose-800 border-rose-300";
+        }
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50 transition";
@@ -214,32 +190,6 @@
       });
 
       renderTable(filtered);
-    }
-
-    // Import Local CSV Manual Fallback
-    function importLocalCSV(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          liveDatabase = results.data.map((row, idx) => ({
-            id: idx + 1,
-            name: row['Article/Item'] || row['Item Name'] || row['Article'] || 'Unnamed Item',
-            category: row['Category'] || row['Instruction'] || 'General Property',
-            qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || 1, 10),
-            value: row['Unit Value'] ? `₱${row['Unit Value']}` : '',
-            location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
-            assigned: row['Assigned To'] || row['Person Responsible'] || 'School Admin',
-            status: row['Status'] || row['Condition'] || 'Good'
-          }));
-
-          document.getElementById('syncText').innerText = "Loaded Local CSV";
-          filterItems();
-        }
-      });
     }
 
     // Initialize Page & Auto Sync every 60 seconds
