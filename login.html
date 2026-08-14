@@ -10,19 +10,18 @@
 
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
             --primary: #2563eb;
-            --bg: #0f172a;
+            --primary-dark: #1e3a8a;
+            --bg-color: #f1f5f9;
             --surface: #ffffff;
-            --dashboard-bg: #f8fafc; /* Standard dashboard background */
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --radius-lg: 24px;
-            --radius-md: 12px;
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
             --danger: #ef4444;
+            --radius-lg: 20px;
+            --radius-md: 10px;
         }
 
         * {
@@ -33,149 +32,103 @@
         }
 
         body {
-            background: radial-gradient(circle at top left, #1e3a8a, #0f172a 70%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            color: var(--text-dark);
+            background-color: var(--bg-color);
+            height: 100vh;
+            overflow: hidden; /* Prevent scrolling on login */
             position: relative;
-            overflow-x: hidden;
         }
 
-        /* Decorative Background Elements */
-        .bg-shape {
+        /* =========================================
+           BACKGROUND DASHBOARD MOCKUP
+           ========================================= */
+        .dashboard-mockup {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
             position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.2;
-            z-index: 0;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            filter: blur(4px); /* Blurs the background */
+            transform: scale(1.02); /* Prevents blur bleeding edges */
         }
-        .shape-1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
-        .shape-2 { width: 400px; height: 400px; background: #f59e0b; bottom: -100px; right: -50px; }
 
-        /* Main Wrapper - Split Layout */
-        .portal-wrapper {
-            position: relative;
-            z-index: 10;
+        /* Sidebar Mockup */
+        .mock-sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            padding: 1.5rem;
             display: flex;
-            width: 100%;
-            max-width: 1100px;
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .mock-logo {
+            font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; color: #fff;
+        }
+        .mock-nav-item {
+            padding: 0.85rem 1rem; border-radius: 8px; color: #94a3b8; display: flex; align-items: center; gap: 1rem; font-weight: 600; font-size: 0.95rem;
+        }
+        .mock-nav-item.active { background: var(--primary); color: #fff; }
+
+        /* Main Content Mockup */
+        .mock-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .mock-header {
+            height: 70px; background: var(--surface); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+        }
+        .mock-content { padding: 2rem; }
+        .mock-title { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1.5rem; }
+        
+        .mock-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .mock-card {
+            background: var(--surface); padding: 1.5rem; border-radius: var(--radius-md);
+            border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 1rem; align-items: center;
+        }
+        .mock-card-icon { width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .mock-card-info h4 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; }
+        .mock-card-info h2 { font-size: 1.75rem; font-weight: 800; color: var(--text-dark); }
+
+        /* =========================================
+           LOGIN OVERLAY & MODAL
+           ========================================= */
+        .login-overlay {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.4); /* Dark semi-transparent overlay */
+            z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+        .login-box {
+            background: var(--surface);
+            width: 100%; max-width: 420px;
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.5);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Left Side: Dashboard Stats (Mimicking the real app) --- */
-        .dashboard-panel {
-            flex: 1;
-            padding: 3.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: var(--dashboard-bg);
-            border-right: 1px solid var(--border);
-        }
-
-        .dashboard-header { margin-bottom: 2.5rem; }
-        .dashboard-header h2 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            color: var(--text-dark);
-        }
-        .dashboard-header p {
-            font-size: 1rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.25rem;
-        }
-
-        /* Styling to look like exact dashboard cards */
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-icon {
-            width: 45px;
-            height: 45px;
-            background: rgba(59, 130, 246, 0.1);
-            color: #2563eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-        }
-
-        .stat-card.accent .stat-icon { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-        .stat-card.success .stat-icon { background: rgba(16, 185, 129, 0.1); color: #059669; }
-
-        .stat-value {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--text-dark);
-            line-height: 1;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-card.full-width { grid-column: span 2; display: flex; align-items: center; justify-content: space-between; }
-        .stat-card.full-width .stat-icon { margin-bottom: 0; margin-right: 1.5rem; }
-        .full-width-content { display: flex; align-items: center; }
-
-        /* --- Right Side: Login Form --- */
-        .login-panel {
-            width: 440px;
-            background: var(--surface);
-            padding: 3.5rem 2.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .brand-header { text-align: center; margin-bottom: 2.25rem; }
+        .brand-header { text-align: center; margin-bottom: 2rem; }
         .brand-logo {
-            width: 64px; height: 64px;
-            background: var(--primary-gradient);
-            color: white; border-radius: 16px;
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; margin: 0 auto 1.25rem;
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+            font-size: 1.75rem; margin: 0 auto 1rem;
+            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.2);
         }
-        .brand-header h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+        .brand-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem; }
         .brand-header p { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
 
         .form-group { margin-bottom: 1.25rem; }
@@ -185,7 +138,7 @@
         }
 
         .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-icon { position: absolute; left: 1rem; color: var(--text-muted); font-size: 1rem; pointer-events: none; transition: color 0.2s; }
+        .input-icon { position: absolute; left: 1rem; color: var(--text-muted); font-size: 1rem; transition: color 0.2s; }
         
         .input-wrapper input {
             width: 100%; padding: 0.85rem 1rem 0.85rem 2.75rem;
@@ -200,13 +153,13 @@
 
         .toggle-password {
             position: absolute; right: 1rem; cursor: pointer;
-            color: var(--text-muted); font-size: 0.95rem; pointer-events: all; transition: color 0.2s;
+            color: var(--text-muted); font-size: 0.95rem; transition: color 0.2s;
         }
         .toggle-password:hover { color: var(--text-dark); }
 
         .btn-submit {
             width: 100%; padding: 0.9rem; font-size: 0.95rem; font-weight: 700;
-            color: #ffffff; background: var(--primary-gradient);
+            color: #ffffff; background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
             border: none; border-radius: var(--radius-md); cursor: pointer;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s ease;
             display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 1.5rem;
@@ -219,65 +172,50 @@
             margin-bottom: 1.25rem; display: none; align-items: center; gap: 0.5rem;
         }
 
-        .portal-footer {
-            margin-top: 2rem; text-align: center; border-top: 1px solid var(--border); padding-top: 1.25rem;
-        }
-        .portal-footer p { font-size: 0.775rem; color: var(--text-muted); line-height: 1.4; }
-
-        /* Responsive Design */
-        @media (max-width: 900px) {
-            .portal-wrapper { flex-direction: column; max-width: 500px; }
-            .dashboard-panel { padding: 2.5rem; order: 2; border-right: none; border-top: 1px solid var(--border); }
-            .login-panel { width: 100%; padding: 2.5rem; order: 1; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .stat-card.full-width { grid-column: span 1; }
-        }
     </style>
 </head>
 <body>
 
-    <div class="bg-shape shape-1"></div>
-    <div class="bg-shape shape-2"></div>
-
-    <div class="portal-wrapper">
-        
-        <!-- Left Panel: School Statistics Dashboard (Light Theme) -->
-        <div class="dashboard-panel">
-            <div class="dashboard-header">
-                <h2>School Overview</h2>
-                <p>MAM-ON Elementary Data Dashboard</p>
+    <!-- 1. BACKGROUND MOCKUP (Looks like the dashboard) -->
+    <div class="dashboard-mockup">
+        <div class="mock-sidebar">
+            <div class="mock-logo"><i class="fa-solid fa-school-flag"></i> MAM-ON ES</div>
+            <div class="mock-nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</div>
+            <div class="mock-nav-item"><i class="fa-solid fa-users"></i> Students</div>
+            <div class="mock-nav-item"><i class="fa-solid fa-chalkboard-user"></i> Teachers</div>
+            <div class="mock-nav-item"><i class="fa-solid fa-gear"></i> Settings</div>
+        </div>
+        <div class="mock-main">
+            <div class="mock-header">
+                <div style="color: var(--text-muted);"><i class="fa-solid fa-bars"></i></div>
+                <div style="display: flex; gap: 1rem; color: var(--text-muted); align-items: center;">
+                    <i class="fa-regular fa-bell"></i>
+                    <div style="width: 32px; height: 32px; background: var(--border); border-radius: 50%;"></div>
+                </div>
             </div>
-
-            <div class="stats-grid">
-                <!-- Enrolled Students -->
-                <div class="stat-card full-width">
-                    <div class="full-width-content">
-                        <div class="stat-icon"><i class="fa-solid fa-children"></i></div>
-                        <div>
-                            <div class="stat-value" id="count-students">452</div>
-                            <div class="stat-label">Total Enrolled Students</div>
-                        </div>
+            <div class="mock-content">
+                <div class="mock-title">System Overview</div>
+                <div class="mock-cards">
+                    <div class="mock-card">
+                        <div class="mock-card-icon"><i class="fa-solid fa-children"></i></div>
+                        <div class="mock-card-info"><h4>Enrolled Students</h4><h2 id="mock-students">452</h2></div>
                     </div>
-                </div>
-
-                <!-- Teaching Personnel -->
-                <div class="stat-card accent">
-                    <div class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
-                    <div class="stat-value" id="count-teachers">18</div>
-                    <div class="stat-label">Teaching Staff</div>
-                </div>
-
-                <!-- Active Classrooms -->
-                <div class="stat-card success">
-                    <div class="stat-icon"><i class="fa-solid fa-door-open"></i></div>
-                    <div class="stat-value" id="count-rooms">14</div>
-                    <div class="stat-label">Active Classrooms</div>
+                    <div class="mock-card">
+                        <div class="mock-card-icon" style="background: #fffbeb; color: #d97706;"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <div class="mock-card-info"><h4>Teaching Staff</h4><h2 id="mock-teachers">18</h2></div>
+                    </div>
+                    <div class="mock-card">
+                        <div class="mock-card-icon" style="background: #ecfdf5; color: #059669;"><i class="fa-solid fa-door-open"></i></div>
+                        <div class="mock-card-info"><h4>Active Rooms</h4><h2 id="mock-rooms">14</h2></div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Right Panel: Secure Login Form -->
-        <div class="login-panel">
+    <!-- 2. LOGIN OVERLAY & FORM -->
+    <div class="login-overlay">
+        <div class="login-box">
             <div class="brand-header">
                 <div class="brand-logo">
                     <i class="fa-solid fa-school-flag"></i>
@@ -288,44 +226,37 @@
 
             <div class="error-message" id="errorBanner">
                 <i class="fa-solid fa-circle-exclamation"></i>
-                <span id="errorMessageText">Invalid username or password.</span>
+                <span id="errorMessageText">Invalid credentials.</span>
             </div>
 
             <form id="loginForm">
-                <!-- Username Input -->
                 <div class="form-group">
                     <label for="username">Username</label>
                     <div class="input-wrapper">
-                        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username" />
+                        <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username" />
                         <i class="fa-solid fa-user input-icon"></i>
                     </div>
                 </div>
 
-                <!-- Password Input -->
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-wrapper">
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" />
+                        <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" />
                         <i class="fa-solid fa-lock input-icon"></i>
                         <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
                 <button type="submit" class="btn-submit">
                     <span>Access Portal</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
-
-            <div class="portal-footer">
-                <p>&copy; 2026 MAM-ON ES — DepEd Surigao del Sur<br>Strictly for authorized personnel only.</p>
-            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. Password Visibility Toggle ---
+        // --- Password Visibility Toggle ---
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
@@ -336,7 +267,7 @@
             this.classList.toggle('fa-eye-slash');
         });
 
-        // --- 2. Login Handler & Session Storage ---
+        // --- Login Authentication Handler ---
         const loginForm = document.getElementById('loginForm');
         const errorBanner = document.getElementById('errorBanner');
         const errorMessageText = document.getElementById('errorMessageText');
@@ -349,7 +280,6 @@
 
             let userSession = null;
 
-            // Authentication Roles
             if (username === 'admin' && password === 'admin123') {
                 userSession = { role: 'admin', email: 'admin.mamon@deped.gov.ph', empId: 'ADMIN-001' };
             } else if (username === 'jenny' && password === 'teacher123') {
@@ -357,20 +287,27 @@
             } else if (username === 'parent' && password === 'parent123') {
                 userSession = { role: 'parent', email: 'parent.guest@deped.gov.ph', empId: 'N/A' };
             } else if (username !== '' && password !== '') {
-                // Generic Login fallback (Defaults to Teacher view)
                 userSession = { role: 'teacher', email: `${username}@deped.gov.ph`, empId: '6459395' };
             }
 
             if (userSession) {
                 localStorage.setItem('mamon_user_session', JSON.stringify(userSession));
-                window.location.href = 'index.html';
+                // Add a smooth fade-out effect before redirecting
+                document.querySelector('.login-box').style.opacity = '0';
+                document.querySelector('.login-box').style.transform = 'translateY(-20px)';
+                document.querySelector('.login-overlay').style.opacity = '0';
+                document.querySelector('.login-overlay').style.transition = 'opacity 0.4s ease';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 400);
             } else {
                 errorMessageText.innerText = 'Please check your credentials and try again.';
                 errorBanner.style.display = 'flex';
             }
         });
 
-        // --- 3. Number Animation for Dashboard Preview ---
+        // --- Mockup Background Number Animation ---
         function animateValue(id, start, end, duration) {
             if (start === end) return;
             var range = end - start;
@@ -387,11 +324,10 @@
             }, stepTime);
         }
 
-        // Trigger animations on load
         window.onload = function() {
-            animateValue("count-students", 0, 452, 1500);
-            animateValue("count-teachers", 0, 18, 1000);
-            animateValue("count-rooms", 0, 14, 1000);
+            animateValue("mock-students", 0, 452, 1500);
+            animateValue("mock-teachers", 0, 18, 1000);
+            animateValue("mock-rooms", 0, 14, 1000);
         };
     </script>
 </body>
