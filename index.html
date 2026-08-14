@@ -1,850 +1,185 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAM-ON ES PORTAL | AI Enterprise Dashboard & Authentication</title>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Tailwind Theme Configuration -->
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50: '#f0f6ff', 100: '#e0edff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
-            ai: { dark: '#0B0F17', panel: '#151C28', border: '#2A3441', primary: '#8B5CF6', cyan: '#06B6D4', glow: 'rgba(139, 92, 246, 0.15)' }
-          },
-          animation: {
-            'shimmer': 'shimmer 2s infinite linear',
-            'pulse-glow': 'pulseGlow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'fade-in': 'fadeIn 0.35s ease-out forwards',
-            'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-          },
-          keyframes: {
-            shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
-            pulseGlow: {
-              '0%, 100%': { opacity: '0.5', filter: 'drop-shadow(0 0 12px rgba(139, 92, 246, 0.4))' },
-              '50%': { opacity: '1', filter: 'drop-shadow(0 0 24px rgba(6, 182, 212, 0.8))' }
-            },
-            fadeIn: { '0%': { opacity: '0', transform: 'scale(0.98)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-            slideUp: { '0%': { opacity: '0', transform: 'translateY(16px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
-          }
-        }
-      }
-    }
-  </script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Editor Profile</title>
   <style>
-    /* Custom High-Performance Scrollbars */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
-    
-    /* Glassmorphism System */
-    .glass-panel {
-      background: rgba(21, 28, 40, 0.75);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    .glass-card {
-      background: rgba(21, 28, 40, 0.5);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+    /* CSS Reset & General Rules */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
-    .glass-card:hover {
-      border-color: rgba(139, 92, 246, 0.3);
-      box-shadow: 0 8px 32px -8px rgba(139, 92, 246, 0.25);
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
     }
 
-    /* Skeleton Loading State */
-    .shimmer-bg {
-      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.8s infinite;
+    /* Container Card */
+    .editor-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      transition: all 0.3s ease;
     }
 
-    /* AI Gradient Text Effect */
-    .ai-gradient-text {
-      background: linear-gradient(135deg, #a855f7 0%, #3b82f6 50%, #06b6d4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .editor-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 12px 30px -5px rgba(59, 130, 246, 0.2);
     }
 
-    /* Hardware-Accelerated Radial Progress */
-    .radial-progress {
-      background: conic-gradient(#8B5CF6 var(--progress), #1e293b 0deg);
+    /* Profile Avatar & Status Badge */
+    .avatar-wrapper {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .status-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      background-color: #10b981;
+      border: 2px solid #1e293b;
+      border-radius: 50%;
+    }
+
+    /* Text Information */
+    .editor-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #38bdf8;
+      background-color: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 9999px;
+      margin-bottom: 0.35rem;
+    }
+
+    .editor-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .editor-role {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-top: 0.15rem;
+    }
+
+    /* Action Button */
+    .actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .edit-btn {
+      background: #3b82f6;
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .edit-btn:hover {
+      background: #2563eb;
+    }
+
+    .edit-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Responsive adjustments for mobile devices */
+    @media (max-width: 480px) {
+      .editor-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+      }
+
+      .editor-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .actions {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .edit-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
+<body>
 
-<body class="bg-[#0B0F17] text-slate-200 h-full font-sans antialiased overflow-hidden selection:bg-purple-500 selection:text-white transition-colors duration-500">
+  <!-- Admin Editor Component -->
+  <div class="editor-card">
+    <div class="avatar-wrapper">
+      <div class="avatar">JC</div>
+      <span class="status-dot" title="Active Editor"></span>
+    </div>
+    
+    <div class="editor-info">
+      <span class="badge">Admin Editor</span>
+      <h2 class="editor-name" title="Jasper S. Campado">Jasper S. Campado</h2>
+      <p class="editor-role">System Administrator & Lead Editor</p>
+    </div>
 
-  <!-- ==================== AUTHENTICATION OVERLAY ==================== -->
-  <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0F17]/90 backdrop-blur-2xl transition-all duration-500">
-    <!-- Ambient Background Glows -->
-    <div class="absolute w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[128px] pointer-events-none -top-20 -left-20 animate-pulse-glow"></div>
-    <div class="absolute w-[400px] h-[400px] bg-cyan-500/15 rounded-full blur-[128px] pointer-events-none -bottom-20 -right-20"></div>
-
-    <div class="relative w-full max-w-md bg-ai-panel/80 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-3xl animate-slide-up">
-      <!-- Portal Brand Badge -->
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-500/25">
-            M
-          </div>
-          <div>
-            <h1 class="font-extrabold text-base text-white tracking-tight">MAM-ON ES PORTAL</h1>
-            <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">SY 2025-2026 Enterprise Edition</p>
-          </div>
-        </div>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-          <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping"></span> Live Security
-        </span>
-      </div>
-
-      <div class="mb-6">
-        <h2 class="text-xl font-black text-white">System Sign In</h2>
-        <p class="text-xs text-slate-400 mt-1">Select your administrative credentials or enter custom access keys.</p>
-      </div>
-
-      <!-- Quick Role Autofill Selector -->
-      <div class="mb-5">
-        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2">Preset Enterprise Profiles</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="autofillLogin('Jasper S. Campado', 'Administrator')" class="p-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-left transition-all group">
-            <p class="text-xs font-bold text-white group-hover:text-purple-400 transition">Jasper Campado</p>
-            <p class="text-[10px] text-slate-400">Administrator</p>
-          </button>
-          <button onclick="autofillLogin('Eric Palingcod', 'Principal')" class="p-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-left transition-all group">
-            <p class="text-xs font-bold text-white group-hover:text-cyan-400 transition">Eric Palingcod</p>
-            <p class="text-[10px] text-slate-400">Principal</p>
-          </button>
-        </div>
-      </div>
-
-      <form onsubmit="handleLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">User Identity / ID</label>
-          <div class="relative">
-            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="auth-username" required placeholder="e.g. Jasper S. Campado" value="Jasper S. Campado" class="w-full bg-[#0B0F17]/80 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">Assigned Role</label>
-          <div class="relative">
-            <i data-lucide="shield-check" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <select id="auth-role" class="w-full bg-[#0B0F17]/80 border border-white/10 rounded-xl pl-10 pr-8 py-3 text-xs text-white appearance-none focus:outline-none focus:border-purple-500 transition-all cursor-pointer">
-              <option value="Administrator">Administrator</option>
-              <option value="Principal">Principal</option>
-              <option value="Teacher / Advisory">Teacher / Advisory</option>
-              <option value="Auditor">Visitor / Auditor</option>
-            </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">Security Passcode</label>
-          <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="password" required value="••••••••••••" class="w-full bg-[#0B0F17]/80 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all" />
-          </div>
-        </div>
-
-        <button type="submit" id="auth-submit-btn" class="w-full py-3.5 mt-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-          <span>Authenticate & Launch Workspace</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-      </form>
+    <div class="actions">
+      <button class="edit-btn">Manage</button>
     </div>
   </div>
 
-  <!-- ==================== MAIN APPLICATION LAYOUT ==================== -->
-  <div id="app-workspace" class="flex h-full w-full overflow-hidden relative opacity-0 transition-opacity duration-700">
-
-    <!-- SIDEBAR -->
-    <aside id="main-sidebar" class="w-64 bg-ai-panel border-r border-ai-border flex flex-col justify-between transition-all duration-300 z-30 flex-shrink-0">
-      <div class="flex flex-col h-full">
-        
-        <!-- Sidebar Brand Header -->
-        <div class="p-5 flex items-center justify-between border-b border-ai-border">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-purple-500/20">
-              M
-            </div>
-            <div class="sidebar-text">
-              <h1 class="font-black text-sm text-white tracking-tight">MAM-ON ES</h1>
-              <p class="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">PORTAL V4.0</p>
-            </div>
-          </div>
-          <button onclick="toggleSidebarCollapse()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition">
-            <i data-lucide="panel-left-close" id="collapse-icon" class="w-4 h-4"></i>
-          </button>
-        </div>
-
-        <!-- Role Badge Display -->
-        <div class="p-3 border-b border-ai-border bg-[#0B0F17]/40 sidebar-text">
-          <div class="bg-ai-dark p-2.5 rounded-xl border border-ai-border relative flex items-center justify-between">
-            <div>
-              <span class="block text-[9px] font-extrabold text-slate-500 uppercase tracking-wider">Active Session</span>
-              <p id="active-user-display" class="text-xs font-bold text-white truncate">Jasper S. Campado</p>
-              <p id="active-role-display" class="text-[10px] text-purple-400 font-semibold">Administrator</p>
-            </div>
-            <button onclick="logout()" title="Switch Account / Sign Out" class="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition">
-              <i data-lucide="log-out" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Restored Full System Navigation -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <p class="sidebar-text text-[10px] font-extrabold text-slate-500 uppercase tracking-wider px-3 mb-2">Core Dashboard</p>
-          
-          <a href="#" onclick="setActiveNav(this)" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 font-bold text-xs transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-purple-400"></i>
-            <span class="sidebar-text">Primary Analytics</span>
-          </a>
-          <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition text-xs font-semibold">
-            <div class="flex items-center gap-3">
-              <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-              <span class="sidebar-text">Exam MPS Metrics</span>
-            </div>
-            <span class="sidebar-text px-1.5 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">+14%</span>
-          </a>
-          <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition text-xs font-semibold">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-            <span class="sidebar-text">Reports & Trackers</span>
-          </a>
-
-          <p class="sidebar-text text-[10px] font-extrabold text-slate-500 uppercase tracking-wider px-3 mt-6 mb-2">Management</p>
-          <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition text-xs font-semibold">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            <span class="sidebar-text">Personnel Directory</span>
-          </a>
-          <a href="#" onclick="setActiveNav(this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition text-xs font-semibold">
-            <i data-lucide="folder" class="w-4 h-4"></i>
-            <span class="sidebar-text">Institutional Docs</span>
-          </a>
-        </nav>
-
-        <!-- Sidebar Content Editor Trigger -->
-        <div class="p-3 border-t border-ai-border bg-[#0B0F17]/40">
-          <button onclick="toggleEditor()" class="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 text-white text-xs font-bold shadow-lg shadow-purple-600/20 hover:scale-[1.02] transition-all">
-            <div class="flex items-center gap-2.5">
-              <i data-lucide="edit-3" class="w-4 h-4"></i>
-              <span class="sidebar-text">Content Editor</span>
-            </div>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-purple-200 sidebar-text"></i>
-          </button>
-        </div>
-
-      </div>
-    </aside>
-
-    <!-- ==================== MAIN DISPLAY ENGINE ==================== -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-[#0B0F17]">
-      
-      <!-- TOP NAVIGATION & COMMAND BAR -->
-      <header class="h-16 glass-panel border-b border-ai-border px-6 flex items-center justify-between z-20 flex-shrink-0">
-        <div class="flex items-center gap-4 flex-1 max-w-xl">
-          <div class="relative w-full">
-            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="global-search-input" onkeyup="handleGlobalSearch(this.value)" placeholder="Search records, personnel, subjects, or press ⌘K..." class="w-full bg-ai-dark/80 rounded-xl pl-10 pr-12 py-2 text-xs text-slate-200 placeholder-slate-500 border border-ai-border focus:border-purple-500 focus:outline-none transition-all" />
-            <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 bg-white/5 border border-white/10 rounded">⌘K</kbd>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <!-- Editor Launch Button -->
-          <button onclick="toggleEditor()" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 text-xs font-bold transition">
-            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-            <span>Editor</span>
-          </button>
-
-          <!-- Genesis AI Copilot Trigger -->
-          <button onclick="toggleCopilot()" class="group flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white text-xs font-extrabold shadow-lg shadow-purple-500/20 hover:scale-105 transition-all">
-            <i data-lucide="sparkles" class="w-4 h-4 text-cyan-200 group-hover:animate-spin"></i>
-            <span>Genesis AI Builder</span>
-          </button>
-        </div>
-      </header>
-
-      <!-- CANVAS BODY -->
-      <div id="dashboard-canvas" class="flex-1 overflow-y-auto p-6 space-y-6">
-        
-        <!-- Welcome Hero Section -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-purple-900/20 via-ai-panel to-cyan-900/10 p-6 rounded-3xl border border-ai-border relative overflow-hidden">
-          <div class="absolute -right-10 -top-10 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div class="relative z-10">
-            <div class="flex items-center gap-2 mb-1">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/30">SY 2025-2026</span>
-              <span class="text-slate-500 text-xs">•</span>
-              <span class="text-slate-400 text-xs font-semibold">Quarter 1 Active</span>
-            </div>
-            <h1 class="text-2xl font-black text-white tracking-tight">Institutional Performance Engine</h1>
-            <p class="text-xs text-slate-400 mt-1">Real-time mastery levels, teacher directory, and predictive AI analytics.</p>
-          </div>
-          
-          <!-- Radial Progress Quick Gauge -->
-          <div class="flex items-center gap-4 bg-ai-dark/60 p-3 rounded-2xl border border-white/5 relative z-10">
-            <div class="w-12 h-12 rounded-full radial-progress flex items-center justify-center relative shadow-inner" style="--progress: 280deg;">
-              <div class="w-9 h-9 rounded-full bg-ai-dark flex items-center justify-center text-[10px] font-black text-white">
-                88%
-              </div>
-            </div>
-            <div>
-              <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Overall Goal</p>
-              <p class="text-xs font-bold text-purple-400">Target Exceeded</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- INFOGRAPHIC KPI GRID WITH SPARKLINES -->
-        <div id="kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          <!-- Enrollees Card -->
-          <div class="glass-card rounded-2xl p-5 relative overflow-hidden group transition-all">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Enrollees</span>
-              <div class="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20"><i data-lucide="users" class="w-4 h-4"></i></div>
-            </div>
-            <div class="mt-4 flex items-baseline justify-between">
-              <h2 class="text-3xl font-black text-white">648</h2>
-              <span class="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">+4.2%</span>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">vs. last school year (622)</p>
-            <!-- Canvas Sparkline -->
-            <div class="mt-3 h-8 w-full">
-              <canvas id="sparkline-1" class="w-full h-full"></canvas>
-            </div>
-          </div>
-
-          <!-- Average MPS Card -->
-          <div class="glass-card rounded-2xl p-5 relative overflow-hidden group transition-all">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Average MPS</span>
-              <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"><i data-lucide="award" class="w-4 h-4"></i></div>
-            </div>
-            <div class="mt-4 flex items-baseline justify-between">
-              <h2 class="text-3xl font-black text-white">84.2%</h2>
-              <span class="text-xs font-extrabold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">Target Met</span>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">Target benchmark: 80.0%</p>
-            <div class="mt-3 h-8 w-full">
-              <canvas id="sparkline-2" class="w-full h-full"></canvas>
-            </div>
-          </div>
-
-          <!-- Teaching Staff Card -->
-          <div class="glass-card rounded-2xl p-5 relative overflow-hidden group transition-all">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Teaching Staff</span>
-              <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i data-lucide="user-check" class="w-4 h-4"></i></div>
-            </div>
-            <div class="mt-4 flex items-baseline justify-between">
-              <h2 class="text-3xl font-black text-white">24 / 24</h2>
-              <span class="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">100% Filled</span>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">Zero plantilla vacancies</p>
-            <div class="mt-3 h-8 w-full">
-              <canvas id="sparkline-3" class="w-full h-full"></canvas>
-            </div>
-          </div>
-
-          <!-- Active Classes Card -->
-          <div class="glass-card rounded-2xl p-5 relative overflow-hidden group transition-all">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Classes</span>
-              <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20"><i data-lucide="book-open" class="w-4 h-4"></i></div>
-            </div>
-            <div class="mt-4 flex items-baseline justify-between">
-              <h2 class="text-3xl font-black text-white">18</h2>
-              <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Grades 1-6</span>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">3 sections per grade average</p>
-            <div class="mt-3 h-8 w-full">
-              <canvas id="sparkline-4" class="w-full h-full"></canvas>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- DYNAMIC VISUALIZATION CHART & RECENT ACTIVITY -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Dynamic Main Chart -->
-          <div class="lg:col-span-2 glass-panel rounded-3xl p-6 border border-ai-border">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="text-base font-extrabold text-white">Academic MPS Performance Trajectory</h3>
-                <p class="text-xs text-slate-400">Quarterly trends vs historic institutional targets</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span>
-                <span class="text-xs text-slate-400 font-bold">2025-2026</span>
-              </div>
-            </div>
-            <div class="h-64 w-full">
-              <canvas id="mainPerformanceChart"></canvas>
-            </div>
-          </div>
-
-          <!-- Live Activity & Personnel Brief -->
-          <div class="glass-panel rounded-3xl p-6 border border-ai-border flex flex-col justify-between">
-            <div>
-              <h3 class="text-base font-extrabold text-white mb-4">Personnel Directory Highlights</h3>
-              <div class="space-y-3">
-                <div class="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-purple-500/30 transition">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-purple-600/30 text-purple-300 flex items-center justify-center font-bold text-xs">JC</div>
-                    <div>
-                      <p class="text-xs font-bold text-white">Jasper S. Campado</p>
-                      <p class="text-[10px] text-slate-400">ICT Coordinator / Admin</p>
-                    </div>
-                  </div>
-                  <span class="px-2 py-0.5 rounded-full text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Active</span>
-                </div>
-
-                <div class="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-purple-500/30 transition">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-cyan-600/30 text-cyan-300 flex items-center justify-center font-bold text-xs">EP</div>
-                    <div>
-                      <p class="text-xs font-bold text-white">Eric Palingcod</p>
-                      <p class="text-[10px] text-slate-400">School Principal</p>
-                    </div>
-                  </div>
-                  <span class="px-2 py-0.5 rounded-full text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Active</span>
-                </div>
-
-                <div class="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between hover:border-purple-500/30 transition">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-bold text-xs">JO</div>
-                    <div>
-                      <p class="text-xs font-bold text-white">Jenny Orillaneda</p>
-                      <p class="text-[10px] text-slate-400">Grade 6 Adviser</p>
-                    </div>
-                  </div>
-                  <span class="px-2 py-0.5 rounded-full text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Active</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-4 pt-4 border-t border-ai-border">
-              <button onclick="toggleEditor()" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-300 border border-white/10 transition flex items-center justify-center gap-2">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                <span>Add Institutional Record</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- FULL INTERACTIVE ACADEMIC PERFORMANCE TABLE -->
-        <div id="table-container" class="glass-panel rounded-3xl border border-ai-border shadow-xl p-6 transition-colors">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <h3 class="text-base font-extrabold text-white">Master Class Performance Directory</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Filter and review active section advisories, assigned personnel, and MPS score outputs</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-slate-400 font-semibold">Filter:</span>
-              <select id="table-filter" onchange="filterTable(this.value)" class="bg-ai-dark border border-ai-border text-xs text-slate-300 rounded-xl px-3 py-1.5 focus:outline-none focus:border-purple-500">
-                <option value="All">All Statuses</option>
-                <option value="Passed">Passed</option>
-                <option value="Review Needed">Review Needed</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-ai-border text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">
-                  <th class="pb-3 px-4">Grade & Section</th>
-                  <th class="pb-3 px-4">Adviser</th>
-                  <th class="pb-3 px-4">Subject Focus</th>
-                  <th class="pb-3 px-4">MPS Result</th>
-                  <th class="pb-3 px-4">Status Flag</th>
-                  <th class="pb-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="table-body" class="divide-y divide-ai-border text-xs text-slate-300 font-medium">
-                <tr class="hover:bg-white/5 transition-colors">
-                  <td class="py-4 px-4 font-bold text-white">Grade 6 - Mabini</td>
-                  <td class="py-4 px-4">J. Orillaneda</td>
-                  <td class="py-4 px-4"><span class="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold">Mathematics</span></td>
-                  <td class="py-4 px-4 font-black text-emerald-400">88.5%</td>
-                  <td class="py-4 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Passed</span></td>
-                  <td class="py-4 px-4 text-right"><button onclick="alert('Viewing detailed Grade 6 reports')" class="text-slate-400 hover:text-white"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>
-                </tr>
-                <tr class="hover:bg-white/5 transition-colors">
-                  <td class="py-4 px-4 font-bold text-white">Grade 5 - Rizal</td>
-                  <td class="py-4 px-4">E. Palingcod</td>
-                  <td class="py-4 px-4"><span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Science</span></td>
-                  <td class="py-4 px-4 font-black text-emerald-400">82.1%</td>
-                  <td class="py-4 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Passed</span></td>
-                  <td class="py-4 px-4 text-right"><button onclick="alert('Viewing detailed Grade 5 reports')" class="text-slate-400 hover:text-white"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>
-                </tr>
-                <tr class="hover:bg-white/5 transition-colors">
-                  <td class="py-4 px-4 font-bold text-white">Grade 4 - Bonifacio</td>
-                  <td class="py-4 px-4">J. Campado</td>
-                  <td class="py-4 px-4"><span class="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold">English</span></td>
-                  <td class="py-4 px-4 font-black text-amber-400">76.4%</td>
-                  <td class="py-4 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Review Needed</span></td>
-                  <td class="py-4 px-4 text-right"><button onclick="alert('Viewing detailed Grade 4 reports')" class="text-slate-400 hover:text-white"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </main>
-
-    <!-- ==================== INSTITUTIONAL CONTENT EDITOR MODAL ==================== -->
-    <div id="editor-modal" class="hidden fixed inset-0 bg-[#0B0F17]/80 backdrop-blur-xl z-50 flex items-center justify-center p-4 transition-all">
-      <div class="glass-panel rounded-3xl shadow-2xl w-full max-w-3xl border border-ai-border overflow-hidden flex flex-col max-h-[90vh] animate-slide-up">
-        <div class="px-6 py-5 border-b border-ai-border flex items-center justify-between bg-ai-panel/60">
-          <div class="flex items-center gap-3">
-            <span class="p-2 rounded-xl bg-purple-600/30 text-purple-300 border border-purple-500/30"><i data-lucide="edit-3" class="w-4 h-4"></i></span>
-            <div>
-              <h3 class="font-extrabold text-white text-base">Institutional Content & Report Editor</h3>
-              <p class="text-xs text-slate-400">Draft school announcements, lesson plans, or administrative notes</p>
-            </div>
-          </div>
-          <button onclick="toggleEditor()" class="text-slate-400 hover:text-white p-2 rounded-xl transition">✕</button>
-        </div>
-
-        <div class="p-6 flex-1 flex flex-col gap-4">
-          <textarea id="editor-content" placeholder="Start typing institutional content or type prompt for AI Copilot assistance..." class="w-full h-64 p-4 text-xs md:text-sm text-slate-100 bg-ai-dark border border-ai-border rounded-2xl focus:ring-1 focus:ring-purple-500 focus:outline-none resize-none leading-relaxed"></textarea>
-        </div>
-
-        <div class="px-6 py-4 border-t border-ai-border bg-ai-panel/60 flex justify-end gap-3">
-          <button onclick="toggleEditor()" class="px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-white rounded-xl transition">Cancel</button>
-          <button onclick="saveContent()" class="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 rounded-xl shadow-lg shadow-purple-500/20 transition flex items-center gap-2">
-            <i data-lucide="save" class="w-4 h-4"></i> Save Record
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================== GENESIS AI COPILOT DRAWER ==================== -->
-    <div id="ai-copilot" class="absolute top-0 right-0 h-full w-[400px] glass-panel border-l border-ai-border shadow-2xl flex flex-col transform translate-x-full transition-transform duration-500 z-50">
-      
-      <div class="px-5 py-4 border-b border-ai-border flex items-center justify-between bg-ai-panel/80">
-        <div class="flex items-center gap-3">
-          <div class="relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 shadow-lg shadow-purple-500/20">
-            <i data-lucide="bot" class="w-4 h-4 text-white"></i>
-            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-cyan-400 border border-ai-panel animate-pulse"></span>
-          </div>
-          <div>
-            <h3 class="font-extrabold text-sm text-white ai-gradient-text">Genesis AI Web Builder</h3>
-            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Direct DOM Access Engine</p>
-          </div>
-        </div>
-        <button onclick="toggleCopilot()" class="p-2 text-slate-400 hover:text-white rounded-xl transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="ai-chat-history" class="flex-1 overflow-y-auto p-5 space-y-4">
-        <div class="flex gap-3">
-          <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-xs mt-1">
-            <i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i>
-          </div>
-          <div class="bg-ai-panel border border-white/5 p-3.5 rounded-2xl rounded-tl-none text-xs text-slate-300 leading-relaxed">
-            Welcome! I am Genesis AI. I can dynamically modify page UI, append widgets, and summarize metrics in real-time. <br><br>
-            <strong class="text-white">Suggested commands:</strong>
-            <ul class="mt-2 space-y-1 text-[11px]">
-              <li class="cursor-pointer text-purple-400 hover:underline" onclick="forceCommand('Generate a new AI Prediction widget')">👉 "Generate a new AI Prediction widget"</li>
-              <li class="cursor-pointer text-purple-400 hover:underline" onclick="forceCommand('Highlight review needed classes')">👉 "Highlight review needed classes"</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="p-4 border-t border-ai-border bg-ai-panel/80">
-        <form onsubmit="handleAICommand(event)" class="relative flex items-center">
-          <input type="text" id="ai-input" placeholder="Type a build command..." class="w-full bg-ai-dark border border-ai-border rounded-xl pl-4 pr-12 py-3 text-xs font-medium text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all shadow-inner" autocomplete="off" />
-          <button type="submit" class="absolute right-2 p-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-md hover:scale-105 transition-transform">
-            <i data-lucide="send" class="w-3.5 h-3.5"></i>
-          </button>
-        </form>
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
-  <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
-
-    // Authentication Handlers
-    function autofillLogin(name, role) {
-      document.getElementById('auth-username').value = name;
-      document.getElementById('auth-role').value = role;
-    }
-
-    function handleLogin(e) {
-      e.preventDefault();
-      const user = document.getElementById('auth-username').value;
-      const role = document.getElementById('auth-role').value;
-
-      document.getElementById('active-user-display').innerText = user;
-      document.getElementById('active-role-display').innerText = role;
-
-      const authModal = document.getElementById('auth-modal');
-      const workspace = document.getElementById('app-workspace');
-
-      authModal.classList.add('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        authModal.style.display = 'none';
-        workspace.classList.remove('opacity-0');
-        initCharts();
-      }, 500);
-    }
-
-    function logout() {
-      const authModal = document.getElementById('auth-modal');
-      const workspace = document.getElementById('app-workspace');
-
-      authModal.style.display = 'flex';
-      setTimeout(() => {
-        authModal.classList.remove('opacity-0', 'pointer-events-none');
-        workspace.classList.add('opacity-0');
-      }, 50);
-    }
-
-    // Sidebar Collapse Logic
-    let sidebarCollapsed = false;
-    function toggleSidebarCollapse() {
-      const sidebar = document.getElementById('main-sidebar');
-      const textEls = document.querySelectorAll('.sidebar-text');
-      const icon = document.getElementById('collapse-icon');
-
-      sidebarCollapsed = !sidebarCollapsed;
-      if (sidebarCollapsed) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-20');
-        textEls.forEach(el => el.classList.add('hidden'));
-        icon.setAttribute('data-lucide', 'panel-left-open');
-      } else {
-        sidebar.classList.remove('w-20');
-        sidebar.classList.add('w-64');
-        textEls.forEach(el => el.classList.remove('hidden'));
-        icon.setAttribute('data-lucide', 'panel-left-close');
-      }
-      lucide.createIcons();
-    }
-
-    // Modal & Copilot Toggles
-    function toggleEditor() {
-      const modal = document.getElementById('editor-modal');
-      modal.classList.toggle('hidden');
-      if(!modal.classList.contains('hidden')){ lucide.createIcons(); }
-    }
-
-    function saveContent() {
-      const text = document.getElementById('editor-content').value;
-      if (text.trim()) {
-        alert('Institutional content record updated successfully!');
-        toggleEditor();
-      } else {
-        alert('Please enter content before saving.');
-      }
-    }
-
-    function toggleCopilot() {
-      const panel = document.getElementById('ai-copilot');
-      panel.classList.toggle('translate-x-full');
-    }
-
-    function forceCommand(cmd) {
-      document.getElementById('ai-input').value = cmd;
-      document.querySelector('#ai-copilot form').dispatchEvent(new Event('submit'));
-    }
-
-    // Global Search Filter
-    function handleGlobalSearch(query) {
-      const rows = document.querySelectorAll('#table-body tr');
-      const q = query.toLowerCase();
-      rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(q) ? '' : 'none';
-      });
-    }
-
-    function filterTable(val) {
-      const rows = document.querySelectorAll('#table-body tr');
-      rows.forEach(row => {
-        if (val === 'All') {
-          row.style.display = '';
-        } else {
-          row.style.display = row.innerText.includes(val) ? '' : 'none';
-        }
-      });
-    }
-
-    function setActiveNav(element) {
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active', 'bg-purple-500/10', 'border', 'border-purple-500/20', 'text-purple-300');
-        item.classList.add('text-slate-400');
-      });
-      element.classList.add('active', 'bg-purple-500/10', 'border', 'border-purple-500/20', 'text-purple-300');
-    }
-
-    // AI Copilot Logic
-    async function handleAICommand(e) {
-      e.preventDefault();
-      const inputEl = document.getElementById('ai-input');
-      const command = inputEl.value.trim();
-      if (!command) return;
-
-      const chatHistory = document.getElementById('ai-chat-history');
-      inputEl.value = '';
-
-      chatHistory.innerHTML += `
-        <div class="flex gap-3 justify-end animate-fade-in">
-          <div class="bg-purple-600 text-white px-4 py-2 rounded-2xl rounded-tr-none text-xs font-medium max-w-[85%] shadow-md">
-            ${command}
-          </div>
-        </div>
-      `;
-      chatHistory.scrollTop = chatHistory.scrollHeight;
-
-      const loaderId = 'loader-' + Date.now();
-      chatHistory.innerHTML += `
-        <div id="${loaderId}" class="flex gap-3 animate-fade-in">
-          <div class="w-7 h-7 rounded-xl bg-ai-panel flex-shrink-0 mt-1 shimmer-bg"></div>
-          <div class="bg-ai-panel border border-white/5 p-3.5 rounded-2xl rounded-tl-none w-48 space-y-2">
-             <div class="h-2 rounded bg-slate-700 shimmer-bg w-3/4"></div>
-             <div class="h-2 rounded bg-slate-700 shimmer-bg w-full"></div>
-          </div>
-        </div>
-      `;
-      chatHistory.scrollTop = chatHistory.scrollHeight;
-
-      const lowerCmd = command.toLowerCase();
-      let responseText = "DOM structure updated successfully.";
-      let domAction = null;
-
-      if (lowerCmd.includes('widget') || lowerCmd.includes('prediction')) {
-        responseText = "Generated and appended dynamic AI Performance Card to KPI grid.";
-        domAction = () => {
-          const grid = document.getElementById('kpi-grid');
-          const newCard = document.createElement('div');
-          newCard.className = "glass-card rounded-2xl p-5 border border-purple-500/30 shadow-lg animate-slide-up";
-          newCard.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI Prediction</span>
-            </div>
-            <div class="mt-4 flex items-baseline justify-between">
-              <h2 class="text-3xl font-black text-white">91.4%</h2>
-              <span class="text-[10px] font-extrabold text-white bg-gradient-to-r from-purple-600 to-cyan-500 px-2 py-0.5 rounded-full">Q2 Forecast</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Based on historic trend projection</p>
-          `;
-          grid.appendChild(newCard);
-          lucide.createIcons();
-        };
-      } else if (lowerCmd.includes('review') || lowerCmd.includes('highlight')) {
-        responseText = "Filtered table view to show sections needing review.";
-        domAction = () => {
-          document.getElementById('table-filter').value = 'Review Needed';
-          filterTable('Review Needed');
-        };
-      }
-
-      setTimeout(() => {
-        document.getElementById(loaderId)?.remove();
-        if (domAction) domAction();
-        chatHistory.innerHTML += `
-          <div class="flex gap-3 animate-fade-in">
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-xs mt-1">
-              <i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i>
-            </div>
-            <div class="bg-ai-panel border border-white/5 p-3.5 rounded-2xl rounded-tl-none text-xs text-slate-300 leading-relaxed font-medium">
-              ${responseText}
-            </div>
-          </div>
-        `;
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-        lucide.createIcons();
-      }, 1000);
-    }
-
-    // Chart Visualizations Initialization
-    function initCharts() {
-      // Main Chart
-      const ctxMain = document.getElementById('mainPerformanceChart').getContext('2d');
-      new Chart(ctxMain, {
-        type: 'line',
-        data: {
-          labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025', 'Q1 2026 (Active)'],
-          datasets: [{
-            label: 'MPS Level (%)',
-            data: [78.2, 80.1, 79.5, 82.4, 83.1, 84.2],
-            borderColor: '#8B5CF6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#06B6D4'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } }
-          }
-        }
-      });
-
-      // Helper function for mini sparklines
-      const createSparkline = (id, data, color) => {
-        const ctx = document.getElementById(id).getContext('2d');
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: data.map((_, i) => i),
-            datasets: [{ data, borderColor: color, borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            scales: { x: { display: false }, y: { display: false } }
-          }
-        });
-      };
-
-      createSparkline('sparkline-1', [12, 14, 13, 18, 20, 24], '#8B5CF6');
-      createSparkline('sparkline-2', [78, 80, 81, 82, 83, 84], '#06B6D4');
-      createSparkline('sparkline-3', [24, 24, 24, 24, 24, 24], '#10B981');
-      createSparkline('sparkline-4', [18, 18, 18, 18, 18, 18], '#F59E0B');
-    }
-  </script>
 </body>
 </html>
