@@ -3,919 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAM-ON ES - Secure Database Portal</title>
-    <!-- Google Fonts & FontAwesome -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Auth Guard Check -->
-    <script>
-        const activeSession = JSON.parse(localStorage.getItem('mamon_user_session'));
-        if (!activeSession) {
-            window.location.href = 'login.html';
-        }
-    </script>
-
+    <title>MAM-ON ES PORTAL - Dynamic System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            /* Dynamic Theme Variables */
-            --theme-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --radius-lg: 16px;
-            --radius-md: 10px;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
-            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
-            --danger: #ef4444;
-            --success: #10b981;
+            --primary: #0a4275;
+            --secondary: #145da0;
+            --accent: #ffc107;
+            --admin-color: #dc3545;
+            --bg-light: #f4f7f6;
+            --text-dark: #333;
+            --sidebar-width: 260px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Login Modal / Switcher Bar */
+        #auth-header {
+            background: #06223d; color: white; padding: 10px 20px; display: flex;
+            justify-content: space-between; align-items: center; font-size: 14px;
         }
+        #user-selector { padding: 5px 10px; border-radius: 4px; border: none; font-weight: bold; background: white; color: #333; cursor: pointer; }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        /* App Container Layout */
+        #app-container { display: flex; height: calc(100vh - 42px); }
 
-        /* --- Header --- */
-        header {
-            background: var(--theme-gradient);
-            padding: 1.25rem 2rem;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            transition: background 0.3s ease;
-        }
+        /* Sidebar Navigation */
+        .sidebar { width: var(--sidebar-width); background-color: var(--primary); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-items { flex-grow: 1; padding: 15px 0; }
+        .nav-link { display: none; padding: 12px 20px; color: #d1d5db; text-decoration: none; transition: 0.2s; font-size: 14px; align-items: center; }
+        .nav-link:hover, .nav-link.active { background-color: var(--secondary); color: white; border-left: 4px solid var(--accent); }
+        .nav-link i { margin-right: 12px; width: 20px; text-align: center; }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+        /* Admin Highlight Link */
+        .nav-link.admin-link { color: #ff9800; font-weight: bold; }
+        .nav-link.admin-link:hover { background-color: #721c24; }
 
-        .brand-icon {
-            width: 45px;
-            height: 45px;
-            background: #ffffff;
-            color: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-        }
+        /* Main Workspace */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; background-color: #f8fafc; }
+        .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .role-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .role-badge.admin { background: #ffe2e5; color: #f64e60; }
+        .role-badge.principal { background: #fff4de; color: #ffa800; }
+        .role-badge.teacher { background: #e1f0ff; color: #3699ff; }
 
-        .brand-text h1 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #ffffff;
-        }
+        .content-area { padding: 25px; }
 
-        .brand-text p {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+        /* Dynamic Widgets & Grid */
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-top: 4px solid var(--primary); }
+        .card.admin-only { border-top-color: var(--admin-color); background: #fff9f9; }
 
-        .user-nav {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
+        /* Tables & Lists */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
+        .data-table th, .data-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #edf2f7; font-size: 14px; }
+        .data-table th { background: #f1f5f9; font-weight: 600; color: #475569; }
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-align: right;
-            color: #ffffff;
-        }
-
-        .user-info h4 { font-size: 0.9rem; font-weight: 700; }
-        .user-info p { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); text-transform: capitalize; }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-        }
-
-        /* --- Footer --- */
-        .portal-footer {
-            background: var(--theme-gradient);
-            color: #ffffff;
-            text-align: center;
-            padding: 1.25rem;
-            margin-top: auto;
-            font-size: 0.85rem;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            transition: background 0.3s ease;
-        }
-
-        /* --- Main Layout --- */
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-            width: 100%;
-            flex: 1;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Tabs --- */
-        .tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .tab-btn {
-            padding: 0.85rem 1.5rem;
-            border: none;
-            background: var(--surface);
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .tab-btn:hover {
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        .tab-view { display: none; }
-        .tab-view.active-view { display: block; animation: fadeIn 0.3s ease; }
-
-        /* --- Cards & Tables --- */
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            background: #fafafa;
-        }
-
-        .search-wrapper { position: relative; min-width: 350px; }
-        .search-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-wrapper input {
-            width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 1px solid var(--border); border-radius: var(--radius-md);
-            font-size: 0.9rem; transition: all 0.2s ease; background: white;
-        }
-        .search-wrapper input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-
-        .action-group { display: flex; gap: 0.75rem; }
-
-        /* ADMIN ONLY CLASS - Hidden dynamically if not admin */
-        .admin-only { display: none !important; }
-
-        /* --- Buttons --- */
-        .btn {
-            padding: 0.75rem 1.25rem; border-radius: var(--radius-md);
-            font-size: 0.875rem; font-weight: 600; cursor: pointer;
-            border: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease;
-        }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); }
-        
-        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { background: var(--bg); border-color: #cbd5e1; }
-        
-        .btn-header-danger {
-            background: rgba(255, 255, 255, 0.1); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .btn-header-danger:hover { background: #ef4444; border-color: #ef4444; }
-
-        .btn-icon { padding: 0.5rem; font-size: 0.9rem; border-radius: 8px; color: var(--text-muted); background: transparent; }
-        .btn-icon:hover { background: var(--primary-light); color: var(--primary); }
-
-        /* --- Table Styling --- */
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { background: white; padding: 1.25rem 1.5rem; font-weight: 700; color: #334155; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--border); white-space: nowrap; }
-        td { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
-        tr { transition: background 0.2s ease; }
-        tr:hover { background: #f8fafc; }
-
-        .badge { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
-        .badge-teacher { background: #dbeafe; color: #1e40af; }
-        .badge-admin { background: #fef3c7; color: #b45309; }
-        .badge-me { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-
-        /* --- Modals & Settings Form --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .modal {
-            background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 700px;
-            padding: 2.5rem; box-shadow: var(--shadow-lg); transform: translateY(20px) scale(0.95);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto;
-        }
-        .modal-overlay.active .modal { transform: translateY(0) scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .modal-header h3 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-group.full { grid-column: span 2; }
-        .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group select {
-            padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md);
-            font-size: 0.95rem; transition: border-color 0.2s ease;
-        }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
-        /* Readonly visual mode without disabling field submission */
-        .form-group select.read-only-select {
-            pointer-events: none;
-            background-color: #f1f5f9;
-            color: #64748b;
-        }
-
-        .color-picker-wrapper { display: flex; align-items: center; gap: 1rem; }
-        .color-picker-wrapper input[type="color"] {
-            border: none; width: 50px; height: 50px; border-radius: 8px; cursor: pointer; padding: 0; background: transparent;
-        }
-
-        .modal-footer {
-            margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
-        }
+        /* Visibility Helpers */
+        .visible-flex { display: flex !important; }
+        .visible-block { display: block !important; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="brand">
-            <div class="brand-icon" id="header-logo-container"><i class="fa-solid fa-school"></i></div>
-            <div class="brand-text">
-                <h1>MAM-ON ES PORTAL</h1>
-                <p>Digital Database System</p>
-            </div>
-        </div>
-        <div class="user-nav">
-            <div class="user-profile">
-                <div class="user-info">
-                    <h4 id="display-email">User</h4>
-                    <p id="display-role">Role</p>
-                </div>
-                <div class="avatar"><i class="fa-solid fa-user"></i></div>
-            </div>
-            <button class="btn btn-header-danger" id="logout-btn">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
-            </button>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- Navigation Tabs -->
-        <div class="tabs">
-            <button class="tab-btn active" id="tab-directory"><i class="fa-solid fa-users"></i> Personnel Directory</button>
-            <button class="tab-btn" id="tab-pdb"><i class="fa-solid fa-address-card"></i> Personal Database (PDB)</button>
-            <!-- Admin Only Tab -->
-            <button class="tab-btn admin-only" id="tab-settings" style="margin-left: auto;"><i class="fa-solid fa-sliders"></i> System Settings</button>
-        </div>
-
-        <!-- View 1: Directory -->
-        <div id="view-directory" class="tab-view active-view">
-            <div class="card">
-                <div class="card-header">
-                    <div class="search-wrapper">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="search-input" placeholder="Search by name, position, email..." aria-label="Search personnel directory">
-                    </div>
-                    <div class="action-group">
-                        <button class="btn btn-outline admin-only" id="export-btn"><i class="fa-solid fa-file-export"></i> Export CSV</button>
-                        <button class="btn btn-primary admin-only" id="open-add-modal-btn"><i class="fa-solid fa-plus"></i> Add Personnel</button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Emp ID</th>
-                                <th>Full Name</th>
-                                <th>Position / Role</th>
-                                <th>Department</th>
-                                <th>Contact Information</th>
-                                <th style="text-align: right;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="personnel-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- View 2: PDB -->
-        <div id="view-pdb" class="tab-view">
-            <div class="card">
-                <div class="card-header">
-                    <div class="search-wrapper">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="pdb-search-input" placeholder="Search government IDs, names..." aria-label="Search personal database">
-                    </div>
-                    <div class="action-group">
-                        <button class="btn btn-outline admin-only" id="pdb-export-btn"><i class="fa-solid fa-file-export"></i> Export PDB</button>
-                        <button class="btn btn-primary admin-only" id="open-pdb-modal-btn"><i class="fa-solid fa-plus"></i> New PDB Record</button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Full Name</th>
-                                <th>TIN Number</th>
-                                <th>GSIS BP NO.</th>
-                                <th>PAG-IBIG MID</th>
-                                <th>PhilHealth NO.</th>
-                                <th>Contact & Civil Status</th>
-                                <th style="text-align: right;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pdb-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- View 3: System Settings (Admin Only) -->
-        <div id="view-settings" class="tab-view admin-only">
-            <div class="card">
-                <div class="card-header" style="background: white;">
-                    <h3><i class="fa-solid fa-palette"></i> Portal Appearance & Branding</h3>
-                </div>
-                <div style="padding: 2rem;">
-                    <form id="settings-form">
-                        <div class="form-grid">
-                            <!-- Logo Upload -->
-                            <div class="form-group full">
-                                <label for="logo-upload">Custom Portal Logo</label>
-                                <div style="display: flex; gap: 1.5rem; align-items: center; background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border: 1px dashed var(--border);">
-                                    <div class="brand-icon" id="logo-preview" style="width: 70px; height: 70px; font-size: 1.8rem;">
-                                        <i class="fa-solid fa-school"></i>
-                                    </div>
-                                    <div>
-                                        <input type="file" id="logo-upload" accept="image/png, image/jpeg, image/webp" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">
-                                        <small style="color: var(--text-muted);">Recommended: Square PNG/JPG image with transparent background. Maximum file size: 1MB.</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Gradient Settings -->
-                            <div class="form-group">
-                                <label for="gradient-color-1">Header/Footer Gradient (Start Color)</label>
-                                <div class="color-picker-wrapper">
-                                    <input type="color" id="gradient-color-1" value="#1e3a8a">
-                                    <span id="hex-label-1" style="font-family: monospace; font-size: 0.9rem;">#1e3a8a</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="gradient-color-2">Header/Footer Gradient (End Color)</label>
-                                <div class="color-picker-wrapper">
-                                    <input type="color" id="gradient-color-2" value="#3b82f6">
-                                    <span id="hex-label-2" style="font-family: monospace; font-size: 0.9rem;">#3b82f6</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer" style="border: none; padding-top: 2rem;">
-                            <button type="button" class="btn btn-outline" id="reset-settings-btn">Reset Defaults</button>
-                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Apply Theme Settings</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Header Switcher to simulate views -->
+    <div id="auth-header">
+        <div><i class="fas fa-shield-alt"></i> <strong>MAM-ON ES PORTAL</strong> — Multi-User Role View Simulator</div>
+        <div>
+            <label for="user-selector" style="margin-right: 8px;">Active User:</label>
+            <select id="user-selector" onchange="switchUserRole(this.value)">
+                <option value="admin">Jasper S. Campado (System Creator / Admin)</option>
+                <option value="principal">Eric P. Palingcod (Principal I)</option>
+                <option value="teacher">Jenny Queen L. Orillaneda (Teacher I)</option>
+            </select>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="portal-footer">
-        <p>&copy; 2026 MAM-ON ES — Division of Surigao del Sur | Official Portal</p>
-    </footer>
-
-    <!-- Personnel Modal -->
-    <div class="modal-overlay" id="personnel-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modal-title">Personnel Record</h3>
-                <button class="btn btn-icon" id="close-modal-btn" aria-label="Close Modal"><i class="fa-solid fa-xmark fa-lg"></i></button>
+    <div id="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-school"></i> MAM-ON ES</h3>
+                <small style="opacity: 0.7;">Surigao del Sur Division</small>
             </div>
-            <form id="personnel-form">
-                <input type="hidden" id="edit-index" value="-1">
-                <div class="form-grid">
-                    <div class="form-group"><label for="emp-id">Employee ID</label><input type="text" id="emp-id" required></div>
-                    <div class="form-group"><label for="emp-name">Full Name</label><input type="text" id="emp-name" required></div>
-                    <div class="form-group"><label for="emp-position">Position</label><input type="text" id="emp-position" required></div>
-                    <div class="form-group"><label for="emp-dept">Department</label><input type="text" id="emp-dept" required></div>
-                    <div class="form-group"><label for="emp-email">DepEd Email</label><input type="email" id="emp-email" required></div>
-                    <div class="form-group"><label for="emp-contact">Contact Number</label><input type="text" id="emp-contact" required></div>
-                    <div class="form-group full">
-                        <label for="role-type">System Role Category</label>
-                        <select id="role-type">
-                            <option value="teacher">Teaching Personnel</option>
-                            <option value="admin">Administrator / Principal</option>
-                        </select>
+            <div class="nav-items">
+                <a href="#" class="nav-link access-all active"><i class="fas fa-chart-line"></i> Primary Dashboard</a>
+                <a href="#" class="nav-link access-admin access-principal access-teacher"><i class="fas fa-user-graduate"></i> Class Dashboard</a>
+                <a href="#" class="nav-link access-admin access-principal"><i class="fas fa-address-book"></i> Personnel Directory</a>
+                <a href="#" class="nav-link access-admin access-principal"><i class="fas fa-lock-open"></i> Personal Database (PDB)</a>
+                <a href="#" class="nav-link access-admin admin-link"><i class="fas fa-laptop-code"></i> System Creator Hub</a>
+                <a href="#" class="nav-link access-admin admin-link"><i class="fas fa-sliders-h"></i> System Settings & Security</a>
+            </div>
+        </nav>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <header class="topbar">
+                <h3 id="page-title">Primary Dashboard</h3>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="text-align: right;">
+                        <div id="user-name" style="font-weight: bold; font-size: 14px;">Jasper S. Campado</div>
+                        <span id="user-role-badge" class="role-badge admin">System Creator / Admin</span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" id="cancel-modal-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Details</button>
-                </div>
-            </form>
-        </div>
-    </div>
+            </header>
 
-    <!-- PDB Modal -->
-    <div class="modal-overlay" id="pdb-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="pdb-modal-title">Personal Database Record</h3>
-                <button class="btn btn-icon" id="close-pdb-modal-btn" aria-label="Close Modal"><i class="fa-solid fa-xmark fa-lg"></i></button>
+            <div class="content-area fade-in">
+                <div id="welcome-banner" style="background: white; padding: 20px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 20px;">
+                    <h2 id="welcome-text">Welcome back, Jasper!</h2>
+                    <p id="welcome-subtext" style="color: #64748b; font-size: 14px; margin-top: 5px;">Here is your live overview tailored for your permissions.</p>
+                </div>
+
+                <!-- Dynamic Widgets Grid -->
+                <div class="grid-cards" id="widgets-container">
+                    <!-- Dynamic Widgets Injected via JS -->
+                </div>
+
+                <!-- Contextual Section View -->
+                <div id="role-specific-section" style="margin-top: 25px;">
+                    <!-- Table or Special Controls injected dynamically -->
+                </div>
             </div>
-            <form id="pdb-form">
-                <input type="hidden" id="pdb-edit-index" value="-1">
-                <div class="form-grid">
-                    <div class="form-group full"><label for="pdb-name">Full Name</label><input type="text" id="pdb-name" required></div>
-                    <div class="form-group"><label for="pdb-tin">TIN Number</label><input type="text" id="pdb-tin"></div>
-                    <div class="form-group"><label for="pdb-gsis">GSIS BP NO.</label><input type="text" id="pdb-gsis"></div>
-                    <div class="form-group"><label for="pdb-pagibig">PAG-IBIG MID</label><input type="text" id="pdb-pagibig"></div>
-                    <div class="form-group"><label for="pdb-philhealth">PhilHealth NO.</label><input type="text" id="pdb-philhealth"></div>
-                    <div class="form-group"><label for="pdb-civil">Civil Status</label><input type="text" id="pdb-civil"></div>
-                    <div class="form-group"><label for="pdb-phone">Contact No.</label><input type="text" id="pdb-phone"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" id="cancel-pdb-modal-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Record</button>
-                </div>
-            </form>
-        </div>
+        </main>
     </div>
 
     <script>
-        // --- Utility Helper: Escape Raw HTML Input Strings to Prevent XSS Injection ---
-        function escapeHTML(str) {
-            if (str === null || str === undefined) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        // --- 1. Session Enforcement & Authorization Check ---
-        const userRole = activeSession.role || 'teacher';
-        const userEmail = activeSession.email || '';
-        
-        document.getElementById('display-email').innerText = escapeHTML(userEmail.split('@')[0] || 'User');
-        document.getElementById('display-role').innerText = userRole === 'admin' ? 'System Administrator' : 'Portal Guest / Teacher';
-
-        // Unhide Admin-Only Elements if Active Session has Admin Privileges
-        if (userRole === 'admin') {
-            document.querySelectorAll('.admin-only').forEach(btn => {
-                btn.style.setProperty('display', 'inline-flex', 'important');
-            });
-        }
-
-        // --- 2. Dynamic Theme Engine ---
-        let portalSettings = JSON.parse(localStorage.getItem('mamon_settings')) || {
-            logoUrl: null,
-            color1: '#1e3a8a',
-            color2: '#3b82f6'
+        // Users & Role Definitions
+        const usersDatabase = {
+            'admin': {
+                name: 'Jasper Singcol Campado',
+                role: 'System Creator / Admin',
+                badgeClass: 'admin',
+                permissions: ['all', 'admin', 'principal', 'teacher'],
+                widgets: [
+                    { title: 'System Status', icon: 'fa-server', value: '100% Operational', note: 'All Modules Active', adminOnly: true },
+                    { title: 'Total System Users', icon: 'fa-users-cog', value: '24 Active Accounts', note: 'Full Admin Access Grant', adminOnly: true },
+                    { title: 'BEIS Total Enrollees', icon: 'fa-user-graduate', value: '648 Learners', note: 'SY 2025-2026 Active' },
+                    { title: 'System Logs', icon: 'fa-terminal', value: '0 Security Errors', note: 'Auto-sync active', adminOnly: true }
+                ],
+                customHtml: `
+                    <div class="card admin-only">
+                        <h3 style="color: var(--admin-color); margin-bottom: 10px;"><i class="fas fa-tools"></i> Creator Control Panel</h3>
+                        <p style="font-size: 14px; color: #555; margin-bottom: 15px;">Welcome Jasper! As the System Creator, you have full control over portal settings, data structures, and access rules.</p>
+                        <button style="padding: 8px 15px; background: var(--admin-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                            <i class="fas fa-database"></i> Launch Creator Database Tools
+                        </button>
+                    </div>
+                `
+            },
+            'principal': {
+                name: 'Eric Portillo Palingcod',
+                role: 'Principal I',
+                badgeClass: 'principal',
+                permissions: ['all', 'principal'],
+                widgets: [
+                    { title: 'School Enrollees (BEIS)', icon: 'fa-school', value: '648 Students', note: '24 Teaching Staff' },
+                    { title: 'PDB Access Level', icon: 'fa-folder-open', value: 'Full Administrative', note: 'Principal Authorized' },
+                    { title: 'Report Submissions', icon: 'fa-file-signature', value: '21/24 Submitted', note: '3 Pending Teacher Forms' }
+                ],
+                customHtml: `
+                    <div class="card">
+                        <h3><i class="fas fa-clipboard-check"></i> Administrative Reports Monitor</h3>
+                        <p style="font-size: 14px; color: #555; margin-top: 8px;">Review school-wide submission reports and faculty personnel data.</p>
+                    </div>
+                `
+            },
+            'teacher': {
+                name: 'Jenny Queen Lingaya Orillaneda',
+                role: 'Teacher I',
+                badgeClass: 'teacher',
+                permissions: ['all', 'teacher'],
+                widgets: [
+                    { title: 'My Advisory Class', icon: 'fa-chalkboard-teacher', value: '42 Learners', note: 'Grade 3 Advisory' },
+                    { title: 'Quarter 1 Grades', icon: 'fa-edit', value: 'In Progress', note: 'Deadline: Oct 15' },
+                    { title: 'My PDB Record', icon: 'fa-id-card', value: 'Verified', note: 'Editable Access' }
+                ],
+                customHtml: `
+                    <div class="card">
+                        <h3><i class="fas fa-graduation-cap"></i> Teacher Quick Links</h3>
+                        <p style="font-size: 14px; color: #555; margin-top: 8px;">Access grade inputs, learner attendance rosters, and personal records.</p>
+                    </div>
+                `
+            }
         };
 
-        function applyThemeSettings() {
-            if (portalSettings.color1 && portalSettings.color2) {
-                document.documentElement.style.setProperty('--theme-gradient', `linear-gradient(135deg, ${portalSettings.color1} 0%, ${portalSettings.color2} 100%)`);
-                document.getElementById('gradient-color-1').value = portalSettings.color1;
-                document.getElementById('gradient-color-2').value = portalSettings.color2;
-                document.getElementById('hex-label-1').innerText = portalSettings.color1;
-                document.getElementById('hex-label-2').innerText = portalSettings.color2;
-            }
+        function switchUserRole(roleKey) {
+            const user = usersDatabase[roleKey];
 
-            const brandIcons = [document.getElementById('header-logo-container'), document.getElementById('logo-preview')];
-            brandIcons.forEach(icon => {
-                if (icon) {
-                    if (portalSettings.logoUrl) {
-                        icon.innerHTML = `<img src="${portalSettings.logoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" alt="School Logo">`;
-                    } else {
-                        icon.innerHTML = `<i class="fa-solid fa-school"></i>`;
-                    }
-                }
+            // 1. Update Profile Info
+            document.getElementById('user-name').innerText = user.name;
+            const badge = document.getElementById('user-role-badge');
+            badge.innerText = user.role;
+            badge.className = `role-badge ${user.badgeClass}`;
+
+            document.getElementById('welcome-text').innerText = `Welcome back, ${user.name.split(' ')[0]}!`;
+
+            // 2. Adjust Sidebar Access via Permissions
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.style.display = 'none';
             });
-        }
-        applyThemeSettings();
-
-        // --- 3. Settings Form Event Handlers & File Limit Validations ---
-        document.getElementById('gradient-color-1').addEventListener('input', e => document.getElementById('hex-label-1').innerText = e.target.value);
-        document.getElementById('gradient-color-2').addEventListener('input', e => document.getElementById('hex-label-2').innerText = e.target.value);
-
-        document.getElementById('logo-upload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Strict 1MB Check to Prevent LocalStorage Crashes
-                if (file.size > 1024 * 1024) {
-                    alert("File size exceeds 1MB limit. Please select a smaller image file.");
-                    this.value = "";
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    document.getElementById('logo-preview').innerHTML = `<img src="${evt.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" alt="Logo Preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('settings-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            portalSettings.color1 = document.getElementById('gradient-color-1').value;
-            portalSettings.color2 = document.getElementById('gradient-color-2').value;
-            
-            const previewImg = document.querySelector('#logo-preview img');
-            if (previewImg) {
-                portalSettings.logoUrl = previewImg.src;
-            }
-
-            try {
-                localStorage.setItem('mamon_settings', JSON.stringify(portalSettings));
-                applyThemeSettings();
-                alert("Portal branding settings saved successfully.");
-            } catch (err) {
-                alert("Failed to save settings. Image file size may still be too large for storage.");
-            }
-        });
-
-        document.getElementById('reset-settings-btn').addEventListener('click', function() {
-            if (confirm("Are you sure you want to revert to default branding settings?")) {
-                portalSettings = { logoUrl: null, color1: '#1e3a8a', color2: '#3b82f6' };
-                localStorage.removeItem('mamon_settings');
-                document.getElementById('logo-upload').value = "";
-                applyThemeSettings();
-            }
-        });
-
-        // --- 4. Navigation Tab Switcher ---
-        const tabs = ['directory', 'pdb', 'settings'];
-        tabs.forEach(tab => {
-            const btn = document.getElementById(`tab-${tab}`);
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    tabs.forEach(t => {
-                        const tBtn = document.getElementById(`tab-${t}`);
-                        const tView = document.getElementById(`view-${t}`);
-                        if (tBtn) tBtn.classList.remove('active');
-                        if (tView) tView.classList.remove('active-view');
-                    });
-                    btn.classList.add('active');
-                    document.getElementById(`view-${tab}`).classList.add('active-view');
-                    if (tab === 'directory') renderDirectory();
-                    if (tab === 'pdb') renderPDB();
+            user.permissions.forEach(perm => {
+                document.querySelectorAll(`.access-${perm}`).forEach(link => {
+                    link.style.display = 'flex';
                 });
-            }
-        });
+            });
 
-        // --- 5. Data Store Initialization ---
-        let personnelData = JSON.parse(localStorage.getItem('mamon_personnel')) || [
-            { id: "ADMIN-001", name: "System Administrator", position: "Principal", department: "Admin", email: "admin.mamon@deped.gov.ph", contact: "09000000000", roleType: "admin" },
-            { id: "6459395", name: "Jenny Queen L. Orillaneda", position: "Teacher I", department: "Elementary", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
-            { id: "6450528", name: "Jasper S. Campado", position: "Admin Officer II", department: "Elementary", email: "jasper.campado@deped.gov.ph", contact: "09241132506", roleType: "teacher" }
-        ];
-
-        let pdbData = JSON.parse(localStorage.getItem('mamon_pdb')) || [
-            { name: "Jenny Queen L. Orillaneda", tin: "3826478650000", gsis: "2006724079", pagibig: "182012173335", philhealth: "0795079220", civil: "Single", phone: "09704809343" },
-            { name: "Jasper S. Campado", tin: "605690915000", gsis: "2006426639", pagibig: "182511543852", philhealth: "0795-0692-83", civil: "Single", phone: "09241132506" }
-        ];
-
-        function saveData() {
-            localStorage.setItem('mamon_personnel', JSON.stringify(personnelData));
-            localStorage.setItem('mamon_pdb', JSON.stringify(pdbData));
-        }
-
-        function isOwnRecord(item) {
-            return (item.email && item.email.toLowerCase() === userEmail.toLowerCase()) || 
-                   (item.id && activeSession.empId && item.id === activeSession.empId);
-        }
-
-        // --- 6. Table Rendering Engines ---
-        function renderDirectory() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const tbody = document.getElementById('personnel-table-body');
-            
-            const filtered = personnelData.filter(p => 
-                p.name.toLowerCase().includes(query) || 
-                p.email.toLowerCase().includes(query) || 
-                p.position.toLowerCase().includes(query)
-            );
-
-            tbody.innerHTML = filtered.map((p, index) => {
-                const ownsRecord = isOwnRecord(p);
-                const roleBadge = p.roleType === 'admin' ? 'badge-admin' : 'badge-teacher';
-                const meBadge = ownsRecord ? `<span class="badge badge-me" style="margin-left: 8px;">YOU</span>` : '';
-                const canEdit = userRole === 'admin' || ownsRecord;
-                const canDelete = userRole === 'admin';
-
-                return `
-                    <tr>
-                        <td><strong>${escapeHTML(p.id)}</strong></td>
-                        <td><div style="font-weight: 600; color: var(--text-main);">${escapeHTML(p.name)} ${meBadge}</div></td>
-                        <td><div style="font-weight: 500;">${escapeHTML(p.position)}</div><span class="badge ${roleBadge}" style="margin-top: 4px;">${escapeHTML(p.roleType).toUpperCase()}</span></td>
-                        <td>${escapeHTML(p.department)}</td>
-                        <td>
-                            <div style="font-size: 0.85rem;"><i class="fa-regular fa-envelope" style="color: var(--text-muted); margin-right: 4px;"></i> ${escapeHTML(p.email)}</div>
-                            <div style="font-size: 0.85rem; margin-top: 4px;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${escapeHTML(p.contact)}</div>
-                        </td>
-                        <td style="text-align: right;">
-                            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                ${canEdit ? `<button class="btn btn-icon" onclick="openEdit(${index})" title="Edit"><i class="fa-solid fa-pen"></i></button>` : `<span style="font-size:0.8rem; color: #cbd5e1;">Read-only</span>`}
-                                ${canDelete ? `<button class="btn btn-icon" style="color: var(--danger);" onclick="deleteRecord(${index})" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </td>
-                    </tr>
+            // 3. Render Widgets
+            const container = document.getElementById('widgets-container');
+            container.innerHTML = '';
+            user.widgets.forEach(w => {
+                container.innerHTML += `
+                    <div class="card ${w.adminOnly ? 'admin-only' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="color: #64748b; font-size: 13px; font-weight: 600;">${w.title}</span>
+                            <i class="fas ${w.icon}" style="color: ${w.adminOnly ? 'var(--admin-color)' : 'var(--primary)'};"></i>
+                        </div>
+                        <h2 style="font-size: 22px; color: #1e293b; margin-bottom: 5px;">${w.value}</h2>
+                        <span style="font-size: 12px; color: #94a3b8;">${w.note}</span>
+                    </div>
                 `;
-            }).join('');
-        }
-
-        function renderPDB() {
-            const query = document.getElementById('pdb-search-input').value.toLowerCase();
-            const tbody = document.getElementById('pdb-table-body');
-            
-            const filtered = pdbData.filter(p => 
-                p.name.toLowerCase().includes(query) || 
-                p.tin.includes(query) || 
-                p.gsis.includes(query)
-            );
-
-            tbody.innerHTML = filtered.map((p, index) => {
-                const matchingPersonnel = personnelData.find(x => x.name.toLowerCase() === p.name.toLowerCase());
-                const ownsRecord = matchingPersonnel ? isOwnRecord(matchingPersonnel) : false;
-                const canEdit = userRole === 'admin' || ownsRecord;
-                const canDelete = userRole === 'admin';
-
-                return `
-                    <tr>
-                        <td style="font-weight: 600;">${escapeHTML(p.name)}</td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.tin || 'N/A')}</code></td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.gsis || 'N/A')}</code></td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.pagibig || 'N/A')}</code></td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.philhealth || 'N/A')}</code></td>
-                        <td>
-                            <div style="font-size: 0.85rem;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${escapeHTML(p.phone)}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Status: ${escapeHTML(p.civil)}</div>
-                        </td>
-                        <td style="text-align: right;">
-                            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                ${canEdit ? `<button class="btn btn-icon" onclick="openPdbEdit(${index})" title="Edit Data"><i class="fa-solid fa-pen"></i></button>` : `<span style="font-size:0.8rem; color: #cbd5e1;">Read-only</span>`}
-                                ${canDelete ? `<button class="btn btn-icon" style="color: var(--danger);" onclick="deletePdb(${index})" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // --- 7. Search Input Realtime Listeners ---
-        document.getElementById('search-input').addEventListener('input', renderDirectory);
-        document.getElementById('pdb-search-input').addEventListener('input', renderPDB);
-
-        // Signout Handler
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('mamon_user_session');
-            window.location.href = 'login.html';
-        });
-
-        // --- 8. Data Export CSV Generators ---
-        function exportToCSV(filename, rows) {
-            const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        document.getElementById('export-btn')?.addEventListener('click', () => {
-            const headers = ["Employee ID", "Full Name", "Position", "Department", "Email", "Contact Number", "Role Type"];
-            const dataRows = personnelData.map(p => [p.id, p.name, p.position, p.department, p.email, p.contact, p.roleType]);
-            exportToCSV("personnel_directory.csv", [headers, ...dataRows]);
-        });
-
-        document.getElementById('pdb-export-btn')?.addEventListener('click', () => {
-            const headers = ["Full Name", "TIN Number", "GSIS BP NO", "PAG-IBIG MID", "PhilHealth NO", "Civil Status", "Contact Number"];
-            const dataRows = pdbData.map(p => [p.name, p.tin, p.gsis, p.pagibig, p.philhealth, p.civil, p.phone]);
-            exportToCSV("personal_database_records.csv", [headers, ...dataRows]);
-        });
-
-        // --- 9. Window Global Modal Control Functions ---
-        window.openEdit = function(index) {
-            const p = personnelData[index];
-            document.getElementById('edit-index').value = index;
-            document.getElementById('modal-title').innerText = "Edit Personnel Profile";
-            
-            document.getElementById('emp-id').value = p.id;
-            document.getElementById('emp-name').value = p.name;
-            document.getElementById('emp-position').value = p.position;
-            document.getElementById('emp-dept').value = p.department;
-            document.getElementById('emp-email').value = p.email;
-            document.getElementById('emp-contact').value = p.contact;
-            document.getElementById('role-type').value = p.roleType;
-            
-            const isAdmin = userRole === 'admin';
-            document.getElementById('emp-id').readOnly = !isAdmin;
-            
-            // Toggle Visual Readonly State without dropping select values from form submission payload
-            const roleSelect = document.getElementById('role-type');
-            if (!isAdmin) {
-                roleSelect.classList.add('read-only-select');
-            } else {
-                roleSelect.classList.remove('read-only-select');
-            }
-            
-            document.getElementById('personnel-modal').classList.add('active');
-        };
-
-        window.deleteRecord = function(index) {
-            if (confirm("Are you sure you want to completely remove this personnel record?")) {
-                personnelData.splice(index, 1);
-                saveData();
-                renderDirectory();
-            }
-        };
-
-        window.openPdbEdit = function(index) {
-            const p = pdbData[index];
-            document.getElementById('pdb-edit-index').value = index;
-            document.getElementById('pdb-modal-title').innerText = "Edit Secure ID Records";
-            
-            ['name','tin','gsis','pagibig','philhealth','civil','phone'].forEach(field => {
-                document.getElementById(`pdb-${field}`).value = p[field] || '';
             });
-            
-            document.getElementById('pdb-name').readOnly = (userRole !== 'admin');
-            document.getElementById('pdb-modal').classList.add('active');
-        };
 
-        window.deletePdb = function(index) {
-            if (confirm("Delete these secure ID records permanently?")) {
-                pdbData.splice(index, 1);
-                saveData();
-                renderPDB();
-            }
-        };
-
-        // --- 10. Form Submissions Handlers ---
-        document.getElementById('personnel-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const idx = parseInt(document.getElementById('edit-index').value, 10);
-            const record = {
-                id: document.getElementById('emp-id').value,
-                name: document.getElementById('emp-name').value,
-                position: document.getElementById('emp-position').value,
-                department: document.getElementById('emp-dept').value,
-                email: document.getElementById('emp-email').value,
-                contact: document.getElementById('emp-contact').value,
-                roleType: document.getElementById('role-type').value
-            };
-            
-            if (idx > -1) {
-                personnelData[idx] = record;
-            } else {
-                personnelData.unshift(record);
-            }
-            saveData();
-            renderDirectory();
-            document.getElementById('personnel-modal').classList.remove('active');
-        });
-
-        document.getElementById('pdb-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const idx = parseInt(document.getElementById('pdb-edit-index').value, 10);
-            const record = {};
-            ['name','tin','gsis','pagibig','philhealth','civil','phone'].forEach(field => {
-                record[field] = document.getElementById(`pdb-${field}`).value;
-            });
-            
-            if (idx > -1) {
-                pdbData[idx] = record;
-            } else {
-                pdbData.unshift(record);
-            }
-            saveData();
-            renderPDB();
-            document.getElementById('pdb-modal').classList.remove('active');
-        });
-
-        // Open Add Record Modals
-        const openAddBtn = document.getElementById('open-add-modal-btn');
-        if (openAddBtn) {
-            openAddBtn.addEventListener('click', () => {
-                document.getElementById('personnel-form').reset();
-                document.getElementById('edit-index').value = -1;
-                document.getElementById('modal-title').innerText = "Add New Personnel";
-                document.getElementById('emp-id').readOnly = false;
-                document.getElementById('role-type').classList.remove('read-only-select');
-                document.getElementById('personnel-modal').classList.add('active');
-            });
-        }
-        
-        const openPdbAddBtn = document.getElementById('open-pdb-modal-btn');
-        if (openPdbAddBtn) {
-            openPdbAddBtn.addEventListener('click', () => {
-                document.getElementById('pdb-form').reset();
-                document.getElementById('pdb-edit-index').value = -1;
-                document.getElementById('pdb-modal-title').innerText = "Add Secure ID Record";
-                document.getElementById('pdb-name').readOnly = false;
-                document.getElementById('pdb-modal').classList.add('active');
-            });
+            // 4. Inject Specific Workspace View
+            document.getElementById('role-specific-section').innerHTML = user.customHtml;
         }
 
-        // Close Modal Controls
-        document.querySelectorAll('#close-modal-btn, #cancel-modal-btn').forEach(b => 
-            b.addEventListener('click', () => document.getElementById('personnel-modal').classList.remove('active'))
-        );
-        document.querySelectorAll('#close-pdb-modal-btn, #cancel-pdb-modal-btn').forEach(b => 
-            b.addEventListener('click', () => document.getElementById('pdb-modal').classList.remove('active'))
-        );
-
-        // Escape Key Global Listener for Accessibility
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
-            }
-        });
-
-        // Initialize First View Render
-        renderDirectory();
+        // Initial Load set to Admin (Jasper Campado)
+        window.onload = function() {
+            switchUserRole('admin');
+        };
     </script>
 </body>
 </html>
-
