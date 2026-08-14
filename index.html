@@ -1,35 +1,24 @@
-Here is the updated **`index.html`** file. I have added a highly professional, Admin-only **System Settings** dashboard.
-
-This update introduces:
-
-1. **Dynamic Customization:** An Admin can now upload a custom school logo (which saves locally via Base64) and select custom gradient colors for the Header and Footer.
-2. **Redesigned Header & New Footer:** The header and a newly added footer now utilize the dynamic `--theme-gradient`, seamlessly applying the Admin's color choices while keeping text sharp and legible.
-3. **Strict Admin Protection:** The "System Settings" tab, along with the "Export" and "Add Personnel" buttons, are physically hidden from non-admin accounts.
-
-### Updated `index.html`
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAM-ON ES - Secure Portal</title>
+    <title>MAM-ON ES - Secure Database Portal</title>
     <!-- Google Fonts & FontAwesome -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Pre-load Auth Check to prevent flickering -->
+    <!-- Auth Guard Check -->
     <script>
         const activeSession = JSON.parse(localStorage.getItem('mamon_user_session'));
         if (!activeSession) {
-            window.location.href = 'login.html'; // Redirect if not logged in
+            window.location.href = 'login.html';
         }
     </script>
 
     <style>
         :root {
-            /* Dynamic Theme Variables (Configurable by Admin) */
+            /* Dynamic Theme Variables */
             --theme-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             
             --primary: #2563eb;
@@ -63,7 +52,7 @@ This update introduces:
             flex-direction: column;
         }
 
-        /* --- Dynamic Header --- */
+        /* --- Header --- */
         header {
             background: var(--theme-gradient);
             padding: 1.25rem 2rem;
@@ -94,7 +83,7 @@ This update introduces:
             justify-content: center;
             font-size: 1.25rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            overflow: hidden; /* For custom logo */
+            overflow: hidden;
         }
 
         .brand-text h1 {
@@ -141,7 +130,7 @@ This update introduces:
             border: 2px solid rgba(255, 255, 255, 0.5);
         }
 
-        /* --- Dynamic Footer --- */
+        /* --- Footer --- */
         .portal-footer {
             background: var(--theme-gradient);
             color: #ffffff;
@@ -239,7 +228,7 @@ This update introduces:
 
         .action-group { display: flex; gap: 0.75rem; }
 
-        /* ADMIN ONLY CLASS - Strictly Hidden unless Admin */
+        /* ADMIN ONLY CLASS - Hidden dynamically if not admin */
         .admin-only { display: none !important; }
 
         /* --- Buttons --- */
@@ -302,6 +291,13 @@ This update introduces:
         }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
+        /* Readonly visual mode without disabling field submission */
+        .form-group select.read-only-select {
+            pointer-events: none;
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
         .color-picker-wrapper { display: flex; align-items: center; gap: 1rem; }
         .color-picker-wrapper input[type="color"] {
             border: none; width: 50px; height: 50px; border-radius: 8px; cursor: pointer; padding: 0; background: transparent;
@@ -352,7 +348,7 @@ This update introduces:
                 <div class="card-header">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="search-input" placeholder="Search by name, position, email...">
+                        <input type="text" id="search-input" placeholder="Search by name, position, email..." aria-label="Search personnel directory">
                     </div>
                     <div class="action-group">
                         <button class="btn btn-outline admin-only" id="export-btn"><i class="fa-solid fa-file-export"></i> Export CSV</button>
@@ -383,7 +379,7 @@ This update introduces:
                 <div class="card-header">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="pdb-search-input" placeholder="Search government IDs, names...">
+                        <input type="text" id="pdb-search-input" placeholder="Search government IDs, names..." aria-label="Search personal database">
                     </div>
                     <div class="action-group">
                         <button class="btn btn-outline admin-only" id="pdb-export-btn"><i class="fa-solid fa-file-export"></i> Export PDB</button>
@@ -420,27 +416,27 @@ This update introduces:
                         <div class="form-grid">
                             <!-- Logo Upload -->
                             <div class="form-group full">
-                                <label>Custom Portal Logo</label>
+                                <label for="logo-upload">Custom Portal Logo</label>
                                 <div style="display: flex; gap: 1.5rem; align-items: center; background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border: 1px dashed var(--border);">
                                     <div class="brand-icon" id="logo-preview" style="width: 70px; height: 70px; font-size: 1.8rem;">
                                         <i class="fa-solid fa-school"></i>
                                     </div>
                                     <div>
                                         <input type="file" id="logo-upload" accept="image/png, image/jpeg, image/webp" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">
-                                        <small style="color: var(--text-muted);">Recommended: Square PNG/JPG image with transparent background. Max 1MB.</small>
+                                        <small style="color: var(--text-muted);">Recommended: Square PNG/JPG image with transparent background. Maximum file size: 1MB.</small>
                                     </div>
                                 </div>
                             </div>
                             <!-- Gradient Settings -->
                             <div class="form-group">
-                                <label>Header/Footer Gradient (Start Color)</label>
+                                <label for="gradient-color-1">Header/Footer Gradient (Start Color)</label>
                                 <div class="color-picker-wrapper">
                                     <input type="color" id="gradient-color-1" value="#1e3a8a">
                                     <span id="hex-label-1" style="font-family: monospace; font-size: 0.9rem;">#1e3a8a</span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Header/Footer Gradient (End Color)</label>
+                                <label for="gradient-color-2">Header/Footer Gradient (End Color)</label>
                                 <div class="color-picker-wrapper">
                                     <input type="color" id="gradient-color-2" value="#3b82f6">
                                     <span id="hex-label-2" style="font-family: monospace; font-size: 0.9rem;">#3b82f6</span>
@@ -464,23 +460,22 @@ This update introduces:
 
     <!-- Personnel Modal -->
     <div class="modal-overlay" id="personnel-modal">
-        <!-- Kept exactly as your previous version to save space/ensure functionality -->
         <div class="modal">
             <div class="modal-header">
                 <h3 id="modal-title">Personnel Record</h3>
-                <button class="btn btn-icon" id="close-modal-btn"><i class="fa-solid fa-xmark fa-lg"></i></button>
+                <button class="btn btn-icon" id="close-modal-btn" aria-label="Close Modal"><i class="fa-solid fa-xmark fa-lg"></i></button>
             </div>
             <form id="personnel-form">
                 <input type="hidden" id="edit-index" value="-1">
                 <div class="form-grid">
-                    <div class="form-group"><label>Employee ID</label><input type="text" id="emp-id" required></div>
-                    <div class="form-group"><label>Full Name</label><input type="text" id="emp-name" required></div>
-                    <div class="form-group"><label>Position</label><input type="text" id="emp-position" required></div>
-                    <div class="form-group"><label>Department</label><input type="text" id="emp-dept" required></div>
-                    <div class="form-group"><label>DepEd Email</label><input type="email" id="emp-email" required></div>
-                    <div class="form-group"><label>Contact Number</label><input type="text" id="emp-contact" required></div>
+                    <div class="form-group"><label for="emp-id">Employee ID</label><input type="text" id="emp-id" required></div>
+                    <div class="form-group"><label for="emp-name">Full Name</label><input type="text" id="emp-name" required></div>
+                    <div class="form-group"><label for="emp-position">Position</label><input type="text" id="emp-position" required></div>
+                    <div class="form-group"><label for="emp-dept">Department</label><input type="text" id="emp-dept" required></div>
+                    <div class="form-group"><label for="emp-email">DepEd Email</label><input type="email" id="emp-email" required></div>
+                    <div class="form-group"><label for="emp-contact">Contact Number</label><input type="text" id="emp-contact" required></div>
                     <div class="form-group full">
-                        <label>System Role Category</label>
+                        <label for="role-type">System Role Category</label>
                         <select id="role-type">
                             <option value="teacher">Teaching Personnel</option>
                             <option value="admin">Administrator / Principal</option>
@@ -500,18 +495,18 @@ This update introduces:
         <div class="modal">
             <div class="modal-header">
                 <h3 id="pdb-modal-title">Personal Database Record</h3>
-                <button class="btn btn-icon" id="close-pdb-modal-btn"><i class="fa-solid fa-xmark fa-lg"></i></button>
+                <button class="btn btn-icon" id="close-pdb-modal-btn" aria-label="Close Modal"><i class="fa-solid fa-xmark fa-lg"></i></button>
             </div>
             <form id="pdb-form">
                 <input type="hidden" id="pdb-edit-index" value="-1">
                 <div class="form-grid">
-                    <div class="form-group full"><label>Full Name</label><input type="text" id="pdb-name" required></div>
-                    <div class="form-group"><label>TIN Number</label><input type="text" id="pdb-tin"></div>
-                    <div class="form-group"><label>GSIS BP NO.</label><input type="text" id="pdb-gsis"></div>
-                    <div class="form-group"><label>PAG-IBIG MID</label><input type="text" id="pdb-pagibig"></div>
-                    <div class="form-group"><label>PhilHealth NO.</label><input type="text" id="pdb-philhealth"></div>
-                    <div class="form-group"><label>Civil Status</label><input type="text" id="pdb-civil"></div>
-                    <div class="form-group"><label>Contact No.</label><input type="text" id="pdb-phone"></div>
+                    <div class="form-group full"><label for="pdb-name">Full Name</label><input type="text" id="pdb-name" required></div>
+                    <div class="form-group"><label for="pdb-tin">TIN Number</label><input type="text" id="pdb-tin"></div>
+                    <div class="form-group"><label for="pdb-gsis">GSIS BP NO.</label><input type="text" id="pdb-gsis"></div>
+                    <div class="form-group"><label for="pdb-pagibig">PAG-IBIG MID</label><input type="text" id="pdb-pagibig"></div>
+                    <div class="form-group"><label for="pdb-philhealth">PhilHealth NO.</label><input type="text" id="pdb-philhealth"></div>
+                    <div class="form-group"><label for="pdb-civil">Civil Status</label><input type="text" id="pdb-civil"></div>
+                    <div class="form-group"><label for="pdb-phone">Contact No.</label><input type="text" id="pdb-phone"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" id="cancel-pdb-modal-btn">Cancel</button>
@@ -522,14 +517,25 @@ This update introduces:
     </div>
 
     <script>
-        // --- 1. Session Enforcement & Security ---
+        // --- Utility Helper: Escape Raw HTML Input Strings to Prevent XSS Injection ---
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // --- 1. Session Enforcement & Authorization Check ---
         const userRole = activeSession.role || 'teacher';
         const userEmail = activeSession.email || '';
         
-        document.getElementById('display-email').innerText = userEmail.split('@')[0] || 'User';
+        document.getElementById('display-email').innerText = escapeHTML(userEmail.split('@')[0] || 'User');
         document.getElementById('display-role').innerText = userRole === 'admin' ? 'System Administrator' : 'Portal Guest / Teacher';
 
-        // Reveal Admin UI globally if role is admin
+        // Unhide Admin-Only Elements if Active Session has Admin Privileges
         if (userRole === 'admin') {
             document.querySelectorAll('.admin-only').forEach(btn => {
                 btn.style.setProperty('display', 'inline-flex', 'important');
@@ -544,8 +550,7 @@ This update introduces:
         };
 
         function applyThemeSettings() {
-            // Apply Gradient Colors
-            if(portalSettings.color1 && portalSettings.color2) {
+            if (portalSettings.color1 && portalSettings.color2) {
                 document.documentElement.style.setProperty('--theme-gradient', `linear-gradient(135deg, ${portalSettings.color1} 0%, ${portalSettings.color2} 100%)`);
                 document.getElementById('gradient-color-1').value = portalSettings.color1;
                 document.getElementById('gradient-color-2').value = portalSettings.color2;
@@ -553,54 +558,61 @@ This update introduces:
                 document.getElementById('hex-label-2').innerText = portalSettings.color2;
             }
 
-            // Apply Logo to Header and Settings Preview
             const brandIcons = [document.getElementById('header-logo-container'), document.getElementById('logo-preview')];
             brandIcons.forEach(icon => {
-                if(portalSettings.logoUrl) {
-                    icon.innerHTML = `<img src="${portalSettings.logoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">`;
-                } else {
-                    icon.innerHTML = `<i class="fa-solid fa-school"></i>`;
+                if (icon) {
+                    if (portalSettings.logoUrl) {
+                        icon.innerHTML = `<img src="${portalSettings.logoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" alt="School Logo">`;
+                    } else {
+                        icon.innerHTML = `<i class="fa-solid fa-school"></i>`;
+                    }
                 }
             });
         }
-        applyThemeSettings(); // Initialize on load
+        applyThemeSettings();
 
-        // --- 3. Settings Form Listeners ---
-        // Color Picker text updates
+        // --- 3. Settings Form Event Handlers & File Limit Validations ---
         document.getElementById('gradient-color-1').addEventListener('input', e => document.getElementById('hex-label-1').innerText = e.target.value);
         document.getElementById('gradient-color-2').addEventListener('input', e => document.getElementById('hex-label-2').innerText = e.target.value);
 
-        // Logo Upload Reader
         document.getElementById('logo-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if(file) {
+            if (file) {
+                // Strict 1MB Check to Prevent LocalStorage Crashes
+                if (file.size > 1024 * 1024) {
+                    alert("File size exceeds 1MB limit. Please select a smaller image file.");
+                    this.value = "";
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function(evt) {
-                    document.getElementById('logo-preview').innerHTML = `<img src="${evt.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">`;
-                }
+                    document.getElementById('logo-preview').innerHTML = `<img src="${evt.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" alt="Logo Preview">`;
+                };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Save Settings
         document.getElementById('settings-form').addEventListener('submit', function(e) {
             e.preventDefault();
             portalSettings.color1 = document.getElementById('gradient-color-1').value;
             portalSettings.color2 = document.getElementById('gradient-color-2').value;
             
             const previewImg = document.querySelector('#logo-preview img');
-            if(previewImg) {
+            if (previewImg) {
                 portalSettings.logoUrl = previewImg.src;
             }
 
-            localStorage.setItem('mamon_settings', JSON.stringify(portalSettings));
-            applyThemeSettings();
-            alert("Portal branding settings saved successfully.");
+            try {
+                localStorage.setItem('mamon_settings', JSON.stringify(portalSettings));
+                applyThemeSettings();
+                alert("Portal branding settings saved successfully.");
+            } catch (err) {
+                alert("Failed to save settings. Image file size may still be too large for storage.");
+            }
         });
 
-        // Reset Settings
         document.getElementById('reset-settings-btn').addEventListener('click', function() {
-            if(confirm("Are you sure you want to revert to the default branding?")) {
+            if (confirm("Are you sure you want to revert to default branding settings?")) {
                 portalSettings = { logoUrl: null, color1: '#1e3a8a', color2: '#3b82f6' };
                 localStorage.removeItem('mamon_settings');
                 document.getElementById('logo-upload').value = "";
@@ -612,25 +624,23 @@ This update introduces:
         const tabs = ['directory', 'pdb', 'settings'];
         tabs.forEach(tab => {
             const btn = document.getElementById(`tab-${tab}`);
-            if(btn) {
+            if (btn) {
                 btn.addEventListener('click', () => {
-                    // Reset all
                     tabs.forEach(t => {
                         const tBtn = document.getElementById(`tab-${t}`);
                         const tView = document.getElementById(`view-${t}`);
-                        if(tBtn) tBtn.classList.remove('active');
-                        if(tView) tView.classList.remove('active-view');
+                        if (tBtn) tBtn.classList.remove('active');
+                        if (tView) tView.classList.remove('active-view');
                     });
-                    // Activate target
                     btn.classList.add('active');
                     document.getElementById(`view-${tab}`).classList.add('active-view');
-                    if(tab === 'directory') renderDirectory();
-                    if(tab === 'pdb') renderPDB();
+                    if (tab === 'directory') renderDirectory();
+                    if (tab === 'pdb') renderPDB();
                 });
             }
         });
 
-        // --- 5. Database Logic & Tables (Kept Exactly as before) ---
+        // --- 5. Data Store Initialization ---
         let personnelData = JSON.parse(localStorage.getItem('mamon_personnel')) || [
             { id: "ADMIN-001", name: "System Administrator", position: "Principal", department: "Admin", email: "admin.mamon@deped.gov.ph", contact: "09000000000", roleType: "admin" },
             { id: "6459395", name: "Jenny Queen L. Orillaneda", position: "Teacher I", department: "Elementary", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
@@ -649,14 +659,21 @@ This update introduces:
 
         function isOwnRecord(item) {
             return (item.email && item.email.toLowerCase() === userEmail.toLowerCase()) || 
-                   (item.id && item.id === activeSession.empId);
+                   (item.id && activeSession.empId && item.id === activeSession.empId);
         }
 
+        // --- 6. Table Rendering Engines ---
         function renderDirectory() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const tbody = document.getElementById('personnel-table-body');
             
-            tbody.innerHTML = personnelData.filter(p => p.name.toLowerCase().includes(query) || p.email.toLowerCase().includes(query)).map((p, index) => {
+            const filtered = personnelData.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.email.toLowerCase().includes(query) || 
+                p.position.toLowerCase().includes(query)
+            );
+
+            tbody.innerHTML = filtered.map((p, index) => {
                 const ownsRecord = isOwnRecord(p);
                 const roleBadge = p.roleType === 'admin' ? 'badge-admin' : 'badge-teacher';
                 const meBadge = ownsRecord ? `<span class="badge badge-me" style="margin-left: 8px;">YOU</span>` : '';
@@ -665,13 +682,13 @@ This update introduces:
 
                 return `
                     <tr>
-                        <td><strong>${p.id}</strong></td>
-                        <td><div style="font-weight: 600; color: var(--text-main);">${p.name} ${meBadge}</div></td>
-                        <td><div style="font-weight: 500;">${p.position}</div><span class="badge ${roleBadge}" style="margin-top: 4px;">${p.roleType.toUpperCase()}</span></td>
-                        <td>${p.department}</td>
+                        <td><strong>${escapeHTML(p.id)}</strong></td>
+                        <td><div style="font-weight: 600; color: var(--text-main);">${escapeHTML(p.name)} ${meBadge}</div></td>
+                        <td><div style="font-weight: 500;">${escapeHTML(p.position)}</div><span class="badge ${roleBadge}" style="margin-top: 4px;">${escapeHTML(p.roleType).toUpperCase()}</span></td>
+                        <td>${escapeHTML(p.department)}</td>
                         <td>
-                            <div style="font-size: 0.85rem;"><i class="fa-regular fa-envelope" style="color: var(--text-muted); margin-right: 4px;"></i> ${p.email}</div>
-                            <div style="font-size: 0.85rem; margin-top: 4px;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${p.contact}</div>
+                            <div style="font-size: 0.85rem;"><i class="fa-regular fa-envelope" style="color: var(--text-muted); margin-right: 4px;"></i> ${escapeHTML(p.email)}</div>
+                            <div style="font-size: 0.85rem; margin-top: 4px;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${escapeHTML(p.contact)}</div>
                         </td>
                         <td style="text-align: right;">
                             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
@@ -688,7 +705,13 @@ This update introduces:
             const query = document.getElementById('pdb-search-input').value.toLowerCase();
             const tbody = document.getElementById('pdb-table-body');
             
-            tbody.innerHTML = pdbData.filter(p => p.name.toLowerCase().includes(query) || p.tin.includes(query)).map((p, index) => {
+            const filtered = pdbData.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.tin.includes(query) || 
+                p.gsis.includes(query)
+            );
+
+            tbody.innerHTML = filtered.map((p, index) => {
                 const matchingPersonnel = personnelData.find(x => x.name.toLowerCase() === p.name.toLowerCase());
                 const ownsRecord = matchingPersonnel ? isOwnRecord(matchingPersonnel) : false;
                 const canEdit = userRole === 'admin' || ownsRecord;
@@ -696,14 +719,14 @@ This update introduces:
 
                 return `
                     <tr>
-                        <td style="font-weight: 600;">${p.name}</td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.tin || 'N/A'}</code></td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.gsis || 'N/A'}</code></td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.pagibig || 'N/A'}</code></td>
-                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${p.philhealth || 'N/A'}</code></td>
+                        <td style="font-weight: 600;">${escapeHTML(p.name)}</td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.tin || 'N/A')}</code></td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.gsis || 'N/A')}</code></td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.pagibig || 'N/A')}</code></td>
+                        <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size:0.85rem;">${escapeHTML(p.philhealth || 'N/A')}</code></td>
                         <td>
-                            <div style="font-size: 0.85rem;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${p.phone}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Status: ${p.civil}</div>
+                            <div style="font-size: 0.85rem;"><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-right: 4px;"></i> ${escapeHTML(p.phone)}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Status: ${escapeHTML(p.civil)}</div>
                         </td>
                         <td style="text-align: right;">
                             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
@@ -716,35 +739,73 @@ This update introduces:
             }).join('');
         }
 
-        // --- Event Listeners for Forms & Searching ---
+        // --- 7. Search Input Realtime Listeners ---
         document.getElementById('search-input').addEventListener('input', renderDirectory);
         document.getElementById('pdb-search-input').addEventListener('input', renderPDB);
 
+        // Signout Handler
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.removeItem('mamon_user_session');
             window.location.href = 'login.html';
         });
 
-        // Exposing Edit/Delete Globally
+        // --- 8. Data Export CSV Generators ---
+        function exportToCSV(filename, rows) {
+            const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.getElementById('export-btn')?.addEventListener('click', () => {
+            const headers = ["Employee ID", "Full Name", "Position", "Department", "Email", "Contact Number", "Role Type"];
+            const dataRows = personnelData.map(p => [p.id, p.name, p.position, p.department, p.email, p.contact, p.roleType]);
+            exportToCSV("personnel_directory.csv", [headers, ...dataRows]);
+        });
+
+        document.getElementById('pdb-export-btn')?.addEventListener('click', () => {
+            const headers = ["Full Name", "TIN Number", "GSIS BP NO", "PAG-IBIG MID", "PhilHealth NO", "Civil Status", "Contact Number"];
+            const dataRows = pdbData.map(p => [p.name, p.tin, p.gsis, p.pagibig, p.philhealth, p.civil, p.phone]);
+            exportToCSV("personal_database_records.csv", [headers, ...dataRows]);
+        });
+
+        // --- 9. Window Global Modal Control Functions ---
         window.openEdit = function(index) {
             const p = personnelData[index];
             document.getElementById('edit-index').value = index;
             document.getElementById('modal-title').innerText = "Edit Personnel Profile";
-            ['id','name','position','dept','email','contact'].forEach((field, i) => {
-                document.getElementById(`emp-${field}`).value = p[['id','name','position','department','email','contact'][i]];
-            });
+            
+            document.getElementById('emp-id').value = p.id;
+            document.getElementById('emp-name').value = p.name;
+            document.getElementById('emp-position').value = p.position;
+            document.getElementById('emp-dept').value = p.department;
+            document.getElementById('emp-email').value = p.email;
+            document.getElementById('emp-contact').value = p.contact;
             document.getElementById('role-type').value = p.roleType;
             
             const isAdmin = userRole === 'admin';
             document.getElementById('emp-id').readOnly = !isAdmin;
-            document.getElementById('role-type').disabled = !isAdmin;
+            
+            // Toggle Visual Readonly State without dropping select values from form submission payload
+            const roleSelect = document.getElementById('role-type');
+            if (!isAdmin) {
+                roleSelect.classList.add('read-only-select');
+            } else {
+                roleSelect.classList.remove('read-only-select');
+            }
             
             document.getElementById('personnel-modal').classList.add('active');
         };
 
         window.deleteRecord = function(index) {
-            if(confirm("Are you sure you want to completely remove this personnel record?")) {
-                personnelData.splice(index, 1); saveData(); renderDirectory();
+            if (confirm("Are you sure you want to completely remove this personnel record?")) {
+                personnelData.splice(index, 1);
+                saveData();
+                renderDirectory();
             }
         };
 
@@ -752,58 +813,81 @@ This update introduces:
             const p = pdbData[index];
             document.getElementById('pdb-edit-index').value = index;
             document.getElementById('pdb-modal-title').innerText = "Edit Secure ID Records";
+            
             ['name','tin','gsis','pagibig','philhealth','civil','phone'].forEach(field => {
-                document.getElementById(`pdb-${field}`).value = p[field];
+                document.getElementById(`pdb-${field}`).value = p[field] || '';
             });
+            
             document.getElementById('pdb-name').readOnly = (userRole !== 'admin');
             document.getElementById('pdb-modal').classList.add('active');
         };
 
         window.deletePdb = function(index) {
-            if(confirm("Delete these secure ID records permanently?")) {
-                pdbData.splice(index, 1); saveData(); renderPDB();
+            if (confirm("Delete these secure ID records permanently?")) {
+                pdbData.splice(index, 1);
+                saveData();
+                renderPDB();
             }
         };
 
-        // Modal Submissions
+        // --- 10. Form Submissions Handlers ---
         document.getElementById('personnel-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const idx = document.getElementById('edit-index').value;
+            const idx = parseInt(document.getElementById('edit-index').value, 10);
             const record = {
-                id: document.getElementById('emp-id').value, name: document.getElementById('emp-name').value,
-                position: document.getElementById('emp-position').value, department: document.getElementById('emp-dept').value,
-                email: document.getElementById('emp-email').value, contact: document.getElementById('emp-contact').value,
+                id: document.getElementById('emp-id').value,
+                name: document.getElementById('emp-name').value,
+                position: document.getElementById('emp-position').value,
+                department: document.getElementById('emp-dept').value,
+                email: document.getElementById('emp-email').value,
+                contact: document.getElementById('emp-contact').value,
                 roleType: document.getElementById('role-type').value
             };
-            if(idx > -1) personnelData[idx] = record; else personnelData.unshift(record);
-            saveData(); renderDirectory(); document.getElementById('personnel-modal').classList.remove('active');
+            
+            if (idx > -1) {
+                personnelData[idx] = record;
+            } else {
+                personnelData.unshift(record);
+            }
+            saveData();
+            renderDirectory();
+            document.getElementById('personnel-modal').classList.remove('active');
         });
 
         document.getElementById('pdb-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const idx = document.getElementById('pdb-edit-index').value;
+            const idx = parseInt(document.getElementById('pdb-edit-index').value, 10);
             const record = {};
             ['name','tin','gsis','pagibig','philhealth','civil','phone'].forEach(field => {
                 record[field] = document.getElementById(`pdb-${field}`).value;
             });
-            if(idx > -1) pdbData[idx] = record; else pdbData.unshift(record);
-            saveData(); renderPDB(); document.getElementById('pdb-modal').classList.remove('active');
+            
+            if (idx > -1) {
+                pdbData[idx] = record;
+            } else {
+                pdbData.unshift(record);
+            }
+            saveData();
+            renderPDB();
+            document.getElementById('pdb-modal').classList.remove('active');
         });
 
-        // Open Add Modals (Only applicable to Admins)
-        if(document.getElementById('open-add-modal-btn')) {
-            document.getElementById('open-add-modal-btn').addEventListener('click', () => {
+        // Open Add Record Modals
+        const openAddBtn = document.getElementById('open-add-modal-btn');
+        if (openAddBtn) {
+            openAddBtn.addEventListener('click', () => {
                 document.getElementById('personnel-form').reset();
                 document.getElementById('edit-index').value = -1;
                 document.getElementById('modal-title').innerText = "Add New Personnel";
                 document.getElementById('emp-id').readOnly = false;
-                document.getElementById('role-type').disabled = false;
+                document.getElementById('role-type').classList.remove('read-only-select');
                 document.getElementById('personnel-modal').classList.add('active');
             });
         }
         
-        if(document.getElementById('open-pdb-modal-btn')) {
-            document.getElementById('open-pdb-modal-btn').addEventListener('click', () => {
+        const openPdbAddBtn = document.getElementById('open-pdb-modal-btn');
+        if (openPdbAddBtn) {
+            openPdbAddBtn.addEventListener('click', () => {
                 document.getElementById('pdb-form').reset();
                 document.getElementById('pdb-edit-index').value = -1;
                 document.getElementById('pdb-modal-title').innerText = "Add Secure ID Record";
@@ -812,7 +896,7 @@ This update introduces:
             });
         }
 
-        // Close Modals
+        // Close Modal Controls
         document.querySelectorAll('#close-modal-btn, #cancel-modal-btn').forEach(b => 
             b.addEventListener('click', () => document.getElementById('personnel-modal').classList.remove('active'))
         );
@@ -820,10 +904,18 @@ This update introduces:
             b.addEventListener('click', () => document.getElementById('pdb-modal').classList.remove('active'))
         );
 
-        // Initial Table Render
+        // Escape Key Global Listener for Accessibility
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+
+        // Initialize First View Render
         renderDirectory();
     </script>
 </body>
 </html>
 
-```
