@@ -2,319 +2,418 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Required for responsive display on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAM-ON ES INVENTORY PORTAL</title>
-  <!-- Tailwind CSS & FontAwesome Icons -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>MAM-ON ES INVENTORY - Admin</title>
+
+  <!-- Google Fonts & FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- PapaParse for Google Sheets Live CSV Parsing -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #4f46e5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      overscroll-behavior-y: none;
+    }
+
+    button, a, input, select {
+      touch-action: manipulation;
+      font-family: inherit;
+    }
+
+    /* Layout Structure */
+    .app-header {
+      background-color: #1e40af;
+      color: white;
+      padding: max(1rem, env(safe-area-inset-top)) 1.5rem 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e40af;
+      font-weight: bold;
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-admin {
+      background: #22c55e;
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-light {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .btn-light:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-white {
+      background: white;
+      color: #1e40af;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* Dashboard Metric Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .card-header-icon {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .card-danger .card-value {
+      color: #ef4444;
+    }
+
+    /* Secondary Cards */
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Tabs Container */
+    .tabs-bar {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn.active {
+      background: #1e40af;
+      color: white;
+    }
+
+    /* Filter & Search Bar */
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #1e40af;
+    }
+
+    .select-input {
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    /* Table Container */
+    .table-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background: #f8fafc;
+      padding: 0.85rem 1rem;
+      color: #64748b;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #94a3b8;
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* Icon Transparency & Hover Transitions */
+    .icon-container, i, svg {
+      opacity: 0.75;
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    .icon-container:hover, i:hover, svg:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    /* Frosted Glass Icon Badge */
+    .icon-badge {
+      background: rgba(255, 255, 255, 0.2);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 8px;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col antialiased">
+<body>
 
-  <!-- Header -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-inner">
-          <i class="fa-solid fa-boxes-stacked text-xl text-white"></i>
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
+      <div>
+        <div class="brand-title">
+          MAM-ON ES INVENTORY 
+          <span class="badge-admin">Admin</span>
         </div>
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-white">MAM-ON ES INVENTORY PORTAL</h1>
-          <p class="text-xs text-slate-400">School ID: 132649 | Live Google Sheet Dashboard</p>
-        </div>
-      </div>
-      
-      <div class="flex items-center gap-3">
-        <!-- Live Sync Status Badge -->
-        <div id="syncStatus" class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full text-xs text-slate-300 border border-slate-700">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span id="syncText" class="font-medium">Syncing...</span>
-        </div>
-
-        <!-- Refresh Button -->
-        <button onclick="fetchGoogleSheetData()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
-          <i class="fa-solid fa-arrows-rotate text-xs" id="syncSpinner"></i>
-          <span>Refresh</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content Area -->
-  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1 space-y-6">
-
-    <!-- KPI Summary Metrics Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <!-- Card 1: Total Items -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Articles</p>
-          <h3 id="statTotalItems" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
-          <i class="fa-solid fa-list-check"></i>
-        </div>
-      </div>
-
-      <!-- Card 2: Total Units -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Units (Qty)</p>
-          <h3 id="statTotalQty" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
-          <i class="fa-solid fa-cubes"></i>
-        </div>
-      </div>
-
-      <!-- Card 3: Good Condition -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Good Condition</p>
-          <h3 id="statGood" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-      </div>
-
-      <!-- Card 4: Needs Attention -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Needs Attention</p>
-          <h3 id="statAttention" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-lg">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
+        <div class="brand-subtitle">DepEd QR System</div>
       </div>
     </div>
     
-    <!-- Controls & Filters Bar -->
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-      <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
-        
-        <!-- Search Input -->
-        <div class="relative w-full md:w-1/2">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-          <input type="text" id="searchInput" onkeyup="filterItems()" 
-                 placeholder="Search item name, location, custodian, or code..." 
-                 class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm transition">
-        </div>
-        
-        <!-- Status & Category Filters -->
-        <div class="flex gap-2 w-full md:w-auto">
-          <!-- Category Filter -->
-          <select id="categoryFilter" onchange="filterItems()" class="w-1/2 md:w-48 p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-            <option value="ALL">All Categories</option>
-          </select>
+    <div class="header-actions">
+      <button class="btn btn-light"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      <button class="btn btn-light"><i class="fa-solid fa-gear"></i></button>
+      <button class="btn btn-light"><i class="fa-solid fa-file-import"></i></button>
+      <button class="btn btn-light"><i class="fa-solid fa-file-export"></i></button>
+      <button class="btn btn-white"><i class="fa-solid fa-camera"></i> Scan</button>
+      <button class="btn btn-white"><i class="fa-solid fa-plus"></i> Add</button>
+    </div>
+  </header>
 
-          <!-- Status Filter -->
-          <select id="statusFilter" onchange="filterItems()" class="w-1/2 md:w-44 p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-            <option value="ALL">All Conditions</option>
-            <option value="Good">Good / Serviceable</option>
-            <option value="Needs Repair">Needs Repair</option>
-            <option value="Unserviceable">Unserviceable</option>
-          </select>
-        </div>
-
+  <!-- Main Content Dashboard -->
+  <main class="container">
+    
+    <!-- Top Metric Cards -->
+    <div class="metrics-grid">
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-boxes-stacked"></i> Total Assets</div>
+        <div class="card-value">0</div>
+      </div>
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-couch"></i> Properties</div>
+        <div class="card-value">0</div>
+      </div>
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-book"></i> Books</div>
+        <div class="card-value">0</div>
+      </div>
+      <div class="card card-danger">
+        <div class="card-header-icon"><i class="fa-solid fa-triangle-exclamation"></i> Attention</div>
+        <div class="card-value">0</div>
       </div>
     </div>
 
-    <!-- Data Table Container -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-600 text-xs font-bold tracking-wider uppercase">
-              <th class="py-3 px-4">Article / Item Details</th>
-              <th class="py-3 px-4">Category</th>
-              <th class="py-3 px-4 text-center">Qty</th>
-              <th class="py-3 px-4">Location</th>
-              <th class="py-3 px-4">Person Responsible</th>
-              <th class="py-3 px-4 text-center">Status</th>
-            </tr>
-          </thead>
-          <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
-            <!-- Dynamic rows injected here -->
-          </tbody>
-        </table>
+    <!-- Category Sections -->
+    <div class="secondary-grid">
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-chart-pie"></i> Categories</div>
       </div>
+      <div class="card">
+        <div class="card-header-icon"><i class="fa-solid fa-user-check"></i> Assigned</div>
+      </div>
+    </div>
+
+    <!-- Tabs Selection -->
+    <div class="tabs-bar">
+      <button class="tab-btn active"><i class="fa-solid fa-couch"></i> Properties</button>
+      <button class="tab-btn"><i class="fa-solid fa-book"></i> Books</button>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="filter-bar">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" class="search-input" placeholder="Search item, room, ID or teacher...">
+      </div>
+      <select class="select-input">
+        <option>(All Conditions)</option>
+        <option>Good</option>
+        <option>Needs Repair</option>
+        <option>Unserviceable</option>
+      </select>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ITEM DETAILS</th>
+            <th>CATEGORY & QTY</th>
+            <th>LOCATION</th>
+            <th>ASSIGNED TO</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>No records found.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
   </main>
 
-  <script>
-    // Live Published CSV URL from your Google Sheet
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWsbypcVljQu73WOcMllaBebHDNgvo2SB0fLM2d6wobh7d9CM_rYiUQMUJFC40bQ/pub?output=csv";
-
-    let liveDatabase = [];
-
-    // Fetch and parse live Google Sheet CSV
-    function fetchGoogleSheetData() {
-      const syncText = document.getElementById('syncText');
-      const syncSpinner = document.getElementById('syncSpinner');
-
-      syncText.innerText = "Syncing...";
-      syncSpinner.classList.add('animate-spin');
-
-      Papa.parse(GOOGLE_SHEET_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          liveDatabase = results.data
-            .filter(row => row['Article/Item'] || row['Item Name'] || row['Article'] || row['Description'])
-            .map((row, idx) => ({
-              id: idx + 1,
-              name: row['Article/Item'] || row['Item Name'] || row['Article'] || row['Description'] || 'Unnamed Item',
-              category: row['Category'] || row['Instruction'] || 'General Property',
-              qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || row['Quantity per Property Card'] || 1, 10) || 1,
-              value: row['Unit Value'] ? `₱${row['Unit Value']}` : '',
-              location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
-              assigned: row['Assigned To'] || row['Person Responsible'] || row['Custodian'] || 'School Admin',
-              status: row['Status'] || row['Condition'] || 'Good'
-            }));
-
-          syncText.innerText = "Live Sync Active";
-          syncSpinner.classList.remove('animate-spin');
-          
-          populateCategories();
-          updateMetrics(liveDatabase);
-          filterItems();
-        },
-        error: function(err) {
-          syncText.innerText = "Sync Error";
-          syncSpinner.classList.remove('animate-spin');
-          console.error("Sheet Sync Failed: ", err);
-        }
-      });
-    }
-
-    // Dynamic Category Dropdown
-    function populateCategories() {
-      const catSelect = document.getElementById('categoryFilter');
-      const categories = [...new Set(liveDatabase.map(i => i.category))].filter(Boolean);
-      
-      catSelect.innerHTML = `<option value="ALL">All Categories (${categories.length})</option>`;
-      categories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        option.textContent = cat;
-        catSelect.appendChild(option);
-      });
-    }
-
-    // Update KPI Header Metrics
-    function updateMetrics(items) {
-      const totalArticles = items.length;
-      const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
-      const goodCount = items.filter(i => i.status.toLowerCase().includes('good') || i.status.toLowerCase().includes('serviceable')).length;
-      const attentionCount = totalArticles - goodCount;
-
-      document.getElementById('statTotalItems').innerText = totalArticles.toLocaleString();
-      document.getElementById('statTotalQty').innerText = totalQty.toLocaleString();
-      document.getElementById('statGood').innerText = goodCount.toLocaleString();
-      document.getElementById('statAttention').innerText = attentionCount.toLocaleString();
-    }
-
-    // Render Table Rows cleanly
-    function renderTable(items) {
-      const tbody = document.getElementById('inventoryTableBody');
-      tbody.innerHTML = '';
-
-      if (!items || items.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-12 text-center text-slate-400">
-              <i class="fa-regular fa-folder-open text-4xl mb-3 block"></i>
-              <p class="font-medium">No matching inventory items found.</p>
-            </td>
-          </tr>`;
-        return;
-      }
-
-      items.forEach(item => {
-        let statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
-        let statusDot = "bg-emerald-500";
-
-        const statusLower = item.status ? item.status.toLowerCase() : '';
-        if (statusLower.includes('repair')) {
-          statusBadge = "bg-amber-50 text-amber-700 border-amber-200";
-          statusDot = "bg-amber-500";
-        } else if (statusLower.includes('unserviceable')) {
-          statusBadge = "bg-rose-50 text-rose-700 border-rose-200";
-          statusDot = "bg-rose-500";
-        }
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/80 transition-colors";
-        tr.innerHTML = `
-          <td class="py-3 px-4">
-            <div class="font-semibold text-slate-800">${item.name}</div>
-            ${item.value ? `<div class="text-xs text-slate-400 mt-0.5">Unit Value: ${item.value}</div>` : ''}
-          </td>
-          <td class="py-3 px-4">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-              ${item.category}
-            </span>
-          </td>
-          <td class="py-3 px-4 text-center font-bold text-slate-700">${item.qty}</td>
-          <td class="py-3 px-4 text-slate-600">
-            <div class="flex items-center gap-1.5">
-              <i class="fa-solid fa-location-dot text-slate-400 text-xs"></i>
-              <span>${item.location}</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-slate-600">
-            <div class="flex items-center gap-1.5">
-              <i class="fa-regular fa-user text-slate-400 text-xs"></i>
-              <span>${item.assigned}</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold border rounded-full ${statusBadge}">
-              <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>
-              ${item.status}
-            </span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Filter Logic
-    function filterItems() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const statusFilter = document.getElementById('statusFilter').value;
-      const categoryFilter = document.getElementById('categoryFilter').value;
-
-      const filtered = liveDatabase.filter(item => {
-        const matchesSearch = 
-          item.name.toLowerCase().includes(search) ||
-          item.location.toLowerCase().includes(search) ||
-          item.assigned.toLowerCase().includes(search) ||
-          item.category.toLowerCase().includes(search);
-
-        const matchesStatus = statusFilter === "ALL" || item.status.toLowerCase().includes(statusFilter.toLowerCase());
-        const matchesCategory = categoryFilter === "ALL" || item.category === categoryFilter;
-
-        return matchesSearch && matchesStatus && matchesCategory;
-      });
-
-      renderTable(filtered);
-    }
-
-    // Initialize Page & Auto Sync every 60 seconds
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchGoogleSheetData();
-      setInterval(fetchGoogleSheetData, 60000);
-    });
-  </script>
 </body>
 </html>
-"Upgrade dashboard UI with summary cards and auto-categories"
