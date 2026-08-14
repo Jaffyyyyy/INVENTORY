@@ -2,418 +2,297 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Required for responsive display on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAM-ON ES INVENTORY - Admin</title>
-
-  <!-- Google Fonts & FontAwesome Icons CDN -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <title>MAM-ON ES INVENTORY PORTAL</title>
+  <!-- Tailwind CSS & FontAwesome Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <style>
-    :root {
-      --theme-color: #4f46e5;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-    }
-
-    html, body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #f1f5f9;
-      color: #1e293b;
-      min-height: 100vh;
-      overscroll-behavior-y: none;
-    }
-
-    button, a, input, select {
-      touch-action: manipulation;
-      font-family: inherit;
-    }
-
-    /* Layout Structure */
-    .app-header {
-      background-color: #1e40af;
-      color: white;
-      padding: max(1rem, env(safe-area-inset-top)) 1.5rem 1rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .brand-logo {
-      width: 40px;
-      height: 40px;
-      background: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #1e40af;
-      font-weight: bold;
-    }
-
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .badge-admin {
-      background: #22c55e;
-      color: white;
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .brand-subtitle {
-      font-size: 0.75rem;
-      opacity: 0.8;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 0.85rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .btn-light {
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-    }
-
-    .btn-light:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
-
-    .btn-white {
-      background: white;
-      color: #1e40af;
-      font-weight: 600;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1.5rem 1rem;
-    }
-
-    /* Dashboard Metric Cards Grid */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 12px;
-      padding: 1.25rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .card-header-icon {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-    }
-
-    .card-value {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    .card-danger .card-value {
-      color: #ef4444;
-    }
-
-    /* Secondary Cards */
-    .secondary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Tabs Container */
-    .tabs-bar {
-      display: flex;
-      background: #e2e8f0;
-      padding: 4px;
-      border-radius: 10px;
-      margin-bottom: 1rem;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 0.6rem 1rem;
-      border: none;
-      background: transparent;
-      border-radius: 8px;
-      font-weight: 600;
-      color: #64748b;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .tab-btn.active {
-      background: #1e40af;
-      color: white;
-    }
-
-    /* Filter & Search Bar */
-    .filter-bar {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .search-wrapper {
-      position: relative;
-      flex: 1;
-      min-width: 250px;
-    }
-
-    .search-wrapper i {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 0.6rem 0.75rem 0.6rem 2.25rem;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      font-size: 0.875rem;
-      outline: none;
-    }
-
-    .search-input:focus {
-      border-color: #1e40af;
-    }
-
-    .select-input {
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      background: white;
-      font-size: 0.875rem;
-      outline: none;
-    }
-
-    /* Table Container */
-    .table-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      overflow-x: auto;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.875rem;
-    }
-
-    th {
-      background: #f8fafc;
-      padding: 0.85rem 1rem;
-      color: #64748b;
-      font-weight: 700;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    td {
-      padding: 1rem;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #94a3b8;
-    }
-
-    .empty-state i {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-
-    /* Icon Transparency & Hover Transitions */
-    .icon-container, i, svg {
-      opacity: 0.75;
-      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-    }
-
-    .icon-container:hover, i:hover, svg:hover {
-      opacity: 1;
-      transform: translateY(-1px);
-    }
-
-    /* Frosted Glass Icon Badge */
-    .icon-badge {
-      background: rgba(255, 255, 255, 0.2);
-      -webkit-backdrop-filter: blur(8px);
-      backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 8px;
-    }
-  </style>
+  <!-- PapaParse for CSV Support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Bar -->
-  <header class="app-header">
-    <div class="brand-section">
-      <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
-      <div>
-        <div class="brand-title">
-          MAM-ON ES INVENTORY 
-          <span class="badge-admin">Admin</span>
+  <!-- Header -->
+  <header class="bg-blue-900 text-white p-4 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-boxes-stacked text-2xl text-blue-300"></i>
+        <div>
+          <h1 class="text-xl font-bold tracking-wide">MAM-ON ES INVENTORY PORTAL</h1>
+          <p class="text-xs text-blue-200">School ID: 132649 | Inventory Count Form 2026</p>
         </div>
-        <div class="brand-subtitle">DepEd QR System</div>
       </div>
-    </div>
-    
-    <div class="header-actions">
-      <button class="btn btn-light"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-      <button class="btn btn-light"><i class="fa-solid fa-gear"></i></button>
-      <button class="btn btn-light"><i class="fa-solid fa-file-import"></i></button>
-      <button class="btn btn-light"><i class="fa-solid fa-file-export"></i></button>
-      <button class="btn btn-white"><i class="fa-solid fa-camera"></i> Scan</button>
-      <button class="btn btn-white"><i class="fa-solid fa-plus"></i> Add</button>
+      
+      <div class="flex items-center gap-2">
+        <!-- Import CSV Button -->
+        <label for="csvFileInput" class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-file-import"></i> Import CSV
+        </label>
+        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importCSV(event)" />
+
+        <!-- Add Item Button -->
+        <button onclick="toggleModal(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Add Item
+        </button>
+
+        <!-- Reset Portal -->
+        <button onclick="clearData()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded text-xs font-semibold shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Main Content Dashboard -->
-  <main class="container">
+  <!-- Main Content -->
+  <main class="max-w-7xl w-full mx-auto my-6 p-4 flex-1">
     
-    <!-- Top Metric Cards -->
-    <div class="metrics-grid">
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-boxes-stacked"></i> Total Assets</div>
-        <div class="card-value">0</div>
+    <!-- Filter Bar -->
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <!-- Search Input -->
+      <div class="relative w-full md:w-1/2">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input type="text" id="searchInput" onkeyup="filterItems()" 
+               placeholder="Search item, room, ID or teacher..." 
+               class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
       </div>
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-couch"></i> Properties</div>
-        <div class="card-value">0</div>
+      
+      <!-- Status Filter -->
+      <div class="w-full md:w-1/4">
+        <select id="statusFilter" onchange="filterItems()" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
+          <option value="ALL">(All conditions)</option>
+          <option value="Good">Good</option>
+          <option value="Needs Repair">Needs Repair</option>
+          <option value="Unserviceable">Unserviceable</option>
+        </select>
       </div>
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-book"></i> Books</div>
-        <div class="card-value">0</div>
-      </div>
-      <div class="card card-danger">
-        <div class="card-header-icon"><i class="fa-solid fa-triangle-exclamation"></i> Attention</div>
-        <div class="card-value">0</div>
-      </div>
-    </div>
-
-    <!-- Category Sections -->
-    <div class="secondary-grid">
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-chart-pie"></i> Categories</div>
-      </div>
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-user-check"></i> Assigned</div>
-      </div>
-    </div>
-
-    <!-- Tabs Selection -->
-    <div class="tabs-bar">
-      <button class="tab-btn active"><i class="fa-solid fa-couch"></i> Properties</button>
-      <button class="tab-btn"><i class="fa-solid fa-book"></i> Books</button>
-    </div>
-
-    <!-- Search & Filters -->
-    <div class="filter-bar">
-      <div class="search-wrapper">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" class="search-input" placeholder="Search item, room, ID or teacher...">
-      </div>
-      <select class="select-input">
-        <option>(All Conditions)</option>
-        <option>Good</option>
-        <option>Needs Repair</option>
-        <option>Unserviceable</option>
-      </select>
     </div>
 
     <!-- Data Table -->
-    <div class="table-container">
-      <table>
-        <thead>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="bg-gray-800 text-white text-xs uppercase tracking-wider">
           <tr>
-            <th>ITEM DETAILS</th>
-            <th>CATEGORY & QTY</th>
-            <th>LOCATION</th>
-            <th>ASSIGNED TO</th>
-            <th>STATUS</th>
-            <th>ACTION</th>
+            <th class="p-3">ITEM DETAILS</th>
+            <th class="p-3">CATEGORY & QTY</th>
+            <th class="p-3">LOCATION</th>
+            <th class="p-3">ASSIGNED TO</th>
+            <th class="p-3">STATUS</th>
+            <th class="p-3 text-center">ACTION</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td colspan="6">
-              <div class="empty-state">
-                <i class="fa-regular fa-folder-open"></i>
-                <p>No records found.</p>
-              </div>
-            </td>
-          </tr>
+        <tbody id="inventoryTableBody" class="divide-y divide-gray-200">
+          <!-- Rows render here dynamically -->
         </tbody>
       </table>
     </div>
 
   </main>
 
+  <!-- Add Item Modal -->
+  <div id="itemModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="text-lg font-bold text-gray-800">Add New Inventory Item</h3>
+        <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <form id="addForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name</label>
+          <input type="text" id="itemName" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
+            <input type="text" id="itemCat" placeholder="e.g. ICT, Office" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
+            <input type="number" id="itemQty" value="1" min="1" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Location / Room</label>
+          <input type="text" id="itemLoc" placeholder="e.g. Computer Room" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Assigned To</label>
+          <input type="text" id="itemAssign" placeholder="e.g. School Property Custodian" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+          <select id="itemStatus" class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+            <option value="Good">Good</option>
+            <option value="Needs Repair">Needs Repair</option>
+            <option value="Unserviceable">Unserviceable</option>
+          </select>
+        </div>
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="toggleModal(false)" class="px-4 py-2 border rounded text-xs text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Initial sample dataset
+    const initialDatabase = [
+      { id: 1, name: "Desktop Package (COBY)", category: "ICT Equipment", qty: 1, location: "Computer Room", assigned: "Property Custodian", status: "Good" },
+      { id: 2, name: "Interactive Projector (PIXPRO)", category: "ICT Equipment", qty: 1, location: "Computer Room", assigned: "Grade 1 Teacher", status: "Unserviceable" },
+      { id: 3, name: "Epson Printer L3210 3-in-1", category: "ICT Equipment", qty: 1, location: "Computer Room", assigned: "Office Clerk", status: "Good" },
+      { id: 4, name: "DEVANT 55\" Smart UHD TV", category: "ICT Equipment", qty: 1, location: "Grade 2 Classroom", assigned: "Grade 2 Adviser", status: "Good" },
+      { id: 5, name: "Stand Fan", category: "Office Equipment", qty: 2, location: "Kindergarten Room", assigned: "Kinder Adviser", status: "Needs Repair" }
+    ];
+
+    // Local Storage helpers
+    function getStoredData() {
+      const stored = localStorage.getItem('mamon_inventory_portal');
+      return stored ? JSON.parse(stored) : initialDatabase;
+    }
+
+    function setStoredData(data) {
+      localStorage.setItem('mamon_inventory_portal', JSON.stringify(data));
+      filterItems();
+    }
+
+    // Render Table Rows
+    function renderTable(items) {
+      const tbody = document.getElementById('inventoryTableBody');
+      tbody.innerHTML = '';
+
+      if (!items || items.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-8 text-center text-gray-400">
+              <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
+              <p>No records found.</p>
+            </td>
+          </tr>`;
+        return;
+      }
+
+      items.forEach(item => {
+        let statusBadge = "bg-emerald-100 text-emerald-800 border-emerald-300";
+        if (item.status === "Needs Repair") statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
+        if (item.status === "Unserviceable") statusBadge = "bg-rose-100 text-rose-800 border-rose-300";
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-gray-50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-gray-800">${item.name}</td>
+          <td class="p-3 text-gray-600">
+            <span class="block text-xs text-gray-500">${item.category}</span>
+            <span class="font-medium">Qty: ${item.qty}</span>
+          </td>
+          <td class="p-3 text-gray-600">${item.location}</td>
+          <td class="p-3 text-gray-600">${item.assigned}</td>
+          <td class="p-3">
+            <span class="px-2.5 py-1 text-xs font-semibold border rounded-full ${statusBadge}">
+              ${item.status}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="deleteItem(${item.id})" class="text-rose-500 hover:text-rose-700 p-1 rounded" title="Delete">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Filter Logic
+    function filterItems() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const data = getStoredData();
+
+      const filtered = data.filter(item => {
+        const matchesSearch = 
+          item.name.toLowerCase().includes(search) ||
+          item.location.toLowerCase().includes(search) ||
+          item.assigned.toLowerCase().includes(search) ||
+          item.category.toLowerCase().includes(search);
+
+        const matchesStatus = statusFilter === "ALL" || item.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      renderTable(filtered);
+    }
+
+    // Add New Item
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const data = getStoredData();
+      const newItem = {
+        id: Date.now(),
+        name: document.getElementById('itemName').value,
+        category: document.getElementById('itemCat').value,
+        qty: parseInt(document.getElementById('itemQty').value, 10),
+        location: document.getElementById('itemLoc').value,
+        assigned: document.getElementById('itemAssign').value,
+        status: document.getElementById('itemStatus').value
+      };
+
+      data.unshift(newItem);
+      setStoredData(data);
+      toggleModal(false);
+      document.getElementById('addForm').reset();
+    }
+
+    // Delete Item
+    function deleteItem(id) {
+      if (confirm('Are you sure you want to delete this entry?')) {
+        const data = getStoredData().filter(item => item.id !== id);
+        setStoredData(data);
+      }
+    }
+
+    // Modal Control
+    function toggleModal(show) {
+      const modal = document.getElementById('itemModal');
+      modal.style.display = show ? 'flex' : 'none';
+    }
+
+    // CSV Import Logic
+    function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          const parsedData = results.data.map((row, idx) => ({
+            id: Date.now() + idx,
+            name: row['Article/Item'] || row['Item Name'] || row['Article'] || 'Unnamed Item',
+            category: row['Category'] || row['Instruction'] || 'General Property',
+            qty: parseInt(row['Qty'] || row['Quantity per Physical Count'] || 1, 10),
+            location: row['Location'] || row['Location/ Whereabouts'] || 'Mam-on ES',
+            assigned: row['Assigned To'] || row['Person Responsible'] || 'School Admin',
+            status: row['Status'] || row['Condition'] || 'Good'
+          }));
+
+          setStoredData(parsedData);
+          alert('CSV inventory data imported successfully!');
+        }
+      });
+    }
+
+    // Reset Data
+    function clearData() {
+      if (confirm("Reset inventory data back to original defaults?")) {
+        localStorage.removeItem('mamon_inventory_portal');
+        filterItems();
+      }
+    }
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      filterItems();
+    });
+  </script>
 </body>
 </html>
