@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asset Management Dashboard</title>
+  <title>MAM-ON ES INVENTORY</title>
   <style>
     :root {
       --primary: #1e40af;
       --primary-dark: #1e3a8a;
-      --accent: #3b82f6;
       --bg-light: #f8fafc;
       --card-bg: #ffffff;
       --text-main: #0f172a;
       --text-muted: #64748b;
+      --danger: #e11d48;
     }
 
     * {
@@ -30,7 +30,7 @@
       min-height: 100vh;
     }
 
-    /* HEADER STYLING */
+    /* HEADER */
     header {
       background: linear-gradient(135deg, var(--primary-dark), var(--primary));
       color: #ffffff;
@@ -48,16 +48,12 @@
       gap: 1rem;
     }
 
-    /* Highlighted Brand Name */
     .brand-title {
       font-size: 2.25rem;
       font-weight: 800;
       letter-spacing: 1px;
-      background: linear-gradient(90deg, #ffffff, #93c5fd);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       text-transform: uppercase;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      color: #ffffff;
     }
 
     .header-metadata {
@@ -70,67 +66,24 @@
       backdrop-filter: blur(4px);
     }
 
-    /* MAIN CONTAINER */
+    /* MAIN CONTENT */
     main {
       max-width: 1200px;
-      margin: 2rem auto;
+      margin: 3rem auto;
       padding: 0 1.5rem;
       flex: 1;
       width: 100%;
     }
 
-    /* ADMIN EDIT PANEL */
-    .admin-panel {
-      background-color: var(--card-bg);
-      border: 1px solid #e2e8f0;
-      border-left: 5px solid var(--accent);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-
-    .admin-panel h3 {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-    }
-
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-    }
-
-    .admin-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .admin-group label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .admin-group input {
-      padding: 0.5rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-
-    /* DASHBOARD CARDS */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1.5rem;
     }
 
     .stat-card {
       background: var(--card-bg);
-      padding: 1.5rem;
+      padding: 1.75rem;
       border-radius: 10px;
       border: 1px solid #e2e8f0;
       box-shadow: 0 2px 4px rgba(0,0,0,0.04);
@@ -144,18 +97,22 @@
     }
 
     .stat-card .value {
-      font-size: 2.2rem;
+      font-size: 2.5rem;
       font-weight: 700;
       color: var(--primary);
       margin-top: 0.5rem;
     }
 
-    /* FOOTER STYLING */
+    .stat-card.danger .value {
+      color: var(--danger);
+    }
+
+    /* FOOTER */
     footer {
       background-color: #0f172a;
       color: #94a3b8;
       padding: 2rem 1.5rem;
-      margin-top: 3rem;
+      margin-top: auto;
     }
 
     .footer-container {
@@ -184,41 +141,16 @@
   <!-- HEADER -->
   <header>
     <div class="header-container">
-      <!-- Highlighted Name -->
-      <h1 class="brand-title" id="displayHeaderTitle">MAM-ON ES INVENTORY</h1>
+      <h1 class="brand-title">MAM-ON ES INVENTORY</h1>
       <div class="header-metadata">
-        <span><strong>School ID:</strong> <span id="displaySchoolId">128901</span></span>
+        <span><strong>School ID:</strong> 128901</span>
         <span><strong>SY:</strong> 2025-2026</span>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN DASHBOARD -->
   <main>
-    <!-- ADMIN CONTROLS FOR EDITING HEADER & FOOTER -->
-    <section class="admin-panel">
-      <h3>⚙️ Admin Controls (Edit Header & Footer)</h3>
-      <div class="admin-grid">
-        <div class="admin-group">
-          <label for="inputTitle">Portal Title (Header)</label>
-          <input type="text" id="inputTitle" value="MAM-ON ES INVENTORY">
-        </div>
-        <div class="admin-group">
-          <label for="inputId">School ID</label>
-          <input type="text" id="inputId" value="128901">
-        </div>
-        <div class="admin-group">
-          <label for="inputEmail">Support Email (Footer)</label>
-          <input type="email" id="inputEmail" value="132649@deped.gov.ph">
-        </div>
-        <div class="admin-group">
-          <label for="inputCopyright">Footer Copyright</label>
-          <input type="text" id="inputCopyright" value="© 2026 Department of Education - All Rights Reserved.">
-        </div>
-      </div>
-    </section>
-
-    <!-- METRICS DASHBOARD -->
     <section class="dashboard-grid">
       <div class="stat-card">
         <h4>Total Assets</h4>
@@ -232,9 +164,9 @@
         <h4>Books</h4>
         <div class="value">35</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card danger">
         <h4>Needs Attention</h4>
-        <div class="value" style="color: #e11d48;">1</div>
+        <div class="value">1</div>
       </div>
     </section>
   </main>
@@ -247,42 +179,13 @@
         <p>Smart Inventory & QR Tracking Asset System</p>
       </div>
       <div>
-        <p><strong>Contact Support:</strong> <span id="displayEmail">132649@deped.gov.ph</span></p>
+        <p><strong>Contact Support:</strong> 132649@deped.gov.ph</p>
       </div>
     </div>
-    <div class="footer-bottom" id="displayCopyright">
+    <div class="footer-bottom">
       © 2026 Department of Education - All Rights Reserved.
     </div>
   </footer>
 
-  <!-- REAL-TIME EDITING SCRIPT -->
-  <script>
-    const inputTitle = document.getElementById('inputTitle');
-    const inputId = document.getElementById('inputId');
-    const inputEmail = document.getElementById('inputEmail');
-    const inputCopyright = document.getElementById('inputCopyright');
-
-    const displayHeaderTitle = document.getElementById('displayHeaderTitle');
-    const displaySchoolId = document.getElementById('displaySchoolId');
-    const displayEmail = document.getElementById('displayEmail');
-    const displayCopyright = document.getElementById('displayCopyright');
-
-    // Live update listeners
-    inputTitle.addEventListener('input', (e) => {
-      displayHeaderTitle.textContent = e.target.value || 'INVENTORY PORTAL';
-    });
-
-    inputId.addEventListener('input', (e) => {
-      displaySchoolId.textContent = e.target.value;
-    });
-
-    inputEmail.addEventListener('input', (e) => {
-      displayEmail.textContent = e.target.value;
-    });
-
-    inputCopyright.addEventListener('input', (e) => {
-      displayCopyright.textContent = e.target.value;
-    });
-  </script>
 </body>
 </html>
