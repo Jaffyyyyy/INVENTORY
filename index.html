@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Required for responsive display on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MAM-ON ES INVENTORY - Admin</title>
 
@@ -12,7 +11,8 @@
 
   <style>
     :root {
-      --theme-color: #4f46e5;
+      --theme-color: #1e40af;
+      --theme-hover: #1e3a8a;
     }
 
     * {
@@ -20,7 +20,6 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
     }
 
     html, body {
@@ -31,14 +30,14 @@
       overscroll-behavior-y: none;
     }
 
-    button, a, input, select {
+    button, input, select {
       touch-action: manipulation;
       font-family: inherit;
     }
 
     /* Layout Structure */
     .app-header {
-      background-color: #1e40af;
+      background-color: var(--theme-color);
       color: white;
       padding: max(1rem, env(safe-area-inset-top)) 1.5rem 1rem 1.5rem;
       display: flex;
@@ -46,6 +45,7 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .brand-section {
@@ -62,8 +62,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #1e40af;
+      color: var(--theme-color);
       font-weight: bold;
+      font-size: 1.2rem;
     }
 
     .brand-title {
@@ -86,13 +87,14 @@
 
     .brand-subtitle {
       font-size: 0.75rem;
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     .header-actions {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -119,8 +121,21 @@
 
     .btn-white {
       background: white;
-      color: #1e40af;
+      color: var(--theme-color);
       font-weight: 600;
+    }
+
+    .btn-white:hover {
+      background: #f8fafc;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
     }
 
     .container {
@@ -138,7 +153,7 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 12px;
       padding: 1.25rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -165,15 +180,7 @@
       color: #ef4444;
     }
 
-    /* Secondary Cards */
-    .secondary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Tabs Container */
+    /* Tabs Bar */
     .tabs-bar {
       display: flex;
       background: #e2e8f0;
@@ -198,7 +205,7 @@
     }
 
     .tab-btn.active {
-      background: #1e40af;
+      background: var(--theme-color);
       color: white;
     }
 
@@ -234,7 +241,7 @@
     }
 
     .search-input:focus {
-      border-color: #1e40af;
+      border-color: var(--theme-color);
     }
 
     .select-input {
@@ -246,7 +253,7 @@
       outline: none;
     }
 
-    /* Table Container */
+    /* Table Styling */
     .table-container {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 12px;
@@ -288,9 +295,87 @@
       display: block;
     }
 
-    /* Icon Transparency & Hover Transitions */
+    /* Status Badges */
+    .badge-status {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    .status-good { background: #dcfce7; color: #15803d; }
+    .status-repair { background: #fef9c3; color: #a16207; }
+    .status-unserviceable { background: #fee2e2; color: #b91c1c; }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    /* Icon Transparency & Transitions */
     .icon-container, i, svg {
-      opacity: 0.75;
+      opacity: 0.85;
       transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
     }
 
@@ -298,20 +383,11 @@
       opacity: 1;
       transform: translateY(-1px);
     }
-
-    /* Frosted Glass Icon Badge */
-    .icon-badge {
-      background: rgba(255, 255, 255, 0.2);
-      -webkit-backdrop-filter: blur(8px);
-      backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 8px;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
+  <!-- Top Navigation Header -->
   <header class="app-header">
     <div class="brand-section">
       <div class="brand-logo"><i class="fa-solid fa-school"></i></div>
@@ -325,69 +401,55 @@
     </div>
     
     <div class="header-actions">
-      <button class="btn btn-light"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-      <button class="btn btn-light"><i class="fa-solid fa-gear"></i></button>
-      <button class="btn btn-light"><i class="fa-solid fa-file-import"></i></button>
-      <button class="btn btn-light"><i class="fa-solid fa-file-export"></i></button>
-      <button class="btn btn-white"><i class="fa-solid fa-camera"></i> Scan</button>
-      <button class="btn btn-white"><i class="fa-solid fa-plus"></i> Add</button>
+      <button class="btn btn-white" id="open-add-modal"><i class="fa-solid fa-plus"></i> Add Item</button>
+      <button class="btn btn-light" id="clear-all-btn"><i class="fa-solid fa-trash"></i> Reset Data</button>
     </div>
   </header>
 
   <!-- Main Content Dashboard -->
   <main class="container">
     
-    <!-- Top Metric Cards -->
+    <!-- Metric Summary Cards -->
     <div class="metrics-grid">
       <div class="card">
         <div class="card-header-icon"><i class="fa-solid fa-boxes-stacked"></i> Total Assets</div>
-        <div class="card-value">0</div>
+        <div class="card-value" id="metric-total">0</div>
       </div>
       <div class="card">
         <div class="card-header-icon"><i class="fa-solid fa-couch"></i> Properties</div>
-        <div class="card-value">0</div>
+        <div class="card-value" id="metric-properties">0</div>
       </div>
       <div class="card">
         <div class="card-header-icon"><i class="fa-solid fa-book"></i> Books</div>
-        <div class="card-value">0</div>
+        <div class="card-value" id="metric-books">0</div>
       </div>
       <div class="card card-danger">
         <div class="card-header-icon"><i class="fa-solid fa-triangle-exclamation"></i> Attention</div>
-        <div class="card-value">0</div>
+        <div class="card-value" id="metric-attention">0</div>
       </div>
     </div>
 
-    <!-- Category Sections -->
-    <div class="secondary-grid">
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-chart-pie"></i> Categories</div>
-      </div>
-      <div class="card">
-        <div class="card-header-icon"><i class="fa-solid fa-user-check"></i> Assigned</div>
-      </div>
-    </div>
-
-    <!-- Tabs Selection -->
+    <!-- Category Tabs -->
     <div class="tabs-bar">
-      <button class="tab-btn active"><i class="fa-solid fa-couch"></i> Properties</button>
-      <button class="tab-btn"><i class="fa-solid fa-book"></i> Books</button>
+      <button class="tab-btn active" data-tab="Property"><i class="fa-solid fa-couch"></i> Properties</button>
+      <button class="tab-btn" data-tab="Book"><i class="fa-solid fa-book"></i> Books</button>
     </div>
 
-    <!-- Search & Filters -->
+    <!-- Filter & Live Search Bar -->
     <div class="filter-bar">
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" class="search-input" placeholder="Search item, room, ID or teacher...">
+        <input type="text" id="search-input" class="search-input" placeholder="Search by name, tag, location, or teacher...">
       </div>
-      <select class="select-input">
-        <option>(All Conditions)</option>
-        <option>Good</option>
-        <option>Needs Repair</option>
-        <option>Unserviceable</option>
+      <select id="condition-filter" class="select-input">
+        <option value="All">(All Conditions)</option>
+        <option value="Good">Good</option>
+        <option value="Needs Repair">Needs Repair</option>
+        <option value="Unserviceable">Unserviceable</option>
       </select>
     </div>
 
-    <!-- Data Table -->
+    <!-- Inventory Data Table -->
     <div class="table-container">
       <table>
         <thead>
@@ -397,10 +459,113 @@
             <th>LOCATION</th>
             <th>ASSIGNED TO</th>
             <th>STATUS</th>
-            <th>ACTION</th>
+            <th>ACTIONS</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="inventory-table-body">
+          <!-- Rows render dynamically here -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Add Item Modal Pop-up -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Inventory Item</h3>
+        <button class="btn btn-light" style="color: #64748b;" id="close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="item-form">
+        <div class="form-group">
+          <label>Item Name</label>
+          <input type="text" class="form-control" id="item-name" placeholder="e.g. Teacher Desk, Math Book" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Property / Tag No.</label>
+            <input type="text" class="form-control" id="item-tag" placeholder="e.g. DEPED-2026-001" required>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select class="form-control" id="item-category">
+              <option value="Property">Property</option>
+              <option value="Book">Book</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" class="form-control" id="item-qty" value="1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Condition</label>
+            <select class="form-control" id="item-condition">
+              <option value="Good">Good</option>
+              <option value="Needs Repair">Needs Repair</option>
+              <option value="Unserviceable">Unserviceable</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Location / Room</label>
+          <input type="text" class="form-control" id="item-location" placeholder="e.g. Grade 6 Classroom" required>
+        </div>
+        <div class="form-group">
+          <label>Assigned Person (Teacher)</label>
+          <input type="text" class="form-control" id="item-assigned" placeholder="e.g. Juan Dela Cruz" required>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-light" style="color:#334155" id="cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-white" style="background: var(--theme-color); color: white;">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // Initialize Local Storage Database
+    let inventory = JSON.parse(localStorage.getItem('deped_inventory')) || [
+      { id: 1, name: "Dell Latitude Laptop", tag: "DEPED-2026-001", category: "Property", qty: 1, location: "Computer Lab 1", assigned: "Juan Dela Cruz", condition: "Good" },
+      { id: 2, name: "Grade 5 Math Textbook", tag: "DEPED-BK-002", category: "Book", qty: 35, location: "Room 102", assigned: "Maria Santos", condition: "Needs Repair" }
+    ];
+
+    let currentTab = 'Property';
+
+    // UI Elements
+    const tableBody = document.getElementById('inventory-table-body');
+    const searchInput = document.getElementById('search-input');
+    const conditionFilter = document.getElementById('condition-filter');
+    const modal = document.getElementById('add-modal');
+
+    // Save items to LocalStorage
+    function saveItems() {
+      localStorage.setItem('deped_inventory', JSON.stringify(inventory));
+      render();
+    }
+
+    // Render Table and Metrics
+    function render() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filterCond = conditionFilter.value;
+
+      // Filter items according to tab, search term, and condition dropdown
+      const filtered = inventory.filter(item => {
+        const matchesTab = item.category === currentTab;
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
+                              item.tag.toLowerCase().includes(searchTerm) ||
+                              item.location.toLowerCase().includes(searchTerm) ||
+                              item.assigned.toLowerCase().includes(searchTerm);
+        const matchesCondition = filterCond === 'All' || item.condition === filterCond;
+        return matchesTab && matchesSearch && matchesCondition;
+      });
+
+      // Render Rows
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `
           <tr>
             <td colspan="6">
               <div class="empty-state">
@@ -408,12 +573,97 @@
                 <p>No records found.</p>
               </div>
             </td>
+          </tr>`;
+      } else {
+        tableBody.innerHTML = filtered.map(item => `
+          <tr>
+            <td>
+              <strong>${item.name}</strong><br>
+              <small style="color: #64748b;">Tag: ${item.tag}</small>
+            </td>
+            <td>${item.category} (Qty: ${item.qty})</td>
+            <td>${item.location}</td>
+            <td>${item.assigned}</td>
+            <td>
+              <span class="badge-status ${item.condition === 'Good' ? 'status-good' : item.condition === 'Needs Repair' ? 'status-repair' : 'status-unserviceable'}">
+                ${item.condition}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="deleteItem(${item.id})">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+        `).join('');
+      }
 
-  </main>
+      // Calculate Metrics
+      document.getElementById('metric-total').innerText = inventory.reduce((acc, curr) => acc + Number(curr.qty), 0);
+      document.getElementById('metric-properties').innerText = inventory.filter(i => i.category === 'Property').reduce((acc, curr) => acc + Number(curr.qty), 0);
+      document.getElementById('metric-books').innerText = inventory.filter(i => i.category === 'Book').reduce((acc, curr) => acc + Number(curr.qty), 0);
+      document.getElementById('metric-attention').innerText = inventory.filter(i => i.condition !== 'Good').length;
+    }
 
+    // Delete item handler
+    window.deleteItem = function(id) {
+      if (confirm('Are you sure you want to delete this inventory record?')) {
+        inventory = inventory.filter(i => i.id !== id);
+        saveItems();
+      }
+    };
+
+    // Modal Control Handlers
+    document.getElementById('open-add-modal').addEventListener('click', () => modal.classList.add('active'));
+    document.getElementById('close-modal').addEventListener('click', () => modal.classList.remove('active'));
+    document.getElementById('cancel-modal').addEventListener('click', () => modal.classList.remove('active'));
+
+    // Handle Form Submit
+    document.getElementById('item-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newItem = {
+        id: Date.now(),
+        name: document.getElementById('item-name').value,
+        tag: document.getElementById('item-tag').value,
+        category: document.getElementById('item-category').value,
+        qty: parseInt(document.getElementById('item-qty').value),
+        condition: document.getElementById('item-condition').value,
+        location: document.getElementById('item-location').value,
+        assigned: document.getElementById('item-assigned').value
+      };
+
+      inventory.push(newItem);
+      saveItems();
+      
+      // Reset form and close
+      document.getElementById('item-form').reset();
+      modal.classList.remove('active');
+    });
+
+    // Handle Tab Switch
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.getAttribute('data-tab');
+        render();
+      });
+    });
+
+    // Reset Data Event
+    document.getElementById('clear-all-btn').addEventListener('click', () => {
+      if (confirm('Reset all inventory records back to default demo data?')) {
+        localStorage.removeItem('deped_inventory');
+        location.reload();
+      }
+    });
+
+    // Live search event listeners
+    searchInput.addEventListener('input', render);
+    conditionFilter.addEventListener('change', render);
+
+    // Initial render
+    render();
+  </script>
 </body>
 </html>
