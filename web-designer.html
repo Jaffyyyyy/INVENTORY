@@ -3,109 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Designer | MAM-ON ES Portal</title>
+    <title>AI Web Designer | MAM-ON ES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 h-screen flex flex-col font-sans">
+<body class="bg-slate-50 flex h-screen font-sans text-slate-800 overflow-hidden">
 
-    <!-- Top Navigation -->
-    <header class="h-14 bg-slate-800 border-b border-slate-700 px-6 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-4">
-            <!-- Back button to return to the main dashboard -->
-            <a href="index.html" class="text-slate-400 hover:text-white transition-colors">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i>
-            </a>
-            <div class="flex items-center gap-2 border-l border-slate-700 pl-4">
-                <i data-lucide="sparkles" class="w-5 h-5 text-blue-400"></i>
-                <h1 class="font-bold text-sm tracking-wide">In-Page AI Code Designer</h1>
-            </div>
-        </div>
-        <div class="text-xs text-slate-400">Status: <span id="status" class="text-emerald-400 font-semibold">Ready</span></div>
-    </header>
-
-    <!-- Access Denied Message (Shown to non-admins) -->
-    <div id="access-denied-message" class="hidden flex-1 flex-col items-center justify-center bg-slate-950 p-6 text-center">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl">
-            <i data-lucide="shield-alert" class="w-16 h-16 text-rose-500 mx-auto mb-4"></i>
-            <h2 class="text-xl font-bold text-slate-200 mb-2">Administrator Access Required</h2>
-            <p class="text-sm text-slate-400 mb-6">Your current role does not have permission to view or use the AI Web Page Adjustment tool.</p>
-            <a href="index.html" class="inline-flex items-center justify-center gap-2 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-lg text-sm transition-all border border-slate-700">
-                <i data-lucide="home" class="w-4 h-4"></i> Return to Dashboard
-            </a>
-        </div>
-    </div>
-
-    <!-- Main Workspace (Shown to admins) -->
-    <div id="ai-designer-workspace" class="flex-1 flex overflow-hidden">
-        
-        <!-- Left Panel: Prompt & Controls -->
-        <div class="w-96 bg-slate-800/50 border-r border-slate-700 p-5 flex flex-col gap-4 overflow-y-auto">
+    <!-- LEFT SIDEBAR (Matching your MAM-ON ES Portal) -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-full shrink-0 flex-none relative z-10">
+        <!-- Logo Area -->
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">API Endpoint / Token</label>
-                <input id="apiKey" type="password" placeholder="Enter OpenAI API Key" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-blue-500 transition-colors">
+                <h1 class="font-bold text-sm tracking-wide text-slate-800">MAM-ON ES</h1>
+                <p class="text-xs text-slate-500">SY 2025-2026</p>
             </div>
-
-            <div class="flex-1 flex flex-col">
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Design Instruction</label>
-                <textarea id="aiPrompt" placeholder="e.g., 'Change the card background to blue, add a pricing table, or add a sleek submit button...'" class="w-full flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white outline-none focus:border-blue-500 resize-none transition-colors"></textarea>
-            </div>
-
-            <button onclick="applyAiChanges()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95">
-                <i data-lucide="wand-2" class="w-4 h-4"></i>
-                Generate & Replace Code
-            </button>
         </div>
 
-        <!-- Right Panel: Live Viewport -->
-        <div class="flex-1 bg-slate-950 p-6 flex flex-col">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Live Preview</span>
-                <button onclick="resetTemplate()" class="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1">
-                    <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset Initial Design
+        <!-- Role Switcher -->
+        <div class="px-6 mb-6">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Switch Role</label>
+            <div class="relative">
+                <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <select id="roleSelector" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-700 outline-none focus:border-blue-500 appearance-none cursor-pointer">
+                    <option value="Admin">Jasper Campado (Admin)</option>
+                    <option value="Principal">Eric Palingcod (Principal)</option>
+                    <option value="Teacher">Jenny Orillaneda (Teacher)</option>
+                    <option value="Visitor">Visitor Portal</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            </div>
+        </div>
+
+        <!-- Navigation Menus -->
+        <div class="flex-1 overflow-y-auto px-4 space-y-6">
+            <!-- Main Menu -->
+            <div>
+                <span class="px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Main Menu</span>
+                <ul class="space-y-1">
+                    <li><a href="index.html" class="flex items-center gap-3 px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Primary Dashboard</a></li>
+                    <li><a href="#" class="flex items-center gap-3 px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"><i data-lucide="bar-chart-2" class="w-4 h-4"></i> Exam Analytics</a></li>
+                    <li><a href="#" class="flex items-center gap-3 px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"><i data-lucide="file-text" class="w-4 h-4"></i> Reports & Trackers</a></li>
+                </ul>
+            </div>
+
+            <!-- Management -->
+            <div>
+                <span class="px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Management</span>
+                <ul class="space-y-1">
+                    <li><a href="#" class="flex items-center gap-3 px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"><i data-lucide="users" class="w-4 h-4"></i> Personnel Directory</a></li>
+                    <li><a href="#" class="flex items-center gap-3 px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"><i data-lucide="folder" class="w-4 h-4"></i> Documents</a></li>
+                    
+                    <!-- AI Web Designer Link (Active State) -->
+                    <li>
+                        <a href="web-designer.html" class="flex items-center gap-3 px-2 py-2 text-sm text-blue-700 bg-blue-50 font-semibold rounded-lg border border-blue-100">
+                            <i data-lucide="layout-template" class="w-4 h-4 text-blue-600"></i> AI Web Designer
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- User Profile Bottom -->
+        <div class="p-4 border-t border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">JC</div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-800">Jasper S. Campado</h4>
+                    <p class="text-[10px] text-slate-500">Administrator</p>
+                </div>
+            </div>
+            <i data-lucide="log-out" class="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600"></i>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col h-full bg-slate-50 relative">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i> AI In-Browser Designer
+                </h2>
+                <p class="text-xs text-slate-500">Design and adjust web components live using AI.</p>
+            </div>
+            <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                System Status: <span id="status" class="text-emerald-600 font-bold ml-1">Ready</span>
+            </div>
+        </header>
+
+        <!-- Access Denied State (Hidden by default) -->
+        <div id="access-denied-message" class="hidden absolute inset-0 z-20 bg-slate-50/95 backdrop-blur-sm flex-col items-center justify-center text-center p-6 mt-16">
+            <div class="bg-white border border-slate-200 p-8 rounded-2xl max-w-md w-full shadow-xl">
+                <i data-lucide="shield-alert" class="w-16 h-16 text-rose-500 mx-auto mb-4"></i>
+                <h2 class="text-xl font-bold text-slate-800 mb-2">Administrator Access Required</h2>
+                <p class="text-sm text-slate-500 mb-6">Your current role does not have permission to use the AI Web Page Adjustment tool. Please switch to an Admin account.</p>
+            </div>
+        </div>
+
+        <!-- AI Designer Workspace (Dark theme for the dev tool) -->
+        <div id="ai-designer-workspace" class="flex-1 flex overflow-hidden bg-slate-900 text-slate-100">
+            
+            <!-- Left Panel: Prompt & Controls -->
+            <div class="w-96 bg-slate-800 border-r border-slate-700 p-5 flex flex-col gap-4 overflow-y-auto shrink-0">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">OpenAI API Key</label>
+                    <input id="apiKey" type="password" placeholder="Enter API Key" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-blue-500 transition-colors">
+                    <p class="text-[10px] text-slate-500 mt-1">Key is not saved and only used for this session.</p>
+                </div>
+
+                <div class="flex-1 flex flex-col">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Design Instruction</label>
+                    <textarea id="aiPrompt" placeholder="e.g., 'Create a sleek pricing table' or 'Change the button to a blue gradient...'" class="w-full flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white outline-none focus:border-blue-500 resize-none transition-colors"></textarea>
+                </div>
+
+                <button onclick="applyAiChanges()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                    <i data-lucide="wand-2" class="w-4 h-4"></i>
+                    Generate HTML/CSS
                 </button>
             </div>
-            
-            <!-- Dynamic Canvas Frame -->
-            <iframe id="previewFrame" class="w-full flex-1 bg-white rounded-xl shadow-2xl border border-slate-800 overflow-hidden"></iframe>
+
+            <!-- Right Panel: Live Viewport -->
+            <div class="flex-1 bg-slate-950 p-6 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Live Preview Canvas</span>
+                    <button onclick="resetTemplate()" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1 bg-slate-800 px-3 py-1.5 rounded-md border border-slate-700">
+                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset Initial Design
+                    </button>
+                </div>
+                
+                <!-- Dynamic Canvas Frame -->
+                <iframe id="previewFrame" class="w-full flex-1 bg-white rounded-xl shadow-2xl border border-slate-800 overflow-hidden"></iframe>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        // Initialize Lucide Icons
         lucide.createIcons();
 
-        // --- ROLE CHECKING LOGIC ---
-        document.addEventListener("DOMContentLoaded", () => {
-            // Retrieve the active role from localStorage. 
-            // Change "activeRole" to match whatever key your portal uses when switching roles.
-            const savedRole = localStorage.getItem("activeRole") || "Visitor"; 
-            
-            const designerWorkspace = document.getElementById("ai-designer-workspace");
-            const accessDeniedMessage = document.getElementById("access-denied-message");
+        /* --- ROLE MANAGEMENT LOGIC --- */
+        const roleSelector = document.getElementById("roleSelector");
+        const designerWorkspace = document.getElementById("ai-designer-workspace");
+        const accessDeniedMessage = document.getElementById("access-denied-message");
 
-            // Check if the saved role includes the word "Admin"
-            if (!savedRole.includes("Admin")) {
-                // Hide workspace
-                designerWorkspace.classList.remove("flex");
+        // Set initial state from localStorage if it exists, otherwise default to Admin
+        const savedRole = localStorage.getItem("activeRole") || "Admin";
+        roleSelector.value = savedRole;
+
+        function checkPermissions(role) {
+            if (role === "Admin") {
+                designerWorkspace.classList.remove("hidden");
+                designerWorkspace.classList.add("flex");
+                accessDeniedMessage.classList.add("hidden");
+                accessDeniedMessage.classList.remove("flex");
+            } else {
                 designerWorkspace.classList.add("hidden");
-                
-                // Show access denied
+                designerWorkspace.classList.remove("flex");
                 accessDeniedMessage.classList.remove("hidden");
                 accessDeniedMessage.classList.add("flex");
             }
+        }
+
+        // Check on load
+        checkPermissions(savedRole);
+
+        // Listen for dropdown changes
+        roleSelector.addEventListener("change", (e) => {
+            const newRole = e.target.value;
+            localStorage.setItem("activeRole", newRole); // Save for other pages
+            checkPermissions(newRole);
         });
 
-        // --- AI DESIGNER LOGIC ---
-        // Initial HTML state inside the live canvas
+        /* --- AI DESIGNER LOGIC --- */
         let currentCanvasHtml = `
-<div class="p-8 max-w-md mx-auto my-10 bg-white rounded-xl shadow-md border border-slate-200 text-slate-800">
-    <h2 class="text-xl font-bold mb-2">Sample Component</h2>
-    <p class="text-sm text-slate-600 mb-4">Select this block or ask the AI assistant to redesign it live.</p>
-    <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">Click Me</button>
+<div class="p-8 max-w-md mx-auto my-10 bg-white rounded-xl shadow-md border border-slate-200 text-slate-800 font-sans">
+    <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">JC</div>
+        <div>
+            <h2 class="text-lg font-bold">Admin Component</h2>
+            <p class="text-xs text-slate-500">MAM-ON ES System</p>
+        </div>
+    </div>
+    <p class="text-sm text-slate-600 mb-6">Use the AI panel on the left to redesign this card. Try asking it to add a data table or change the colors.</p>
+    <button class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">Action Button</button>
 </div>`;
 
-        // Render current state to iframe
         function updatePreview(htmlContent) {
             const iframe = document.getElementById('previewFrame');
             const doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -116,7 +199,7 @@
                 <head>
                     <script src="https://cdn.tailwindcss.com"><\/script>
                 </head>
-                <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+                <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4 m-0">
                     <div id="root" class="w-full flex justify-center">${htmlContent}</div>
                 </body>
                 </html>
@@ -125,21 +208,25 @@
             currentCanvasHtml = htmlContent;
         }
 
-        // Initialize preview on page load
         updatePreview(currentCanvasHtml);
 
         function resetTemplate() {
             updatePreview(`
-<div class="p-8 max-w-md mx-auto my-10 bg-white rounded-xl shadow-md border border-slate-200 text-slate-800">
-    <h2 class="text-xl font-bold mb-2">Sample Component</h2>
-    <p class="text-sm text-slate-600 mb-4">Select this block or ask the AI assistant to redesign it live.</p>
-    <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">Click Me</button>
+<div class="p-8 max-w-md mx-auto my-10 bg-white rounded-xl shadow-md border border-slate-200 text-slate-800 font-sans">
+    <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">JC</div>
+        <div>
+            <h2 class="text-lg font-bold">Admin Component</h2>
+            <p class="text-xs text-slate-500">MAM-ON ES System</p>
+        </div>
+    </div>
+    <p class="text-sm text-slate-600 mb-6">Use the AI panel on the left to redesign this card. Try asking it to add a data table or change the colors.</p>
+    <button class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">Action Button</button>
 </div>`);
             document.getElementById('status').innerText = "Ready";
-            document.getElementById('status').className = "text-emerald-400 font-semibold";
+            document.getElementById('status').className = "text-emerald-600 font-bold ml-1";
         }
 
-        // AI Processing function
         async function applyAiChanges() {
             const promptText = document.getElementById('aiPrompt').value;
             const apiKey = document.getElementById('apiKey').value;
@@ -150,14 +237,14 @@
                 return;
             }
             if (!apiKey) {
-                alert('Please enter your API key.');
+                alert('Please enter your OpenAI API key.');
                 return;
             }
 
-            status.innerText = "Generating changes...";
-            status.className = "text-amber-400 font-semibold animate-pulse";
+            status.innerText = "Generating...";
+            status.className = "text-amber-500 font-bold ml-1 animate-pulse";
 
-            const systemPrompt = `You are an expert web designer. You will receive the current HTML snippet (styled with Tailwind CSS) and a user's design request. 
+            const systemPrompt = `You are an expert UI/UX web developer. You will receive the current HTML snippet (styled with Tailwind CSS) and a user's design request. 
 Return ONLY valid, raw HTML code. Do NOT include markdown formatting (like \`\`\`html), explanations, or conversational text. Use Tailwind CSS classes for styling.`;
 
             const userContent = `CURRENT HTML:
@@ -190,7 +277,6 @@ ${promptText}`;
                 const data = await response.json();
                 
                 if (data.choices && data.choices[0]) {
-                    // Strip markdown blocks if the AI accidentally includes them
                     let cleanedHtml = data.choices[0].message.content
                         .replace(/^```html/gi, '')
                         .replace(/^```/gi, '')
@@ -199,13 +285,13 @@ ${promptText}`;
                         
                     updatePreview(cleanedHtml);
                     status.innerText = "Update Complete";
-                    status.className = "text-emerald-400 font-semibold";
+                    status.className = "text-emerald-600 font-bold ml-1";
                 }
             } catch (error) {
                 console.error("Error generating HTML:", error);
                 status.innerText = "Error - Check Console";
-                status.className = "text-rose-500 font-semibold";
-                alert("Failed to generate changes. Ensure your API key is correct and you have an active internet connection.");
+                status.className = "text-rose-600 font-bold ml-1";
+                alert("Failed to generate changes. Ensure your API key is correct.");
             }
         }
     </script>
