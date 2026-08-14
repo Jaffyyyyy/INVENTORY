@@ -1,3 +1,8 @@
+// Session Auth Guard
+const activeSession = JSON.parse(localStorage.getItem('mamon_user_session'));
+if (!activeSession) {
+    window.location.href = 'login.html';
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
