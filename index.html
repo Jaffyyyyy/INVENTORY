@@ -1,504 +1,822 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAM-ON ES - Personnel & Inventory Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAM-ON ES - Personnel & Inventory Portal</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --danger: #ef4444;
+        }
 
-  <!-- Google Fonts & FontAwesome -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --primary-light: #eff6ff;
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --radius: 12px;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        /* 1. Header Navigation */
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.85rem 1.5rem;
+        }
 
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-    }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    /* 1. Header Navigation */
-    .navbar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 0.85rem 1.5rem;
-    }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
-    .nav-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+        .brand-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    .brand-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--primary-light);
-      color: var(--primary);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-    }
+        .badge-mode {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: #e2e8f0;
+            color: #475569;
+        }
 
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
-    .badge-mode {
-      font-size: 0.65rem;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      font-weight: 700;
-      text-transform: uppercase;
-      background: #e2e8f0;
-      color: #475569;
-    }
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
 
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+        /* 2. Navigation Tab Bar */
+        .tab-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.5rem;
+        }
 
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.875rem;
-    }
+        .tab-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1.5rem;
+        }
 
-    /* 2. Navigation / Tab Bar */
-    .tab-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 1.5rem;
-    }
+        .tab-item {
+            padding: 0.85rem 0.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
 
-    .tab-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      gap: 1.5rem;
-    }
+        .tab-item:hover {
+            color: var(--primary);
+        }
 
-    .tab-item {
-      padding: 0.85rem 0.25rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
+        .tab-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
 
-    .tab-item:hover {
-      color: var(--primary);
-    }
+        /* Layout Main Wrapper */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
 
-    .tab-item.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
+        /* 3. Key Metrics Section */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
 
-    /* Layout Main Wrapper */
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
 
-    /* 3. Key Metrics Section */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.25rem;
-    }
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
 
-    .metric-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
-    }
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+        }
 
-    .metric-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+        /* 4. Controls & Filter Bar */
+        .controls-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
 
-    .metric-value {
-      font-size: 1.75rem;
-      font-weight: 800;
-    }
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
 
-    /* 4. Controls & Filter Bar */
-    .controls-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
 
-    .search-box {
-      position: relative;
-      flex: 1;
-      min-width: 250px;
-    }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
 
-    .search-box i {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-    }
+        .search-box .form-input {
+            padding-left: 2.25rem;
+        }
 
-    .form-input {
-      width: 100%;
-      padding: 0.55rem 0.75rem 0.55rem 2.25rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      outline: none;
-      font-size: 0.875rem;
-      transition: border-color 0.2s;
-    }
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary);
+        }
 
-    .form-input:focus {
-      border-color: var(--primary);
-    }
+        .action-group {
+            display: flex;
+            gap: 0.75rem;
+        }
 
-    .action-group {
-      display: flex;
-      gap: 0.75rem;
-    }
+        .btn {
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
 
-    .btn {
-      padding: 0.55rem 1rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: background-color 0.2s;
-    }
+        .btn:hover:not(:disabled) {
+            background: #f1f5f9;
+        }
 
-    .btn:hover {
-      background: #f1f5f9;
-    }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
 
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
 
-    /* 5. Data View Section */
-    .table-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
+        .btn-icon {
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
 
-    .table-wrapper {
-      overflow-x: auto;
-    }
+        .btn-danger {
+            color: var(--danger);
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-      text-align: left;
-    }
+        .btn-danger:hover {
+            background: #fee2e2;
+        }
 
-    th {
-      background: #f8fafc;
-      padding: 0.85rem 1rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--border);
-    }
+        /* 5. Data View Section */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
 
-    td {
-      padding: 1rem;
-      border-bottom: 1px solid #f1f5f9;
-      vertical-align: middle;
-    }
+        .table-wrapper {
+            overflow-x: auto;
+        }
 
-    tr:hover {
-      background-color: #f8fafc;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            text-align: left;
+        }
 
-    /* Badges */
-    .badge-role {
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
+        th {
+            background: #f8fafc;
+            padding: 0.85rem 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
 
-    .badge-principal { background: #fef3c7; color: #92400e; }
-    .badge-ao { background: #e0e7ff; color: #3730a3; }
-    .badge-teacher { background: #dcfce7; color: #166534; }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
 
-    /* Footer Pagination */
-    .table-footer {
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-  </style>
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Badges */
+        .badge-role {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-principal {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-ao {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .badge-teacher {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Footer Pagination */
+        .table-footer {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 550px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .modal-footer {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- 1. Navbar Header -->
-  <header class="navbar">
-    <div class="nav-container">
-      <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-school"></i></div>
-        <div>
-          <div class="brand-title">
-            MAM-ON ELEMENTARY SCHOOL 
-            <span class="badge-mode">Data Viewer Mode</span>
-          </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Personnel Profiling & Database</div>
+    <!-- 1. Navbar Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-school"></i></div>
+                <div>
+                    <div class="brand-title">
+                        MAM-ON ELEMENTARY SCHOOL 
+                        <span class="badge-mode">Interactive Mode</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Personnel Profiling & Database</div>
+                </div>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">ADMIN</div>
+            </div>
         </div>
-      </div>
-      <div class="user-profile">
-        <div class="avatar">ADMIN</div>
-      </div>
+    </header>
+
+    <!-- 2. Navigation Tab Bar -->
+    <nav class="tab-bar">
+        <div class="tab-container">
+            <a href="#" class="tab-item active"><i class="fa-solid fa-users"></i> Personnel Directory</a>
+            <a href="inventory.html" class="tab-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory Management</a>
+        </div>
+    </nav>
+
+    <!-- 3. Main Content Container -->
+    <main class="container">
+        <!-- Key Metrics Grid -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Total Personnel</span>
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="metric-value" id="total-count">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>School Head</span>
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="metric-value" id="principal-count">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Teaching Staff</span>
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div class="metric-value" id="teacher-count">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Non-Teaching</span>
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div class="metric-value" id="non-teaching-count">0</div>
+            </div>
+        </div>
+
+        <!-- Toolbar / Search Controls -->
+        <div class="controls-card">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" class="form-input" placeholder="Search by name, position, degree, or email...">
+            </div>
+            <div class="action-group">
+                <button class="btn" id="export-btn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                <button class="btn btn-primary" id="open-add-modal-btn"><i class="fa-solid fa-plus"></i> Add Personnel</button>
+            </div>
+        </div>
+
+        <!-- Data Table Container -->
+        <div class="table-card">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Emp ID</th>
+                            <th>Full Name</th>
+                            <th>Position / Title</th>
+                            <th>Department</th>
+                            <th>Degree & Major</th>
+                            <th>Date Hired</th>
+                            <th>Contact / Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="personnel-table-body">
+                        <!-- Rendered dynamically via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="table-footer">
+                <span id="pagination-info">Showing 0 entries</span>
+                <div class="action-group">
+                    <button class="btn" id="prev-btn" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                    <button class="btn" id="next-btn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form for Adding/Editing Personnel -->
+    <div class="modal-overlay" id="personnel-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">Add New Personnel</div>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <form id="personnel-form">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="emp-id">Emp ID</label>
+                        <input type="text" id="emp-id" class="form-input" required placeholder="e.g. 6459395">
+                    </div>
+                    <div class="form-group">
+                        <label for="role-type">Role Type</label>
+                        <select id="role-type" class="form-select" required>
+                            <option value="teacher">Teacher</option>
+                            <option value="principal">School Head / Principal</option>
+                            <option value="ao">Administrative Officer (AO)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="emp-name">Full Name</label>
+                        <input type="text" id="emp-name" class="form-input" required placeholder="First Name Middle Name Last Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-position">Position / Title</label>
+                        <input type="text" id="emp-position" class="form-input" required placeholder="e.g. Teacher I">
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-dept">Department</label>
+                        <input type="text" id="emp-dept" class="form-input" required placeholder="e.g. Elementary">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="emp-degree">Degree & Major</label>
+                        <input type="text" id="emp-degree" class="form-input" required placeholder="e.g. BEED (General Education)">
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-hired">Date Hired</label>
+                        <input type="text" id="emp-hired" class="form-input" required placeholder="MM/DD/YYYY">
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-contact">Contact No.</label>
+                        <input type="text" id="emp-contact" class="form-input" required placeholder="e.g. 09123456789">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="emp-email">Email Address</label>
+                        <input type="email" id="emp-email" class="form-input" required placeholder="name@deped.gov.ph">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" id="cancel-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Personnel</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </header>
 
-  <!-- 2. Navigation Tab Bar -->
-  <nav class="tab-bar">
-    <div class="tab-container">
-      <a href="#" class="tab-item active"><i class="fa-solid fa-users"></i> Personnel Directory</a>
-      <a href="inventory.html" class="tab-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory Management</a>
-    </div>
-  </nav>
+    <script>
+        // Initial Default Data
+        const initialPersonnel = [
+            { id: "865031", name: "Eric Portillo Palingcod", position: "Principal I / Teacher III", department: "Elementary / Teaching", degree: "BEED (MATH)", dateHired: "08/01/2005", email: "eric.palingcod@deped.gov.ph", contact: "09476345204", roleType: "principal" },
+            { id: "6450528", name: "Jasper Singcol Campado", position: "Administrative Officer-II", department: "Elementary", degree: "BSBA (FM)", dateHired: "01/11/2024", email: "jasper.campado@deped.gov.ph", contact: "09241132506", roleType: "ao" },
+            { id: "6459395", name: "Jenny Queen Lingaya Orillaneda", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "06/24/2025", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
+            { id: "N/A", name: "Jessa Mae Ronquillo Flores", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "10/01/2025", email: "jessamaef81@gmail.com", contact: "09302808944", roleType: "teacher" },
+            { id: "6444470", name: "Shienna Myville Desamparado Curada", position: "Teacher I", department: "Cagwait District", degree: "BEED (General Education)", dateHired: "02/23/2023", email: "shiennamyville.curada@deped.gov.ph", contact: "09129016816", roleType: "teacher" },
+            { id: "6459393", name: "Lendon Balmis Abonales", position: "Teacher I", department: "Elementary", degree: "BSED (Social Science)", dateHired: "06/18/2025", email: "lendon.abonales@deped.gov.ph", contact: "09106111138", roleType: "teacher" },
+            { id: "6459638", name: "Mark Zoilo Cancio Tajonera", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "10/01/2025", email: "markzoilo.tajonera@deped.gov.ph", contact: "09549956756", roleType: "teacher" },
+            { id: "6290011", name: "Alma Cañola Nayre", position: "Teacher II", department: "Elementary", degree: "BEED (Generalist)", dateHired: "03/22/2019", email: "alma.nayre@deped.gov.ph", contact: "09516366801", roleType: "teacher" },
+            { id: "6453809", name: "Maria Fatima Rivas Peñanueva", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "12/10/2024", email: "mariafatima.penanueva@deped.gov.ph", contact: "09503907420", roleType: "teacher" },
+            { id: "N/A", name: "Jimmy Pontillo Sarmiento", position: "Teacher I", department: "Elementary", degree: "BSED (Mathematics)", dateHired: "06/18/2026", email: "jimsarmiento2020@gmail.com", contact: "09460098105", roleType: "teacher" }
+        ];
 
-  <!-- 3. Main Content Container -->
-  <main class="container">
+        // Load state from localStorage or initialize
+        let personnelData = JSON.parse(localStorage.getItem('mamon_personnel')) || initialPersonnel;
 
-    <!-- Key Metrics Grid -->
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-header">
-          <span>Total Personnel</span>
-          <i class="fa-solid fa-users"></i>
-        </div>
-        <div class="metric-value" id="total-count">0</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-header">
-          <span>School Head</span>
-          <i class="fa-solid fa-user-tie"></i>
-        </div>
-        <div class="metric-value" id="principal-count">0</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-header">
-          <span>Teaching Staff</span>
-          <i class="fa-solid fa-chalkboard-user"></i>
-        </div>
-        <div class="metric-value" id="teacher-count">0</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-header">
-          <span>Non-Teaching</span>
-          <i class="fa-solid fa-user-gear"></i>
-        </div>
-        <div class="metric-value" id="non-teaching-count">0</div>
-      </div>
-    </div>
+        // Pagination State
+        let currentPage = 1;
+        const pageSize = 5;
 
-    <!-- Toolbar / Search Controls -->
-    <div class="controls-card">
-      <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="search-input" class="form-input" placeholder="Search by name, position, degree, or email...">
-      </div>
-      <div class="action-group">
-        <button class="btn"><i class="fa-solid fa-filter"></i> Filter</button>
-        <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Personnel</button>
-      </div>
-    </div>
+        // DOM Elements
+        const tableBody = document.getElementById('personnel-table-body');
+        const searchInput = document.getElementById('search-input');
+        const paginationInfo = document.getElementById('pagination-info');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const exportBtn = document.getElementById('export-btn');
 
-    <!-- Data Table Container -->
-    <div class="table-card">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Emp ID</th>
-              <th>Full Name</th>
-              <th>Position / Title</th>
-              <th>Department</th>
-              <th>Degree & Major</th>
-              <th>Date Hired</th>
-              <th>Contact / Email</th>
-            </tr>
-          </thead>
-          <tbody id="personnel-table-body">
-            <!-- Rendered dynamically via JavaScript -->
-          </tbody>
-        </table>
-      </div>
+        // Modal Elements
+        const modal = document.getElementById('personnel-modal');
+        const openModalBtn = document.getElementById('open-add-modal-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelModalBtn = document.getElementById('cancel-modal-btn');
+        const form = document.getElementById('personnel-form');
+        const modalTitle = document.getElementById('modal-title');
 
-      <!-- Pagination Footer -->
-      <div class="table-footer">
-        <span id="pagination-info">Showing 0 entries</span>
-        <div class="action-group">
-          <button class="btn" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
-          <button class="btn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </div>
+        // Local Storage Helper
+        function saveData() {
+            localStorage.setItem('mamon_personnel', JSON.stringify(personnelData));
+        }
 
-  </main>
+        // Render Function
+        function renderTable() {
+            const query = searchInput.value.toLowerCase();
+            const filtered = personnelData.filter(item => 
+                item.name.toLowerCase().includes(query) ||
+                item.position.toLowerCase().includes(query) ||
+                item.degree.toLowerCase().includes(query) ||
+                item.email.toLowerCase().includes(query)
+            );
 
-  <script>
-    // Database Records
-    const personnelData = [
-      { id: "865031", name: "Eric Portillo Palingcod", position: "Principal I / Teacher III", department: "Elementary / Teaching", degree: "BEED (MATH)", dateHired: "08/01/2005", email: "eric.palingcod@deped.gov.ph", contact: "09476345204", roleType: "principal" },
-      { id: "6450528", name: "Jasper Singcol Campado", position: "Administrative Officer-II", department: "Elementary", degree: "BSBA (FM)", dateHired: "01/11/2024", email: "jasper.campado@deped.gov.ph", contact: "09241132506", roleType: "ao" },
-      { id: "6459395", name: "Jenny Queen Lingaya Orillaneda", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "06/24/2025", email: "jennyqueen.orillaneda@deped.gov.ph", contact: "09704809343", roleType: "teacher" },
-      { id: "N/A", name: "Jessa Mae Ronquillo Flores", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "10/01/2025", email: "jessamaef81@gmail.com", contact: "09302808944", roleType: "teacher" },
-      { id: "6444470", name: "Shienna Myville Desamparado Curada", position: "Teacher I", department: "Cagwait District", degree: "BEED (General Education)", dateHired: "02/23/2023", email: "shiennamyville.curada@deped.gov.ph", contact: "09129016816", roleType: "teacher" },
-      { id: "6459393", name: "Lendon Balmis Abonales", position: "Teacher I", department: "Elementary", degree: "BSED (Social Science)", dateHired: "06/18/2025", email: "lendon.abonales@deped.gov.ph", contact: "09106111138", roleType: "teacher" },
-      { id: "6459638", name: "Mark Zoilo Cancio Tajonera", position: "Teacher I", department: "Elementary", degree: "BEED (General Education)", dateHired: "10/01/2025", email: "markzoilo.tajonera@deped.gov.ph", contact: "09549956756", roleType: "teacher" },
-      { id: "6290011", name: "Alma Cañola Nayre", position: "Teacher II", department: "Elementary", degree: "BEED (Generalist)", dateHired: "03/22/2019", email: "alma.nayre@deped.gov.ph", contact: "09516366801", roleType: "teacher" },
-      { id: "6453809", name: "Maria Fatima Rivas Peñanueva", position: "Teacher I", department: "Elementary", degree: "BEED (General)", dateHired: "12/10/2024", email: "mariafatima.penanueva@deped.gov.ph", contact: "09503907420", roleType: "teacher" },
-      { id: "N/A", name: "Jimmy Pontillo Sarmiento", position: "Teacher I", department: "Elementary", degree: "BSED (Mathematics)", dateHired: "06/18/2026", email: "jimsarmiento2020@gmail.com", contact: "09460098105", roleType: "teacher" }
-    ];
+            // Pagination Logic
+            const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
 
-    const tableBody = document.getElementById('personnel-table-body');
-    const searchInput = document.getElementById('search-input');
-    const paginationInfo = document.getElementById('pagination-info');
+            const startIndex = (currentPage - 1) * pageSize;
+            const paginatedItems = filtered.slice(startIndex, startIndex + pageSize);
 
-    function renderTable(filterText = '') {
-      const query = filterText.toLowerCase();
-      const filtered = personnelData.filter(item =>
-        item.name.toLowerCase().includes(query) ||
-        item.position.toLowerCase().includes(query) ||
-        item.degree.toLowerCase().includes(query) ||
-        item.email.toLowerCase().includes(query)
-      );
+            tableBody.innerHTML = paginatedItems.map((item) => {
+                const originalIndex = personnelData.indexOf(item);
+                let badgeClass = 'badge-teacher';
+                if (item.roleType === 'principal') badgeClass = 'badge-principal';
+                if (item.roleType === 'ao') badgeClass = 'badge-ao';
 
-      tableBody.innerHTML = filtered.map(item => {
-        let badgeClass = 'badge-teacher';
-        if (item.roleType === 'principal') badgeClass = 'badge-principal';
-        if (item.roleType === 'ao') badgeClass = 'badge-ao';
+                return `
+                    <tr>
+                        <td><strong>${item.id}</strong></td>
+                        <td><strong>${item.name}</strong></td>
+                        <td><span class="badge-role ${badgeClass}">${item.position}</span></td>
+                        <td>${item.department}</td>
+                        <td>${item.degree}</td>
+                        <td>${item.dateHired}</td>
+                        <td>
+                            <div><i class="fa-regular fa-envelope"></i> ${item.email}</div>
+                            <small style="color: var(--text-muted);"><i class="fa-solid fa-phone"></i> ${item.contact}</small>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.35rem;">
+                                <button class="btn btn-icon" onclick="editPersonnel(${originalIndex})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="btn btn-icon btn-danger" onclick="deletePersonnel(${originalIndex})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
 
-        return `
-          <tr>
-            <td><strong>${item.id}</strong></td>
-            <td><strong>${item.name}</strong></td>
-            <td><span class="badge-role ${badgeClass}">${item.position}</span></td>
-            <td>${item.department}</td>
-            <td>${item.degree}</td>
-            <td>${item.dateHired}</td>
-            <td>
-              <div><i class="fa-regular fa-envelope"></i> ${item.email}</div>
-              <small style="color: var(--text-muted);"><i class="fa-solid fa-phone"></i> ${item.contact}</small>
-            </td>
-          </tr>
-        `;
-      }).join('');
+            // Update Metrics
+            document.getElementById('total-count').innerText = personnelData.length;
+            document.getElementById('principal-count').innerText = personnelData.filter(p => p.roleType === 'principal').length;
+            document.getElementById('teacher-count').innerText = personnelData.filter(p => p.roleType === 'teacher').length;
+            document.getElementById('non-teaching-count').innerText = personnelData.filter(p => p.roleType === 'ao').length;
 
-      // Update Metrics
-      document.getElementById('total-count').innerText = personnelData.length;
-      document.getElementById('principal-count').innerText = personnelData.filter(p => p.roleType === 'principal').length;
-      document.getElementById('teacher-count').innerText = personnelData.filter(p => p.roleType === 'teacher').length;
-      document.getElementById('non-teaching-count').innerText = personnelData.filter(p => p.roleType === 'ao').length;
+            // Update Pagination UI
+            const startDisplay = filtered.length ? startIndex + 1 : 0;
+            const endDisplay = Math.min(startIndex + pageSize, filtered.length);
+            paginationInfo.innerText = `Showing ${startDisplay} - ${endDisplay} of ${filtered.length} entries`;
 
-      // Update Footer Info
-      paginationInfo.innerText = `Showing ${filtered.length} of ${personnelData.length} entries`;
-    }
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage >= totalPages;
+        }
 
-    searchInput.addEventListener('input', (e) => renderTable(e.target.value));
+        // Pagination Handlers
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
 
-    // Initial Load
-    renderTable();
-  </script>
+        nextBtn.addEventListener('click', () => {
+            currentPage++;
+            renderTable();
+        });
+
+        searchInput.addEventListener('input', () => {
+            currentPage = 1;
+            renderTable();
+        });
+
+        // Modal Controls
+        function openModal(isEdit = false) {
+            modalTitle.innerText = isEdit ? "Edit Personnel Record" : "Add New Personnel";
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            form.reset();
+            document.getElementById('edit-index').value = "-1";
+        }
+
+        openModalBtn.addEventListener('click', () => openModal(false));
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+
+        // Save / Edit Record
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editIndex = parseInt(document.getElementById('edit-index').value);
+
+            const newRecord = {
+                id: document.getElementById('emp-id').value,
+                name: document.getElementById('emp-name').value,
+                position: document.getElementById('emp-position').value,
+                department: document.getElementById('emp-dept').value,
+                degree: document.getElementById('emp-degree').value,
+                dateHired: document.getElementById('emp-hired').value,
+                email: document.getElementById('emp-email').value,
+                contact: document.getElementById('emp-contact').value,
+                roleType: document.getElementById('role-type').value
+            };
+
+            if (editIndex >= 0) {
+                personnelData[editIndex] = newRecord;
+            } else {
+                personnelData.unshift(newRecord);
+            }
+
+            saveData();
+            closeModal();
+            renderTable();
+        });
+
+        // Edit Item Action
+        window.editPersonnel = function(index) {
+            const item = personnelData[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('emp-id').value = item.id;
+            document.getElementById('emp-name').value = item.name;
+            document.getElementById('emp-position').value = item.position;
+            document.getElementById('emp-dept').value = item.department;
+            document.getElementById('emp-degree').value = item.degree;
+            document.getElementById('emp-hired').value = item.dateHired;
+            document.getElementById('emp-email').value = item.email;
+            document.getElementById('emp-contact').value = item.contact;
+            document.getElementById('role-type').value = item.roleType;
+            openModal(true);
+        };
+
+        // Delete Item Action
+        window.deletePersonnel = function(index) {
+            if (confirm(`Are you sure you want to remove ${personnelData[index].name}?`)) {
+                personnelData.splice(index, 1);
+                saveData();
+                renderTable();
+            }
+        };
+
+        // CSV Export Feature
+        exportBtn.addEventListener('click', () => {
+            let csv = 'Emp ID,Full Name,Position,Department,Degree,Date Hired,Email,Contact\n';
+            personnelData.forEach(row => {
+                csv += `"${row.id}","${row.name}","${row.position}","${row.department}","${row.degree}","${row.dateHired}","${row.email}","${row.contact}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'MAM-ON_ES_Personnel.csv');
+            a.click();
+        });
+
+        // Initial Load
+        renderTable();
+    </script>
 </body>
 </html>
